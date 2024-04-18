@@ -761,6 +761,10 @@ sandbox = {
   next = next,
   pairs = pairs,
   pcall = function(...)
+    -- prevent infinite pcall() loops by checking deadline before pcall()
+    local status, err = pcall(checkDeadline)
+    if not status then return false, err end
+
     return pcallTimeoutCheck(pcall(...))
   end,
   print = nil, -- in boot/*_base.lua
@@ -807,18 +811,27 @@ sandbox = {
   type = type,
   _VERSION = _VERSION:match("Luaj") and "Luaj" or _VERSION:match("5.4") and "Lua 5.4" or _VERSION:match("5.3") and "Lua 5.3" or "Lua 5.2",
   xpcall = function(f, msgh, ...)
-    local handled = false
+    -- allow xpcall() to call the message handler recursively, per manual 2.3
+    -- Lua itself promises to break the infinite loop; failing that, the timeout
+    -- check will take care of this.
+    local errorCapture
+    errorCapture = function(ff, ...)
+      -- prevent infinite xpcall() loops by checking deadline before xpcall()
+      local status, err = pcall(checkDeadline)
+      if not status then return false, err end
+
+      return xpcall(ff, function(...)
+        if rawequal((...), tooLongWithoutYielding) then
+          return tooLongWithoutYielding
+        else
+          return select(2, errorCapture(msgh, ...))
+        end
+      end, ...)
+    end
+
     checkArg(2, msgh, "function")
-    local result = table.pack(xpcall(f, function(...)
-      if rawequal((...), tooLongWithoutYielding) then
-        return tooLongWithoutYielding
-      elseif handled then
-        return ...
-      else
-        handled = true
-        return msgh(...)
-      end
-    end, ...))
+    local result = table.pack(errorCapture(f, ...))
+    -- if the final returned error is due to timeout, run handler one last time
     if rawequal(result[2], tooLongWithoutYielding) then
       result = table.pack(result[1], select(2, pcallTimeoutCheck(pcall(msgh, tostring(tooLongWithoutYielding)))))
     end

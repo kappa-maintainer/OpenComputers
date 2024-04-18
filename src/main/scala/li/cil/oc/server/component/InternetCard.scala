@@ -527,11 +527,15 @@ object InternetCard {
               out.close()
             }
 
-            val input = http.getInputStream
             HTTPRequest.this.synchronized {
               response = Some((http.getResponseCode, http.getResponseMessage, http.getHeaderFields))
             }
-            input
+
+            // Calling getInputStream() can cause an exception to be thrown for unsuccessful HTTP responses,
+            // so call it only after the response code/message are set to allow retrieving them.
+            // TODO: This should allow accessing getErrorStream() for reading unsuccessful HTTP responses' output,
+            // but this would be a breaking change for existing OC code.
+            http.getInputStream
           }
           catch {
             case t: Throwable =>
