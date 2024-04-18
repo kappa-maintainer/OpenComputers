@@ -36,7 +36,7 @@ object DriverImportBus extends driver.DriverBlock {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (AEUtil.isImportBus(stack))
         classOf[Environment]
       else null

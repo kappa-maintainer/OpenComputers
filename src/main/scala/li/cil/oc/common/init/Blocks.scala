@@ -10,7 +10,7 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraftforge.fml.common.registry.GameRegistry
 
 object Blocks {
-  def init() {
+  def init():Unit = {
     registerTileEntity(classOf[tileentity.Adapter], Settings.namespace + "adapter")
     registerTileEntity(classOf[tileentity.Assembler], Settings.namespace + "assembler")
     registerTileEntity(classOf[tileentity.Cable], Settings.namespace + "cable")
@@ -86,7 +86,7 @@ object Blocks {
     Recipes.addBlock(new CarpetedCapacitor(), Constants.BlockName.CarpetedCapacitor, "oc:carpetedCapacitor")
   }
 
-  private def registerTileEntity(tileEntityClass: Class[_ <: TileEntity], key: String): Unit = {
+  private def registerTileEntity(tileEntityClass: Class[? <: TileEntity], key: String): Unit = {
     GameRegistry.registerTileEntity(tileEntityClass, key)
   }
 }

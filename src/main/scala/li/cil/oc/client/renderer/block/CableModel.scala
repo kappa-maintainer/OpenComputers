@@ -23,7 +23,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.common.property.IExtendedBlockState
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object CableModel extends CableModel
@@ -60,7 +60,7 @@ class CableModel extends SmartBlockModelBase {
               }
             }
 
-            bufferAsJavaList(faces)
+            faces.asJava
           case _ => super.getQuads(state, side, rand)
         }
       case _ => super.getQuads(state, side, rand)
@@ -125,7 +125,7 @@ class CableModel extends SmartBlockModelBase {
         faces ++= bakeQuads(Connected(0)._1, cableCapTexture, None)
         faces ++= bakeQuads(Connected(1)._1, cableCapTexture, None)
 
-        bufferAsJavaList(faces)
+        faces.asJava
       }
     }
 

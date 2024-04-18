@@ -17,7 +17,7 @@ import scala.collection.immutable
 import scala.collection.mutable
 
 object Callbacks {
-  private val cache = mutable.Map.empty[Class[_], immutable.Map[String, Callback]]
+  private val cache = mutable.Map.empty[Class[?], immutable.Map[String, Callback]]
 
   def apply(host: Any) = host match {
     case multi: CompoundBlockEnvironment => dynamicAnalyze(host)
@@ -32,7 +32,7 @@ object Callbacks {
     cache.clear()
   }
 
-  def fromClass(environment: Class[_]) = staticAnalyze(environment)
+  def fromClass(environment: Class[?]) = staticAnalyze(environment)
 
   private def dynamicAnalyze(host: Any) = {
     val whitelists = mutable.Buffer.empty[Set[String]]
@@ -54,7 +54,7 @@ object Callbacks {
       }
       val filter = environment match {
         case filtered: FilteredEnvironment => (s: String) => shouldAdd(s) && filtered.isCallbackEnabled(s)
-        case _ => shouldAdd _
+        case _ => shouldAdd
       }
       environment match {
         case peripheral: ManagedPeripheral =>
@@ -79,9 +79,9 @@ object Callbacks {
     callbacks.toMap
   }
 
-  private def staticAnalyze(seed: Class[_], shouldAdd: Option[String => Boolean] = None, optCallbacks: Option[mutable.Map[String, Callback]] = None) = {
+  private def staticAnalyze(seed: Class[?], shouldAdd: Option[String => Boolean] = None, optCallbacks: Option[mutable.Map[String, Callback]] = None) = {
     val callbacks = optCallbacks.getOrElse(mutable.Map.empty[String, Callback])
-    var c: Class[_] = seed
+    var c: Class[?] = seed
     while (c != null && c != classOf[Object]) {
       val ms = c.getDeclaredMethods
 

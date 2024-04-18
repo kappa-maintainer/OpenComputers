@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 class Item(value: Block) extends ItemBlock(value) {
   setHasSubtypes(true)
 
-  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     super.addInformation(stack, world, tooltip, flag)
     block match {
       case (simple: SimpleBlock) =>

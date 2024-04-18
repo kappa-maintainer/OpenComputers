@@ -22,7 +22,7 @@ class PowerConverter extends SimpleBlock with traits.PowerAcceptor {
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag):Unit = {
     super.tooltipTail(metadata, stack, world, tooltip, advanced)
 // TODO more generic way of integration modules of power providing mods to provide tooltip lines
 //    if (Mods.Factorization.isAvailable) {
@@ -39,7 +39,7 @@ class PowerConverter extends SimpleBlock with traits.PowerAcceptor {
     else if (x >= 1e3) formatter.format(x / 1e3) + "K"
     else formatter.format(x)
 
-  private def addRatio(tooltip: util.List[String], name: String, ratio: Double) {
+  private def addRatio(tooltip: util.List[String], name: String, ratio: Double):Unit = {
     val (a, b) =
       if (ratio > 1) (1.0, ratio)
       else (1.0 / ratio, 1.0)

@@ -20,7 +20,6 @@ import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import scala.collection.convert.WrapAsJava._
 
 class Print(val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit]) extends traits.TileEntity with traits.RedstoneAware with traits.RotatableTile {
   def this() = this(None, None, None)

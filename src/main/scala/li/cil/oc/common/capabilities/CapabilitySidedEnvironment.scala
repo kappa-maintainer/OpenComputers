@@ -13,8 +13,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider
 object CapabilitySidedEnvironment {
   final val ProviderSidedEnvironment = new ResourceLocation(Mods.IDs.OpenComputers, "sided_environment")
 
-  class Provider(val tileEntity: TileEntity with SidedEnvironment) extends ICapabilityProvider with SidedEnvironment {
-    override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = {
+  class Provider(val tileEntity: TileEntity & SidedEnvironment) extends ICapabilityProvider with SidedEnvironment {
+    override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = {
       capability == Capabilities.SidedEnvironmentCapability
     }
 

@@ -12,7 +12,7 @@ import li.cil.oc.api.network.Node
 import li.cil.oc.api.network.Visibility
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Capacitor extends traits.Environment with DeviceInfo {
   // Start with maximum theoretical capacity, gets reduced after validation.
@@ -29,11 +29,11 @@ class Capacitor extends traits.Environment with DeviceInfo {
     DeviceAttribute.Capacity -> maxCapacity.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
-  override def dispose() {
+  override def dispose():Unit ={
     super.dispose()
     if (isServer) {
       indirectNeighbors.map(coordinate => {
@@ -45,7 +45,7 @@ class Capacitor extends traits.Environment with DeviceInfo {
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit ={
     super.onConnect(node)
     if (node == this.node) {
       recomputeCapacity(updateSecondGradeNeighbors = true)
@@ -54,7 +54,7 @@ class Capacitor extends traits.Environment with DeviceInfo {
 
   // ----------------------------------------------------------------------- //
 
-  def recomputeCapacity(updateSecondGradeNeighbors: Boolean = false) {
+  def recomputeCapacity(updateSecondGradeNeighbors: Boolean = false):Unit ={
     node.setLocalBufferSize(
       Settings.get.bufferCapacitor +
         Settings.get.bufferCapacitorAdjacencyBonus * EnumFacing.values.count(side => {

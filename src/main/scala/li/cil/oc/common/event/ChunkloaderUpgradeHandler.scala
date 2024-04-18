@@ -15,14 +15,14 @@ import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraft.entity.Entity
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object ChunkloaderUpgradeHandler extends LoadingCallback {
   val restoredTickets = mutable.Map.empty[String, Ticket]
 
-  override def ticketsLoaded(tickets: util.List[Ticket], world: World) {
-    for (ticket <- tickets) {
+  override def ticketsLoaded(tickets: util.List[Ticket], world: World):Unit = {
+    for (ticket <- tickets.asScala) {
       val data = ticket.getModData
       val address = data.getString("address")
       restoredTickets += address -> ticket
@@ -37,7 +37,7 @@ object ChunkloaderUpgradeHandler extends LoadingCallback {
   }
 
   @SubscribeEvent
-  def onWorldSave(e: WorldEvent.Save) {
+  def onWorldSave(e: WorldEvent.Save):Unit = {
     // Any tickets that were not reassigned by the time the world gets saved
     // again can be considered orphaned, so we release them.
     // TODO figure out a better event *after* tile entities were restored
@@ -66,21 +66,21 @@ object ChunkloaderUpgradeHandler extends LoadingCallback {
   // the chunk it might move into to get loaded.
 
   @SubscribeEvent
-  def onMove(e: RobotMoveEvent.Post) {
+  def onMove(e: RobotMoveEvent.Post):Unit = {
     val machineNode = e.agent.machine.node
-    machineNode.reachableNodes.foreach(_.host match {
+    machineNode.reachableNodes.asScala.foreach(_.host match {
       case loader: UpgradeChunkloader => updateLoadedChunk(loader)
       case _ =>
     })
   }
 
-  def updateLoadedChunk(loader: UpgradeChunkloader) {
+  def updateLoadedChunk(loader: UpgradeChunkloader):Unit = {
     val blockPos = BlockPosition(loader.host)
     val centerChunk = new ChunkPos(blockPos.x >> 4, blockPos.z >> 4)
     val robotChunks = (for (x <- -1 to 1; z <- -1 to 1) yield new ChunkPos(centerChunk.x + x, centerChunk.z + z)).toSet
 
     loader.ticket.foreach(ticket => {
-      ticket.getChunkList.collect {
+      ticket.getChunkList.asScala.collect {
         case chunk: ChunkPos if !robotChunks.contains(chunk) => ForgeChunkManager.unforceChunk(ticket, chunk)
       }
 

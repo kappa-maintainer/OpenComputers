@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
 
-import scala.collection.convert.WrapAsJava.bufferAsJavaList
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object RobotModel extends SmartBlockModelBase {
@@ -74,7 +74,7 @@ object RobotModel extends SmartBlockModelBase {
       faces += new BakedQuad(quad(bottom, bottom3, bottom4), tint, EnumFacing.SOUTH, robotTexture, true, DefaultVertexFormats.ITEM)
       faces += new BakedQuad(quad(bottom, bottom4, bottom1), tint, EnumFacing.WEST, robotTexture, true, DefaultVertexFormats.ITEM)
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

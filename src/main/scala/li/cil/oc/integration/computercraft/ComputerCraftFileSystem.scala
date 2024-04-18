@@ -4,9 +4,9 @@ import dan200.computercraft.api.filesystem.IMount
 import li.cil.oc.server.fs.InputStreamFileSystem
 
 class ComputerCraftFileSystem(val mount: IMount) extends InputStreamFileSystem {
-  override def spaceTotal = 0
+  override def spaceTotal = 0L
 
-  override def spaceUsed = 0
+  override def spaceUsed = 0L
 
   // ----------------------------------------------------------------------- //
 

@@ -67,7 +67,7 @@ object CallbackWrapper {
   private def generateId(m: Method): String = MethodIdCache.getOrElseUpdate(m, m.getDeclaringClass.getName.replace('.', '_') + "_" + m.getName)
 
   private object GeneratedClassLoader extends ClassLoader(OpenComputers.getClass.getClassLoader) {
-    private val GeneratedClasses = mutable.Map.empty[String, Class[_]]
+    private val GeneratedClasses = mutable.Map.empty[String, Class[?]]
 
     def containsClass(name: String) = GeneratedClasses.contains(name)
 
@@ -75,7 +75,7 @@ object CallbackWrapper {
       GeneratedClasses += name -> defineClass(name, bytes, 0, bytes.length)
     }
 
-    override def findClass(name: String): Class[_] = {
+    override def findClass(name: String): Class[?] = {
       GeneratedClasses.get(name) match {
         case Some(clazz) => clazz
         case _ => super.findClass(name)

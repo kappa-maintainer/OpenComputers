@@ -20,7 +20,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.property.IExtendedBlockState
 
-import scala.collection.convert.WrapAsJava.bufferAsJavaList
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
@@ -55,7 +55,7 @@ class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
               case _ =>
             }
 
-            bufferAsJavaList(faces)
+            faces.asJava
           case _ => super.getQuads(state, side, rand)
         }
       case _ => super.getQuads(state, side, rand)

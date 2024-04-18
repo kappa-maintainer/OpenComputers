@@ -25,7 +25,7 @@ class DrawableAnimatedIcon(resourceLocation: ResourceLocation, u: Int, v: Int, w
   override def draw(minecraft: Minecraft): Unit = draw(minecraft, 0, 0)
 
   @SideOnly(Side.CLIENT)
-  override def draw(minecraft: Minecraft, xOffset: Int, yOffset: Int) {
+  override def draw(minecraft: Minecraft, xOffset: Int, yOffset: Int):Unit = {
     val animationValue = tickTimer.getValue
 
     val uOffsetTotal = uOffset * animationValue

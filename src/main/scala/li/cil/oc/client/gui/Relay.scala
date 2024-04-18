@@ -83,10 +83,10 @@ class Relay(playerInventory: InventoryPlayer, val relay: tileentity.Relay) exten
       format.format(20f / inventoryContainer.relayDelay),
       108, 20, 0x404040)
     fontRenderer.drawString(
-      inventoryContainer.packetsPerCycleAvg + " / " + inventoryContainer.relayAmount,
+      s"${inventoryContainer.packetsPerCycleAvg} / ${inventoryContainer.relayAmount}",
       108, 39, thresholdBasedColor(inventoryContainer.packetsPerCycleAvg, math.ceil(inventoryContainer.relayAmount / 2f).toInt, inventoryContainer.relayAmount))
     fontRenderer.drawString(
-      inventoryContainer.queueSize + " / " + inventoryContainer.maxQueueSize,
+      s"${inventoryContainer.queueSize} / ${inventoryContainer.maxQueueSize}",
       108, 58, thresholdBasedColor(inventoryContainer.queueSize, inventoryContainer.maxQueueSize / 2, inventoryContainer.maxQueueSize))
   }
 

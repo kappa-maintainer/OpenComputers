@@ -7,7 +7,7 @@ import net.minecraft.command.ICommandSender
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.fml.common.FMLCommonHandler
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 abstract class SimpleCommand(val name: String) extends CommandBase {
@@ -15,7 +15,7 @@ abstract class SimpleCommand(val name: String) extends CommandBase {
 
   override def getName = name
 
-  override def getAliases: util.List[String] = aliases
+  override def getAliases: util.List[String] = aliases.asJava
 
   override def checkPermission(server: MinecraftServer, sender: ICommandSender): Boolean = super.checkPermission(server, sender)|| (FMLCommonHandler.instance().getMinecraftServerInstance != null && FMLCommonHandler.instance().getMinecraftServerInstance.isSinglePlayer)
 

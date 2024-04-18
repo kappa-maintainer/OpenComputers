@@ -8,7 +8,7 @@ import li.cil.repack.org.luaj.vm2.LuaValue
 import li.cil.repack.org.luaj.vm2.Varargs
 import li.cil.repack.org.luaj.vm2.lib.VarArgFunction
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.math.ScalaNumber
@@ -34,7 +34,7 @@ object ScalaClosure {
       case null => null
       case primitive => primitive.asInstanceOf[AnyRef]
     }) match {
-      case null | Unit | _: BoxedUnit => LuaValue.NIL
+      case null | _: BoxedUnit => LuaValue.NIL
       case value: java.lang.Boolean => LuaValue.valueOf(value.booleanValue)
       case value: java.lang.Byte => LuaValue.valueOf(value.byteValue)
       case value: java.lang.Character => LuaValue.valueOf(String.valueOf(value))
@@ -49,7 +49,7 @@ object ScalaClosure {
       case value: Value if Settings.get.allowUserdata => LuaValue.userdataOf(value)
       case value: Product => toLuaList(value.productIterator.toIterable)
       case value: Seq[_] => toLuaList(value)
-      case value: java.util.Map[_, _] => toLuaTable(value.toMap)
+      case value: java.util.Map[_, _] => toLuaTable(value.asScala.toMap)
       case value: Map[_, _] => toLuaTable(value)
       case value: mutable.Map[_, _] => toLuaTable(value.toMap)
       case _ =>
@@ -62,10 +62,10 @@ object ScalaClosure {
     LuaValue.listOf(value.map(toLuaValue).toArray)
   }
 
-  def toLuaTable(value: Map[_, _]): LuaValue = {
-    LuaValue.tableOf(value.flatMap {
-      case (k, v) => Seq(toLuaValue(k), toLuaValue(v))
-    }.toArray)
+  def toLuaTable(value: Map[?, ?]): LuaValue = {
+    val seq: mutable.Seq[LuaValue] = mutable.Seq.empty[LuaValue]
+    value.foreach(t=>seq.appended(toLuaValue(t._1)).appended(toLuaValue(t._2)))
+    LuaValue.tableOf(seq.toArray)
   }
 
   def toSimpleJavaObject(value: LuaValue): AnyRef = value.`type`() match {

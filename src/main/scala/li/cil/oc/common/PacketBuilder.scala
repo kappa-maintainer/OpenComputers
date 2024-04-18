@@ -21,17 +21,17 @@ import net.minecraft.world.{World, WorldServer}
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stream) {
-  def writeTileEntity(t: TileEntity) {
+  def writeTileEntity(t: TileEntity):Unit = {
     writeInt(t.getWorld.provider.getDimension)
     writeInt(t.getPos.getX)
     writeInt(t.getPos.getY)
     writeInt(t.getPos.getZ)
   }
 
-  def writeEntity(e: Entity) {
+  def writeEntity(e: Entity):Unit = {
     writeInt(e.world.provider.getDimension)
     writeInt(e.getEntityId)
   }
@@ -76,7 +76,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     }
   }
 
-  def sendToPlayersNearTileEntity(t: TileEntity, range: Option[Double] = None) {
+  def sendToPlayersNearTileEntity(t: TileEntity, range: Option[Double] = None):Unit = {
     t.getWorld match {
       case w: WorldServer =>
         val chunkX = t.getPos.getX >> 4
@@ -90,7 +90,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
         }
         val maxPacketRangeSq = maxPacketRange * maxPacketRange
 
-        for (e <- w.playerEntities) e match {
+        for (e <- w.playerEntities.asScala) e match {
           case player: EntityPlayerMP =>
             if (w.getPlayerChunkMap.isPlayerWatchingChunk(player, chunkX, chunkZ)) {
               if (player.getDistanceSq(t.getPos.getX + 0.5D, t.getPos.getY + 0.5D, t.getPos.getZ + 0.5D) <= maxPacketRangeSq)
@@ -101,7 +101,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     }
   }
 
-  def sendToNearbyPlayers(world: World, x: Double, y: Double, z: Double, range: Option[Double]) {
+  def sendToNearbyPlayers(world: World, x: Double, y: Double, z: Double, range: Option[Double]):Unit = {
     val dimension = world.provider.getDimension
     val server = FMLCommonHandler.instance.getMinecraftServerInstance
     val manager = server.getPlayerList
@@ -113,7 +113,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     }
     val maxPacketRangeSq = maxPacketRange * maxPacketRange
 
-    for (player <- manager.getPlayers if player.dimension == dimension) {
+    for (player <- manager.getPlayers.asScala if player.dimension == dimension) {
       if (player.getDistanceSq(x, y, z) <= maxPacketRangeSq) {
         sendToPlayer(player)
       }

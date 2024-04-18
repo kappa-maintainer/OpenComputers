@@ -74,7 +74,7 @@ class Delegator extends Item with driver.item.UpgradeRenderer with Chargeable {
       case _ => None
     }
 
-  override def getSubItems(tab: CreativeTabs, list: NonNullList[ItemStack]) {
+  override def getSubItems(tab: CreativeTabs, list: NonNullList[ItemStack]):Unit = {
     // Workaround for MC's untyped lists...
     if(isInCreativeTab(tab)){
       subItems.indices.filter(subItems(_).showInItemList).
@@ -193,12 +193,12 @@ class Delegator extends Item with driver.item.UpgradeRenderer with Chargeable {
     }
 
   @SideOnly(Side.CLIENT)
-  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     super.addInformation(stack, world, tooltip, flag)
     Delegator.subItem(stack) match {
-      case Some(subItem) => try subItem.tooltipLines(stack, world, tooltip, flag) catch {
+      case Some(subItem) => try subItem.tooltipLines(stack, world, tooltip, flag) catch 
         case t: Throwable => OpenComputers.log.warn("Error in item tooltip.", t)
-      }
+      
       case _ => // Nothing to add.
     }
   }

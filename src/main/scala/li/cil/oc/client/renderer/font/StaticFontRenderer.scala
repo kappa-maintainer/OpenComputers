@@ -29,6 +29,7 @@ class StaticFontRenderer extends TextureFontRenderer {
       OpenComputers.log.warn("Failed reading font metadata, using defaults.", t)
       (basicChars, 10, 18)
   }
+  
 
   private val cols = 256 / charWidth
   private val uStep = charWidth / 256.0
@@ -41,7 +42,7 @@ class StaticFontRenderer extends TextureFontRenderer {
 
   override protected def textureCount = 1
 
-  override protected def bindTexture(index: Int) {
+  override protected def bindTexture(index: Int):Unit = {
     if (Settings.get.textAntiAlias) {
       Textures.bind(Textures.Font.AntiAliased)
     }
@@ -50,7 +51,7 @@ class StaticFontRenderer extends TextureFontRenderer {
     }
   }
 
-  override protected def drawChar(tx: Float, ty: Float, char: Int) {
+  override protected def drawChar(tx: Float, ty: Float, char: Int):Unit = {
     val index = 1 + (chars.indexOf(char) match {
       case -1 => chars.indexOf('?')
       case i => i
@@ -69,5 +70,5 @@ class StaticFontRenderer extends TextureFontRenderer {
     GL11.glVertex3d(tx - dw, ty - dh, 0)
   }
 
-  override protected def generateChar(char: Int) {}
+  override protected def generateChar(char: Int):Unit = {}
 }

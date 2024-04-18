@@ -7,7 +7,7 @@ import li.cil.oc.integration.Mods
 object ModEnderStorage extends ModProxy {
   override def getMod = Mods.EnderStorage
 
-  override def initialize() {
+  override def initialize():Unit = {
     Driver.add(new DriverFrequencyOwner)
   }
 }

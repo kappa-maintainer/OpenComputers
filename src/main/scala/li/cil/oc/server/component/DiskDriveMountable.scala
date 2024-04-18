@@ -31,7 +31,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo {
   // Stored for filling data packet when queried.
@@ -52,7 +52,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
     DeviceAttribute.Product -> "RackDrive 100 Rev. 2"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
   // Environment
@@ -86,7 +86,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   @Callback(doc = "function(): string -- Return the internal floppy disk address")
   def media(context: Context, args: Arguments): Array[AnyRef] = {
     if (filesystemNode.isEmpty)
-      result(Unit, "drive is empty")
+      result((), "drive is empty")
     else
       result(filesystemNode.head.address)
   }
@@ -118,7 +118,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
 
   override def container: ItemStack = rack.getStackInSlot(slot)
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack):Unit = {
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
@@ -132,7 +132,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack):Unit = {
     super.onItemRemoved(slot, stack)
     if (!rack.world.isRemote) {
       rack.markChanged(this.slot)
@@ -148,13 +148,13 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // Persistable
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super[AbstractManagedEnvironment].load(nbt)
     super[ComponentInventory].load(nbt)
     connectComponents()
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super[AbstractManagedEnvironment].save(nbt)
     super[ComponentInventory].save(nbt)
   }

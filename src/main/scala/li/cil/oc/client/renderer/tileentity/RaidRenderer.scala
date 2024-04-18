@@ -13,7 +13,7 @@ import net.minecraft.util.EnumFacing
 import org.lwjgl.opengl.GL11
 
 object RaidRenderer extends TileEntitySpecialRenderer[Raid] {
-  override def render(raid: Raid, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(raid: Raid, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderState.pushAttrib()
@@ -74,7 +74,7 @@ object RaidRenderer extends TileEntitySpecialRenderer[Raid] {
   private val u1 = 2 / 16f
   private val fs = 4 / 16f
 
-  private def renderSlot(r: BufferBuilder, slot: Int, icon: TextureAtlasSprite) {
+  private def renderSlot(r: BufferBuilder, slot: Int, icon: TextureAtlasSprite):Unit = {
     val l = u1 + slot * fs
     val h = u1 + (slot + 1) * fs
     r.pos(l, 1, 0).tex(icon.getInterpolatedU(l * 16), icon.getMaxV).endVertex()

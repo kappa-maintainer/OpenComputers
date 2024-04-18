@@ -3,7 +3,7 @@ package li.cil.oc.server.command
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 
 object CommandHandler {
-  def register(e: FMLServerStartingEvent) {
+  def register(e: FMLServerStartingEvent):Unit = {
     e.registerServerCommand(DebugNanomachinesCommand)
     e.registerServerCommand(LogNanomachinesCommand)
     e.registerServerCommand(NonDisassemblyAgreementCommand)

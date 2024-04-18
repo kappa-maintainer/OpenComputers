@@ -25,7 +25,7 @@ class ImageButton(id: Int, xPos: Int, yPos: Int, w: Int, h: Int,
 
   var hoverOverride = false
 
-  override def drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partialTicks: Float) {
+  override def drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partialTicks: Float):Unit = {
     if (visible) {
       Textures.bind(image)
       GlStateManager.color(1, 1, 1, 1)

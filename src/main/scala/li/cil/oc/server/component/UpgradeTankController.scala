@@ -17,7 +17,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object UpgradeTankController {
 
@@ -29,7 +29,7 @@ object UpgradeTankController {
       DeviceAttribute.Product -> "FlowCheckDX"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
   }
 
   class Adapter(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldTankAnalytics with Common {
@@ -44,7 +44,7 @@ object UpgradeTankController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Drone(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
+  class Drone(val host: EnvironmentHost & internal.Agent) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("tank_controller", Visibility.Neighbors).
       create()
@@ -66,7 +66,7 @@ object UpgradeTankController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Robot(val host: EnvironmentHost with tileentity.Robot) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
+  class Robot(val host: EnvironmentHost & tileentity.Robot) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("tank_controller", Visibility.Neighbors).
       create()

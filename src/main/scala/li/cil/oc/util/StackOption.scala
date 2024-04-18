@@ -63,7 +63,7 @@ sealed abstract class StackOption(stack: ItemStack) extends Product with Seriali
 
     //def flatMap[B](f: ItemStack => Option[B]): Option[B] = self filter p flatMap f
 
-    def foreach[U](f: ItemStack => U): Unit = self filter p foreach f
+    def foreach[U](f: ItemStack => U): Unit = self `filter` p `foreach` f
 
     def withFilter(q: ItemStack => Boolean): WithFilter = new WithFilter(x => p(x) && q(x))
   }
@@ -74,7 +74,7 @@ sealed abstract class StackOption(stack: ItemStack) extends Product with Seriali
 
   def forall(p: ItemStack => Boolean): Boolean = isEmpty || p(this.get)
 
-  def foreach[U](f: ItemStack => U) {
+  def foreach[U](f: ItemStack => U): Unit = {
     if (!isEmpty) f(this.get)
   }
 

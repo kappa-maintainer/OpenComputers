@@ -3,10 +3,10 @@ package li.cil.oc.server.machine.luac
 import li.cil.oc.api.network.Component
 import li.cil.oc.util.ExtendedLuaState.extendLuaState
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize():Unit = {
     lua.newTable()
 
     lua.pushScalaFunction(lua => components.synchronized {
@@ -14,7 +14,7 @@ class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
       val exact = if (lua.isBoolean(2)) lua.toBoolean(2) else true
       lua.newTable(0, components.size)
       def matches(name: String) = if (exact) name == filter.get else name.contains(filter.get)
-      for ((address, name) <- components) {
+      for ((address, name) <- components.asScala) {
         if (filter.isEmpty || matches(name)) {
           lua.pushString(address)
           lua.pushString(name)
@@ -55,7 +55,7 @@ class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     lua.pushScalaFunction(lua => {
       withComponent(lua.checkString(1), component => {
         lua.newTable()
-        for ((name, annotation) <- machine.methods(component.host)) {
+        for ((name, annotation) <- machine.methods(component.host).asScala) {
           lua.pushString(name)
           lua.newTable()
           lua.pushBoolean(annotation.direct)

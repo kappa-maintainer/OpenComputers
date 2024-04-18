@@ -54,7 +54,7 @@ trait VideoRamRasterizer {
           }
         }
       }
-      case _ => Unit
+      case _ => ()
     }
     count
   }

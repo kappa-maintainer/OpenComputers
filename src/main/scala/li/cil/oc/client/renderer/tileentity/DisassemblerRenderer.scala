@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.opengl.GL11
 
 object DisassemblerRenderer extends TileEntitySpecialRenderer[tileentity.Disassembler] {
-  override def render(disassembler: tileentity.Disassembler, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(disassembler: tileentity.Disassembler, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (disassembler.isActive) {

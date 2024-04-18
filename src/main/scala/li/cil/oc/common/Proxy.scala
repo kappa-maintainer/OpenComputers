@@ -1,9 +1,8 @@
 package li.cil.oc.common
 
 import java.io.File
-
 import com.google.common.base.Strings
-import li.cil.oc._
+import li.cil.oc.*
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.init.Blocks
@@ -12,7 +11,7 @@ import li.cil.oc.common.item.Delegator
 import li.cil.oc.common.item.traits.Delegate
 import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
-import li.cil.oc.server._
+import li.cil.oc.server.*
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
 import net.minecraft.block.Block
@@ -22,17 +21,18 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.fml.common.FMLLog
-import net.minecraftforge.fml.common.event._
+import net.minecraftforge.fml.common.event.*
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
-import net.minecraftforge.fml.common.registry.{EntityRegistry}
+import net.minecraftforge.fml.common.registry.EntityRegistry
 import net.minecraftforge.oredict.OreDictionary
 
-import scala.collection.convert.WrapAsScala._
+import java.util
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
 class Proxy {
-  def preInit(e: FMLPreInitializationEvent) {
+  def preInit(e: FMLPreInitializationEvent):Unit = {
     checkForBrokenJavaVersion()
 
     Settings.load(new File(e.getModConfigurationDirectory, "opencomputers" + File.separator + "settings.conf"))
@@ -92,10 +92,10 @@ class Proxy {
     
     api.Machine.LuaArchitecture =
       if (Settings.get.forceLuaJ) classOf[LuaJLuaArchitecture]
-      else api.Machine.architectures.head
+      else api.Machine.architectures.asScala.head
   }
 
-  def init(e: FMLInitializationEvent) {
+  def init(e: FMLInitializationEvent):Unit ={
     OpenComputers.channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("OpenComputers")
     OpenComputers.channel.register(server.PacketHandler)
 
@@ -116,7 +116,7 @@ class Proxy {
     api.API.isPowerEnabled = !Settings.get.ignorePower
   }
 
-  def postInit(e: FMLPostInitializationEvent) {
+  def postInit(e: FMLPostInitializationEvent):Unit = {
     // Don't allow driver registration after this point, to avoid issues.
     driver.Registry.locked = true
   }
@@ -128,7 +128,7 @@ class Proxy {
 
     Delegator.subItem(nugget) match {
       case Some(subItem: TItem) =>
-        if (OreDictionary.getOres(nuggetOredictName).exists(nugget.isItemEqual)) {
+        if (OreDictionary.getOres(nuggetOredictName).asScala.exists(nugget.isItemEqual)) {
           Recipes.addSubItem(subItem, nuggetItemName)
           Recipes.addItem(ingotItem, ingotOredictName)
         }
@@ -145,7 +145,7 @@ class Proxy {
 
   def registerModel(instance: Block, id: String): Unit = {}
 
-  private def registerExclusive(name: String, items: ItemStack*) {
+  private def registerExclusive(name: String, items: ItemStack*):Unit = {
     if (OreDictionary.getOres(name).isEmpty) {
       for (item <- items) {
         OreDictionary.registerOre(name, item)
@@ -170,8 +170,8 @@ class Proxy {
   )
 
   @SubscribeEvent
-  def missingBlockMappings(e: MissingMappings[Block]) {
-    for (missing <- e.getMappings) {
+  def missingBlockMappings(e: MissingMappings[Block]):Unit = {
+    for (missing <- e.getMappings.asScala) {
         blockRenames.get(missing.key.getPath) match {
           case Some(name) =>
             if (Strings.isNullOrEmpty(name)) missing.ignore()
@@ -182,8 +182,8 @@ class Proxy {
   }
 
   @SubscribeEvent
-  def missingItemMappings(e: MissingMappings[Item]) {
-    for (missing <- e.getMappings) {
+  def missingItemMappings(e: MissingMappings[Item]):Unit = {
+    for (missing <- e.getMappings.asScala) {
         itemRenames.get(missing.key.getPath) match {
           case Some(name) =>
             if (Strings.isNullOrEmpty(name)) missing.ignore()

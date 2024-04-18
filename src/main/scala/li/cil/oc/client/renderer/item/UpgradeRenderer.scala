@@ -63,7 +63,7 @@ object UpgradeRenderer {
 
   private val bounds = new AxisAlignedBB(-0.1, -0.1, -0.1, 0.1, 0.1, 0.1)
 
-  private def drawSimpleBlock(mountPoint: MountPoint, frontOffset: Float = 0) {
+  private def drawSimpleBlock(mountPoint: MountPoint, frontOffset: Float = 0):Unit = {
     GlStateManager.rotate(mountPoint.rotation.getW, mountPoint.rotation.getX, mountPoint.rotation.getY, mountPoint.rotation.getZ)
     GlStateManager.translate(mountPoint.offset.getX, mountPoint.offset.getY, mountPoint.offset.getZ)
 

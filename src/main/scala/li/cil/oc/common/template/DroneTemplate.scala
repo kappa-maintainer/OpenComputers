@@ -13,11 +13,11 @@ import li.cil.oc.util.ItemUtils
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object DroneTemplate extends Template {
-  override protected val suggestedComponents = Array(
-    "BIOS" -> hasComponent(Constants.ItemName.EEPROM) _)
+  override protected val suggestedComponents: Array[(String, IInventory => Boolean)] = Array(
+    "BIOS" -> hasComponent(Constants.ItemName.EEPROM))
 
   override protected def hostClass = classOf[internal.Drone]
 
@@ -52,7 +52,7 @@ object DroneTemplate extends Template {
     Array(api.Items.get(itemName).createItemStack(1)) ++ info.components
   }
 
-  def register() {
+  def register():Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Drone (Tier 1)",
@@ -65,7 +65,7 @@ object DroneTemplate extends Template {
         Tier.Two,
         Tier.One
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.Two),
         (Slot.Card, Tier.One),
         null,
@@ -73,7 +73,7 @@ object DroneTemplate extends Template {
         (Slot.Memory, Tier.One),
         null,
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Tier 2
     api.IMC.registerAssemblerTemplate(
@@ -88,7 +88,7 @@ object DroneTemplate extends Template {
         Tier.Two,
         Tier.One
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.Two),
         (Slot.Card, Tier.Two),
         null,
@@ -96,7 +96,7 @@ object DroneTemplate extends Template {
         (Slot.Memory, Tier.One),
         (Slot.Memory, Tier.One),
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Creative
     api.IMC.registerAssemblerTemplate(
@@ -117,7 +117,7 @@ object DroneTemplate extends Template {
         Tier.Three,
         Tier.Three
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.Three),
         (Slot.Card, Tier.Three),
         (Slot.Card, Tier.Three),
@@ -125,7 +125,7 @@ object DroneTemplate extends Template {
         (Slot.Memory, Tier.Three),
         (Slot.Memory, Tier.Three),
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Disassembler
     api.IMC.registerDisassemblerTemplate(

@@ -23,7 +23,7 @@ trait InventoryTransfer extends traits.WorldAware with traits.SideRestricted {
 
     onTransferContents() match {
       case Some(reason) =>
-        result(Unit, reason)
+        result((), reason)
       case _ =>
         val extractor = if (args.count > 3) {
           val sourceSlot = args.checkSlot(InventoryUtils.inventoryAt(sourcePos, sourceSide.getOpposite).getOrElse(throw new IllegalArgumentException("no inventory")), 3)
@@ -36,7 +36,7 @@ trait InventoryTransfer extends traits.WorldAware with traits.SideRestricted {
 
         Option(extractor) match {
           case Some(ex) => result(ex())
-          case _ => result(Unit, "no inventory")
+          case _ => result((), "no inventory")
         }
     }
   }
@@ -52,7 +52,7 @@ trait InventoryTransfer extends traits.WorldAware with traits.SideRestricted {
 
     onTransferContents() match {
       case Some(reason) =>
-        result(Unit, reason)
+        result((), reason)
       case _ =>
         val moved = FluidUtils.transferBetweenFluidHandlersAt(sourcePos, sourceSide.getOpposite, sinkPos, sinkSide.getOpposite, count, sourceTank)
         if (moved > 0) context.pause(moved / Settings.get.transposerFluidTransferRate) // Allow up to 16 buckets per second.

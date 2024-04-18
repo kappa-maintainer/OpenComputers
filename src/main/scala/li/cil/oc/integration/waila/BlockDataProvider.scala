@@ -29,7 +29,7 @@ object BlockDataProvider extends IWailaDataProvider {
   val ConfigEnergy = "oc.energy"
   val ConfigComponentName = "oc.componentName"
 
-  def init(registrar: IWailaRegistrar) {
+  def init(registrar: IWailaRegistrar):Unit = {
     registrar.registerBodyProvider(BlockDataProvider, classOf[SimpleBlock])
 
     registrar.registerNBTProvider(this, classOf[li.cil.oc.api.network.Environment])

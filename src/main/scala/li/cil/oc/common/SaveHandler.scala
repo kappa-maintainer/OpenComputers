@@ -72,33 +72,33 @@ object SaveHandler {
   val stateSaveHandler: SafeThreadPool = ThreadPoolFactory.createSafePool("SaveHandler", 1)
 
   val chunkDirs = new ConcurrentLinkedDeque[io.File]()
-  val saving = mutable.HashMap.empty[String, Future[_]]
+  val saving = mutable.HashMap.empty[String, Future[?]]
 
   def savePath = new io.File(DimensionManager.getCurrentSaveRootDirectory, Settings.savePath)
 
   def statePath = new io.File(savePath, "state")
 
-  def scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, data: Array[Byte]) {
+  def scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, data: Array[Byte]):Unit ={
     scheduleSave(BlockPosition(host), nbt, name, data)
   }
 
-  def scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit) {
+  def scheduleSave(host: MachineHost, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit):Unit ={
     scheduleSave(host, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(host: EnvironmentHost, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit) {
+  def scheduleSave(host: EnvironmentHost, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit):Unit ={
     scheduleSave(BlockPosition(host), nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: NBTTagCompound, name: String, data: Array[Byte]) {
+  def scheduleSave(world: World, x: Double, z: Double, nbt: NBTTagCompound, name: String, data: Array[Byte]):Unit ={
     scheduleSave(BlockPosition(x, 0, z, world), nbt, name, data)
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit) {
+  def scheduleSave(world: World, x: Double, z: Double, nbt: NBTTagCompound, name: String, save: NBTTagCompound => Unit):Unit ={
     scheduleSave(world, x, z, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(position: BlockPosition, nbt: NBTTagCompound, name: String, data: Array[Byte]) {
+  def scheduleSave(position: BlockPosition, nbt: NBTTagCompound, name: String, data: Array[Byte]):Unit ={
     val world = position.world.get
     // Try to exclude wrapped/client-side worlds.
     if (world.isInstanceOf[WorldServer]) {
@@ -185,12 +185,12 @@ object SaveHandler {
       val bos = new io.ByteArrayOutputStream
       val buffer = new Array[Byte](8 * 1024)
       var read = 0
-      do {
+      while ({ {
         read = bis.read(buffer)
         if (read > 0) {
           bos.write(buffer, 0, read)
         }
-      } while (read >= 0)
+      } ; read >= 0}) ()
       bis.close()
       bos.toByteArray
     }
@@ -220,7 +220,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onWorldLoad(e: WorldEvent.Load) {
+  def onWorldLoad(e: WorldEvent.Load):Unit = {
     if (!e.getWorld.isRemote) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
@@ -230,10 +230,10 @@ object SaveHandler {
     }
   }
 
-  private def visitJava16() {
+  private def visitJava16():Unit = {
     // This may run into infinite loops if there are evil symlinks.
     // But that's really not something I'm bothered by, it's a fallback.
-    def recurse(file: File) {
+    def recurse(file: File):Unit = {
       file.setLastModified(System.currentTimeMillis())
       if (file.exists() && file.isDirectory && file.list() != null) file.listFiles().foreach(recurse)
     }
@@ -241,7 +241,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onWorldSave(e: WorldEvent.Save) {
+  def onWorldSave(e: WorldEvent.Save):Unit = {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))
@@ -249,7 +249,7 @@ object SaveHandler {
 }
 
 object SaveHandlerJava17Functionality {
-  def visitJava17(statePath: File) {
+  def visitJava17(statePath: File):Unit = {
     Files.walkFileTree(statePath.toPath, new FileVisitor[Path] {
       override def visitFile(file: Path, attrs: BasicFileAttributes) = {
         file.toFile.setLastModified(System.currentTimeMillis())

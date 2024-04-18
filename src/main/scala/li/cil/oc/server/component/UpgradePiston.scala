@@ -22,7 +22,7 @@ import net.minecraft.util.{EnumFacing, SoundCategory}
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.block.material.EnumPushReaction
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 protected object PistonTraits {
   trait ExtendAware {
@@ -36,7 +36,7 @@ protected object PistonTraits {
   }
 
   trait RotatableLike extends ExtendAware {
-    val rotatable: internal.Rotatable with EnvironmentHost
+    val rotatable: internal.Rotatable & EnvironmentHost
     def pushDirection(args: Arguments, index: Int): EnumFacing = rotatable.toGlobal(args.optSideForAction(index, EnumFacing.SOUTH))
   }
 
@@ -61,7 +61,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
     DeviceAttribute.Product -> "Displacer II+"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   val isSticky: Boolean = false
 
@@ -122,7 +122,7 @@ abstract class UpgradeStickyPiston(host: EnvironmentHost) extends UpgradePiston(
 object UpgradePiston {
   class Drone(drone: internal.Drone) extends UpgradePiston(drone) with PistonTraits.DroneLike
 
-  class Rotatable(val rotatable: internal.Rotatable with EnvironmentHost) extends UpgradePiston(rotatable) with PistonTraits.RotatableLike
+  class Rotatable(val rotatable: internal.Rotatable & EnvironmentHost) extends UpgradePiston(rotatable) with PistonTraits.RotatableLike
 
   class Tablet(val tablet: internal.Tablet) extends Rotatable(tablet) with PistonTraits.TabletLike
 }
@@ -130,7 +130,7 @@ object UpgradePiston {
 object UpgradeStickyPiston {
   class Drone(drone: internal.Drone) extends UpgradeStickyPiston(drone) with PistonTraits.DroneLike
 
-  class Rotatable(val rotatable: internal.Rotatable with EnvironmentHost) extends UpgradeStickyPiston(rotatable) with PistonTraits.RotatableLike
+  class Rotatable(val rotatable: internal.Rotatable & EnvironmentHost) extends UpgradeStickyPiston(rotatable) with PistonTraits.RotatableLike
 
   class Tablet(val tablet: internal.Tablet) extends Rotatable(tablet) with PistonTraits.TabletLike
 }

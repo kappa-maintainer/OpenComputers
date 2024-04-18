@@ -5,12 +5,12 @@ import java.util
 import li.cil.oc.api
 import net.minecraft.nbt._
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object ConverterNBT extends api.driver.Converter {
   override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]) =
     value match {
-      case nbt: NBTTagCompound => output += "oc:flatten" -> convert(nbt)
+      case nbt: NBTTagCompound => output.asScala += "oc:flatten" -> convert(nbt)
       case _ =>
     }
 
@@ -27,7 +27,7 @@ object ConverterNBT extends api.driver.Converter {
       val copy = tag.copy(): NBTTagList
       (0 until copy.tagCount).map(_ => convert(copy.removeTag(0))).toArray
     case tag: NBTTagCompound =>
-      tag.getKeySet.collect {
+      tag.getKeySet.asScala.collect {
         case key: String => key -> convert(tag.getTag(key))
       }.toMap
     case tag: NBTTagIntArray => tag.getIntArray

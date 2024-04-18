@@ -60,7 +60,7 @@ final class ModelQuadcopter extends ModelBase {
   private val scale = 1 / 16f
   private val up = new Vec3d(0, 1, 0)
 
-  private def doRender(drone: Drone, dt: Float) {
+  private def doRender(drone: Drone, dt: Float):Unit = {
     if (drone.isRunning) {
       val timeJitter = drone.hashCode() ^ 0xFF
       GlStateManager.translate(0, (math.sin(timeJitter + (drone.getEntityWorld.getTotalWorldTime + dt) / 20.0) * (1 / 16f)).toFloat, 0)
@@ -128,7 +128,7 @@ final class ModelQuadcopter extends ModelBase {
   }
 
   // For inventory rendering.
-  def render() {
+  def render():Unit = {
     body.render(scale)
 
     val tilt = math.toRadians(2).toFloat

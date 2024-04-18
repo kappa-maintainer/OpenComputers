@@ -56,7 +56,7 @@ trait SimpleInventory extends IInventory {
 
   override def getField(id: Int) = 0
 
-  override def setField(id: Int, value: Int) {}
+  override def setField(id: Int, value: Int):Unit = {}
 
   override def getFieldCount = 0
 }

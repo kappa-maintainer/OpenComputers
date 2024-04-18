@@ -12,11 +12,11 @@ import li.cil.oc.util.ItemUtils
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object MicrocontrollerTemplate extends Template {
   override protected val suggestedComponents = Array(
-    "BIOS" -> hasComponent("eeprom") _)
+    "BIOS" -> hasComponent("eeprom"))
 
   override protected def hostClass: Class[Microcontroller] = classOf[internal.Microcontroller]
 
@@ -49,7 +49,7 @@ object MicrocontrollerTemplate extends Template {
     Array(api.Items.get(itemName).createItemStack(1)) ++ info.components
   }
 
-  def register() {
+  def register():Unit = {
     // Tier 1
     api.IMC.registerAssemblerTemplate(
       "Microcontroller (Tier 1)",
@@ -61,7 +61,7 @@ object MicrocontrollerTemplate extends Template {
       Array(
         Tier.Two
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.One),
         (Slot.Card, Tier.One),
         null,
@@ -69,7 +69,7 @@ object MicrocontrollerTemplate extends Template {
         (Slot.Memory, Tier.One),
         null,
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Tier 2
     api.IMC.registerAssemblerTemplate(
@@ -82,7 +82,7 @@ object MicrocontrollerTemplate extends Template {
       Array(
         Tier.Three
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.Two),
         (Slot.Card, Tier.One),
         null,
@@ -90,7 +90,7 @@ object MicrocontrollerTemplate extends Template {
         (Slot.Memory, Tier.One),
         (Slot.Memory, Tier.One),
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Creative
     api.IMC.registerAssemblerTemplate(
@@ -111,7 +111,7 @@ object MicrocontrollerTemplate extends Template {
         Tier.Three,
         Tier.Three
       ),
-      asJavaIterable(Iterable(
+      Iterable(
         (Slot.Card, Tier.Three),
         (Slot.Card, Tier.Three),
         (Slot.Card, Tier.Three),
@@ -119,7 +119,7 @@ object MicrocontrollerTemplate extends Template {
         (Slot.Memory, Tier.Three),
         (Slot.Memory, Tier.Three),
         (Slot.EEPROM, Tier.Any)
-      ).map(toPair)))
+      ).map(toPair).asJava)
 
     // Disassembler
     api.IMC.registerDisassemblerTemplate(

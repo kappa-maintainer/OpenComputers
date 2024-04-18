@@ -17,8 +17,7 @@ import net.minecraft.world.World
 import net.minecraftforge.fml.common.FMLCommonHandler
 
 import scala.annotation.tailrec
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object Manual extends ManualAPI {
@@ -134,9 +133,9 @@ object Manual extends ManualAPI {
     }
 
   @tailrec private def contentForWithRedirects(path: String, seen: List[String] = List.empty): Option[java.lang.Iterable[String]] = {
-    if (seen.contains(path)) return Some(asJavaIterable(Iterable("Redirection loop: ") ++ seen ++ Iterable(path)))
+    if (seen.contains(path)) return Some((Iterable("Redirection loop: ") ++ seen ++ Iterable(path)).asJava)
     doContentLookup(path) match {
-      case Some(content) => content.headOption match {
+      case Some(content) => content.asScala.headOption match {
         case Some(line) if line.toLowerCase.startsWith("#redirect ") =>
           contentForWithRedirects(makeRelative(line.substring("#redirect ".length), path), seen :+ path)
         case _ => Some(content)

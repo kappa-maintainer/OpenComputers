@@ -58,7 +58,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
     val sideIndex = checkSide(side)
     val bundled = _bundledInput(sideIndex)
     val rednet = _rednetInput(sideIndex)
-    (bundled, rednet).zipped.map((a, b) => a max b max 0)
+    bundled.lazyZip(rednet).map((a, b) => a max b max 0)
   }
 
   def getBundledInput(side: EnumFacing, color: Int): Int = {
@@ -106,7 +106,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
     true
   } else false
 
-  def setBundledOutput(side: EnumFacing, values: util.Map[_, _]): Boolean = {
+  def setBundledOutput(side: EnumFacing, values: util.Map[?, ?]): Boolean = {
     val sideIndex = toLocal(side).ordinal
     var changed: Boolean = false
     (0 until 16).foreach(color => {
@@ -126,7 +126,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
     changed
   }
 
-  def setBundledOutput(values: util.Map[_, _]): Boolean = {
+  def setBundledOutput(values: util.Map[?, ?]): Boolean = {
     var changed: Boolean = false
     EnumFacing.values.foreach(side => {
       val sideIndex = toLocal(side).ordinal
@@ -141,7 +141,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
 
   // ----------------------------------------------------------------------- //
 
-  override def updateRedstoneInput(side: EnumFacing) {
+  override def updateRedstoneInput(side: EnumFacing):Unit = {
     super.updateRedstoneInput(side)
     setBundledInput(side, BundledRedstone.computeBundledInput(position, side))
   }
@@ -152,7 +152,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
   private final val BundledOutputTag = Settings.namespace + "rs.bundledOutput"
   private final val RednetInputTag = Settings.namespace + "rs.rednetInput"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
 
     nbt.getTagList(BundledInputTag, NBT.TAG_INT_ARRAY).toArray[NBTTagIntArray].
@@ -179,7 +179,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
     }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
 
     nbt.setNewTagList(BundledInputTag, _bundledInput.view)
@@ -188,7 +188,7 @@ trait BundledRedstoneAware extends RedstoneAware with IBundledTile {
     nbt.setNewTagList(RednetInputTag, _rednetInput.view)
   }
 
-  override def hasCapability(capability: Capability[_], side: EnumFacing): Boolean = {
+  override def hasCapability(capability: Capability[?], side: EnumFacing): Boolean = {
     if (capability == CapabilitiesCharset.BUNDLED_EMITTER || capability == CapabilitiesCharset.BUNDLED_RECEIVER) {
       true
     } else {

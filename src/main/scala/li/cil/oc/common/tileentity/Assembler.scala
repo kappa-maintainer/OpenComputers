@@ -6,6 +6,7 @@ import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
+import li.cil.oc.integration.Mods
 import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
@@ -22,9 +23,11 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import net.minecraftforge.fml.common.Optional
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
+//@Optional.Interface(iface = "li.cil.oc.common.tileentity.traits.power.AppliedEnergistics2", modid = Mods.IDs.AppliedEnergistics2, striprefs = true)
 class Assembler extends traits.Environment with traits.PowerAcceptor with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo {
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("assembler").
@@ -44,7 +47,7 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
     DeviceAttribute.Product -> "Factorizer R1D1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -123,7 +126,7 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
     if (!output.isEmpty && getWorld.getTotalWorldTime % Settings.get.tickFrequency == 0) {
       val want = math.max(1, math.min(requiredEnergy, Settings.get.assemblerTickAmount * Settings.get.tickFrequency))
@@ -145,7 +148,7 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForServer(nbt)
     if (nbt.hasKey(OutputTag)) {
       output = StackOption(new ItemStack(nbt.getCompoundTag(OutputTag)))
@@ -157,7 +160,7 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
     nbt.setNewCompoundTag(OutputTag, output.get.writeToNBT)
     nbt.setDouble(TotalTag, totalRequiredEnergy)
@@ -165,12 +168,12 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
   }
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForClient(nbt)
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForClient(nbt)
     nbt.setDouble(RemainingTag, requiredEnergy)
   }

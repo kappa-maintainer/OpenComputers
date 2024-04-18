@@ -9,7 +9,7 @@ import li.cil.repack.com.naef.jnlua.JavaFunction
 import li.cil.repack.com.naef.jnlua.LuaState
 import li.cil.repack.com.naef.jnlua.LuaType
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.math.ScalaNumber
@@ -24,7 +24,7 @@ object ExtendedLuaState {
       override def invoke(state: LuaState) = f(state)
     })
 
-    def pushValue(value: Any, memo: util.IdentityHashMap[Any, Int] = new util.IdentityHashMap()) {
+    def pushValue(value: Any, memo: util.IdentityHashMap[Any, Int] = new util.IdentityHashMap()):Unit = {
       val recursive = memo.size > 0
       val oldTop = lua.getTop
       if (memo.containsKey(value)) {
@@ -37,7 +37,7 @@ object ExtendedLuaState {
           case null => null
           case primitive => primitive.asInstanceOf[AnyRef]
         }) match {
-          case null | Unit | _: BoxedUnit => lua.pushNil()
+          case null | _: BoxedUnit => lua.pushNil()
           case value: java.lang.Boolean => lua.pushBoolean(value.booleanValue)
           case value: java.lang.Byte => lua.pushInteger(value.byteValue)
           case value: java.lang.Character => lua.pushString(String.valueOf(value))
@@ -50,9 +50,9 @@ object ExtendedLuaState {
           case value: Array[Byte] => lua.pushByteArray(value)
           case value: Array[_] => pushList(value, value.zipWithIndex.iterator, memo)
           case value: Value if Settings.get.allowUserdata => lua.pushJavaObjectRaw(value)
-          case value: Product => pushList(value, value.productIterator.zipWithIndex, memo)
+          case value: Product => pushList(value.asInstanceOf[AnyRef], value.productIterator.zipWithIndex, memo)
           case value: Seq[_] => pushList(value, value.zipWithIndex.iterator, memo)
-          case value: java.util.Map[_, _] => pushTable(value, value.toMap, memo)
+          case value: java.util.Map[_, _] => pushTable(value, value.asScala.toMap, memo)
           case value: Map[_, _] => pushTable(value, value, memo)
           case value: mutable.Map[_, _] => pushTable(value, value.toMap, memo)
           case _ =>
@@ -68,10 +68,10 @@ object ExtendedLuaState {
       }
     }
 
-    def pushList(obj: AnyRef, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[Any, Int]) {
+    def pushList(obj: AnyRef, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[Any, Int]):Unit = {
       lua.newTable()
       val tableIndex = lua.getTop
-      memo += obj -> tableIndex
+      memo.asScala += obj -> tableIndex
       var count = 0
       list.foreach {
         case (value, index) =>
@@ -83,11 +83,13 @@ object ExtendedLuaState {
       lua.pushValue(tableIndex)
     }
 
-    def pushTable(obj: AnyRef, map: Map[_, _], memo: util.IdentityHashMap[Any, Int]) {
+    def pushTable(obj: AnyRef, map: Map[?, ?], memo: util.IdentityHashMap[Any, Int]):Unit = {
       lua.newTable(0, map.size)
       val tableIndex = lua.getTop
-      memo += obj -> tableIndex
-      for ((key: AnyRef, value: AnyRef) <- map) {
+      memo.asScala += obj -> tableIndex
+      for (tuple <- map) {
+        val key = tuple._1
+        val value = tuple._2
         if (key != null && !key.isInstanceOf[BoxedUnit]) {
           pushValue(key, memo)
           val keyIndex = lua.getTop
@@ -107,7 +109,7 @@ object ExtendedLuaState {
       case LuaType.BOOLEAN => Boolean.box(lua.toBoolean(index))
       case LuaType.NUMBER => if (lua.isInteger(index)) Long.box(lua.toInteger(index)) else Double.box(lua.toNumber(index))
       case LuaType.STRING => lua.toByteArray(index)
-      case LuaType.TABLE => lua.toJavaObject(index, classOf[java.util.Map[_, _]])
+      case LuaType.TABLE => lua.toJavaObject(index, classOf[java.util.Map[?, ?]])
       case LuaType.USERDATA => lua.toJavaObjectRaw(index)
       case _ => null
     }

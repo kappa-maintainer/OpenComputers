@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
 object MicrocontrollerRenderer extends TileEntitySpecialRenderer[Microcontroller] {
-  override def render(mcu: Microcontroller, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(mcu: Microcontroller, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderState.pushAttrib()

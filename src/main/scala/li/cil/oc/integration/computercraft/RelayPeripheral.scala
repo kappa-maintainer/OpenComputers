@@ -12,8 +12,7 @@ import li.cil.oc.common.tileentity.Relay
 import li.cil.oc.util.ResultWrapper._
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class RelayPeripheral(val relay: Relay) extends IPeripheral {
@@ -57,19 +56,19 @@ class RelayPeripheral(val relay: Relay) extends IPeripheral {
         case Some(component) =>
           val method = checkString(arguments, 1)
           val fakeContext = new CCContext(computer, context)
-          component.invoke(method, fakeContext, arguments.drop(2): _*)
+          component.invoke(method, fakeContext, arguments.drop(2)*)
         case _ => null
       }
     }),
     "getMethodsRemote" -> ((computer, context, arguments) => {
       val address = checkString(arguments, 0)
       visibleComponents.find(_.address == address) match {
-        case Some(component) => result(mapAsJavaMap(component.methods.zipWithIndex.map(t => (t._2 + 1, t._1)).toMap))
+        case Some(component) => result(component.methods.asScala.zipWithIndex.map(t => (t._2 + 1, t._1)).toMap.asJava)
         case _ => null
       }
     }),
     "getNamesRemote" -> ((computer, context, arguments) => {
-      result(mapAsJavaMap(visibleComponents.map(_.address).zipWithIndex.map(t => (t._2 + 1, t._1)).toMap))
+      result(visibleComponents.map(_.address).zipWithIndex.map(t => (t._2 + 1, t._1)).toMap.asJava)
     }),
     "getTypeRemote" -> ((computer, context, arguments) => {
       val address = checkString(arguments, 0)
@@ -99,12 +98,12 @@ class RelayPeripheral(val relay: Relay) extends IPeripheral {
 
   override def getType = "modem"
 
-  override def attach(computer: IComputerAccess) {
+  override def attach(computer: IComputerAccess):Unit = {
     relay.computers += computer
     relay.openPorts += computer -> mutable.Set.empty
   }
 
-  override def detach(computer: IComputerAccess) {
+  override def detach(computer: IComputerAccess):Unit = {
     relay.computers -= computer
     relay.openPorts -= computer
   }
@@ -142,7 +141,7 @@ class RelayPeripheral(val relay: Relay) extends IPeripheral {
   private def visibleComponents = {
     EnumFacing.values().flatMap(side => {
       val node = relay.sidedNode(side)
-      node.reachableNodes.collect {
+      node.reachableNodes.asScala.collect {
         case component: Component if component.canBeSeenFrom(node) => component
       }
     })

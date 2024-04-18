@@ -52,20 +52,20 @@ trait RotatableTile extends Rotatable {
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     pitch = EnumFacing.byIndex(nbt.getInteger(PitchTag))
     yaw = EnumFacing.byIndex(nbt.getInteger(YawTag))
     validatePitchAndYaw()
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     nbt.setInteger(PitchTag, pitch.ordinal)
     nbt.setInteger(YawTag, yaw.ordinal)
   }
 
-  private def validatePitchAndYaw() {
+  private def validatePitchAndYaw():Unit = {
     if (!_pitch.getAxis.isVertical) {
       _pitch = EnumFacing.NORTH
     }

@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
 object CaseRenderer extends TileEntitySpecialRenderer[Case] {
-  override def render(computer: Case, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(computer: Case, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderState.pushAttrib()

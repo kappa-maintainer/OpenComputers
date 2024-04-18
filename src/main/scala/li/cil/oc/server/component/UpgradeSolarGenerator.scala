@@ -15,7 +15,7 @@ import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -33,13 +33,13 @@ class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEn
     DeviceAttribute.Product -> "Enligh10"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
   override val canUpdate = true
 
-  override def update() {
+  override def update():Unit = {
     super.update()
 
     ticksUntilCheck -= 1

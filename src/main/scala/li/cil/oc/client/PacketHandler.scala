@@ -52,7 +52,7 @@ object PacketHandler extends CommonPacketHandler {
     else None
   }
 
-  override def dispatch(p: PacketParser) {
+  override def dispatch(p: PacketParser): Unit = {
     p.packetType match {
       case PacketType.AdapterState => onAdapterState(p)
       case PacketType.Analyze => onAnalyze(p)
@@ -122,7 +122,7 @@ object PacketHandler extends CommonPacketHandler {
       case _ => // Invalid packet.
     }
 
-  def onAnalyze(p: PacketParser) {
+  def onAnalyze(p: PacketParser): Unit = {
     val address = p.readUTF()
     if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
       GuiScreen.setClipboardString(address)
@@ -143,7 +143,7 @@ object PacketHandler extends CommonPacketHandler {
     OpenComputers.log.info(p.readUTF())
   }
 
-  def onClipboard(p: PacketParser) {
+  def onClipboard(p: PacketParser): Unit = {
     GuiScreen.setClipboardString(p.readUTF())
   }
 
@@ -443,7 +443,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onPetVisibility(p: PacketParser) {
+  def onPetVisibility(p: PacketParser): Unit = {
     if (!PetRenderer.isInitialized) {
       PetRenderer.isInitialized = true
       if (Settings.get.hideOwnPet) {
@@ -614,7 +614,7 @@ object PacketHandler extends CommonPacketHandler {
       case _ => // Invalid packet.
     }
 
-  def onTextBufferInit(p: PacketParser) {
+  def onTextBufferInit(p: PacketParser): Unit = {
     ComponentTracker.get(p.player.getEntityWorld, p.readUTF()) match {
       case Some(buffer: li.cil.oc.common.component.TextBuffer) =>
         val nbt = p.readNBT()
@@ -638,33 +638,35 @@ object PacketHandler extends CommonPacketHandler {
   def onTextBufferMulti(p: PacketParser): Unit =
     if (p.player != null) ComponentTracker.get(p.player.getEntityWorld, p.readUTF()) match {
       case Some(buffer: api.internal.TextBuffer) =>
-        try while (true) {
-          p.readPacketType() match {
-            case PacketType.TextBufferMultiColorChange => onTextBufferMultiColorChange(p, buffer)
-            case PacketType.TextBufferMultiCopy => onTextBufferMultiCopy(p, buffer)
-            case PacketType.TextBufferMultiDepthChange => onTextBufferMultiDepthChange(p, buffer)
-            case PacketType.TextBufferMultiFill => onTextBufferMultiFill(p, buffer)
-            case PacketType.TextBufferMultiPaletteChange => onTextBufferMultiPaletteChange(p, buffer)
-            case PacketType.TextBufferMultiResolutionChange => onTextBufferMultiResolutionChange(p, buffer)
-            case PacketType.TextBufferMultiViewportResolutionChange => onTextBufferMultiViewportResolutionChange(p, buffer)
-            case PacketType.TextBufferMultiMaxResolutionChange => onTextBufferMultiMaxResolutionChange(p, buffer)
-            case PacketType.TextBufferMultiSet => onTextBufferMultiSet(p, buffer)
-            case PacketType.TextBufferRamInit => onTextBufferRamInit(p, buffer)
-            case PacketType.TextBufferBitBlt => onTextBufferBitBlt(p, buffer)
-            case PacketType.TextBufferRamDestroy => onTextBufferRamDestroy(p, buffer)
-            case PacketType.TextBufferMultiRawSetText => onTextBufferMultiRawSetText(p, buffer)
-            case PacketType.TextBufferMultiRawSetBackground => onTextBufferMultiRawSetBackground(p, buffer)
-            case PacketType.TextBufferMultiRawSetForeground => onTextBufferMultiRawSetForeground(p, buffer)
-            case _ => // Invalid packet.
-          }
+        try {
+          while (true)
+            p.readPacketType() match {
+              case PacketType.TextBufferMultiColorChange => onTextBufferMultiColorChange(p, buffer)
+              case PacketType.TextBufferMultiCopy => onTextBufferMultiCopy(p, buffer)
+              case PacketType.TextBufferMultiDepthChange => onTextBufferMultiDepthChange(p, buffer)
+              case PacketType.TextBufferMultiFill => onTextBufferMultiFill(p, buffer)
+              case PacketType.TextBufferMultiPaletteChange => onTextBufferMultiPaletteChange(p, buffer)
+              case PacketType.TextBufferMultiResolutionChange => onTextBufferMultiResolutionChange(p, buffer)
+              case PacketType.TextBufferMultiViewportResolutionChange => onTextBufferMultiViewportResolutionChange(p, buffer)
+              case PacketType.TextBufferMultiMaxResolutionChange => onTextBufferMultiMaxResolutionChange(p, buffer)
+              case PacketType.TextBufferMultiSet => onTextBufferMultiSet(p, buffer)
+              case PacketType.TextBufferRamInit => onTextBufferRamInit(p, buffer)
+              case PacketType.TextBufferBitBlt => onTextBufferBitBlt(p, buffer)
+              case PacketType.TextBufferRamDestroy => onTextBufferRamDestroy(p, buffer)
+              case PacketType.TextBufferMultiRawSetText => onTextBufferMultiRawSetText(p, buffer)
+              case PacketType.TextBufferMultiRawSetBackground => onTextBufferMultiRawSetBackground(p, buffer)
+              case PacketType.TextBufferMultiRawSetForeground => onTextBufferMultiRawSetForeground(p, buffer)
+              case _ => // Invalid packet.
+            }
         }
         catch {
           case ignored: EOFException => // No more commands.
         }
+        
       case _ => // Invalid packet.
     }
 
-  def onTextBufferMultiColorChange(p: PacketParser, env: api.internal.TextBuffer) {
+  def onTextBufferMultiColorChange(p: PacketParser, env: api.internal.TextBuffer): Unit = {
     env match {
       case buffer: api.internal.TextBuffer =>
         val foreground = p.readInt()
@@ -677,7 +679,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onTextBufferMultiCopy(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiCopy(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
     val w = p.readInt()
@@ -687,11 +689,11 @@ object PacketHandler extends CommonPacketHandler {
     buffer.copy(col, row, w, h, tx, ty)
   }
 
-  def onTextBufferMultiDepthChange(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiDepthChange(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     buffer.setColorDepth(api.internal.TextBuffer.ColorDepth.values.apply(p.readInt()))
   }
 
-  def onTextBufferMultiFill(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiFill(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
     val w = p.readInt()
@@ -700,31 +702,31 @@ object PacketHandler extends CommonPacketHandler {
     buffer.fill(col, row, w, h, c)
   }
 
-  def onTextBufferMultiPaletteChange(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiPaletteChange(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val index = p.readInt()
     val color = p.readInt()
     buffer.setPaletteColor(index, color)
   }
 
-  def onTextBufferMultiResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val w = p.readInt()
     val h = p.readInt()
     buffer.setResolution(w, h)
   }
 
-  def onTextBufferMultiViewportResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiViewportResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val w = p.readInt()
     val h = p.readInt()
     buffer.setViewport(w, h)
   }
 
-  def onTextBufferMultiMaxResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiMaxResolutionChange(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val w = p.readInt()
     val h = p.readInt()
     buffer.setMaximumResolution(w, h)
   }
 
-  def onTextBufferMultiSet(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiSet(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
     val s = p.readUTF()
@@ -760,7 +762,7 @@ object PacketHandler extends CommonPacketHandler {
     component.ClientGpuTextBufferHandler.removeBuffer(buffer, owner, id)
   }
 
-  def onTextBufferMultiRawSetText(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiRawSetText(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
 
@@ -778,7 +780,7 @@ object PacketHandler extends CommonPacketHandler {
     buffer.rawSetText(col, row, text)
   }
 
-  def onTextBufferMultiRawSetBackground(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiRawSetBackground(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
 
@@ -796,7 +798,7 @@ object PacketHandler extends CommonPacketHandler {
     buffer.rawSetBackground(col, row, color)
   }
 
-  def onTextBufferMultiRawSetForeground(p: PacketParser, buffer: api.internal.TextBuffer) {
+  def onTextBufferMultiRawSetForeground(p: PacketParser, buffer: api.internal.TextBuffer): Unit = {
     val col = p.readInt()
     val row = p.readInt()
 
@@ -820,7 +822,7 @@ object PacketHandler extends CommonPacketHandler {
       case _ => // Invalid packet.
     }
 
-  def onSoundEffect(p: PacketParser) {
+  def onSoundEffect(p: PacketParser): Unit = {
     val dimension = p.readInt()
     world(p.player, dimension) match {
       case Some(world) =>
@@ -835,7 +837,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onSound(p: PacketParser) {
+  def onSound(p: PacketParser): Unit = {
     val dimension = p.readInt()
     if (world(p.player, dimension).isDefined) {
       val x = p.readInt()
@@ -847,7 +849,7 @@ object PacketHandler extends CommonPacketHandler {
     }
   }
 
-  def onSoundPattern(p: PacketParser) {
+  def onSoundPattern(p: PacketParser): Unit = {
     val dimension = p.readInt()
     if (world(p.player, dimension).isDefined) {
       val x = p.readInt()

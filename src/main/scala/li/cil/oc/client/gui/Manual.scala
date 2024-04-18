@@ -12,9 +12,9 @@ import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
+import scala.jdk.CollectionConverters.*
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+
 
 class Manual extends GuiScreen with traits.Window {
   final val documentMaxWidth = 230
@@ -38,7 +38,7 @@ class Manual extends GuiScreen with traits.Window {
   var document: Segment = null
   var documentHeight = 0
   var currentSegment = None: Option[InteractiveSegment]
-  protected var scrollButton: ImageButton = _
+  protected var scrollButton: ImageButton = scala.compiletime.uninitialized
 
   private def canScroll = maxOffset > 0
 
@@ -56,8 +56,8 @@ class Manual extends GuiScreen with traits.Window {
 
   def refreshPage(): Unit = {
     val content = Option(api.Manual.contentFor(ManualAPI.history.top.path)).
-      getOrElse(asJavaIterable(Iterable("Document not found: " + ManualAPI.history.top.path)))
-    document = Document.parse(content)
+      getOrElse(Iterable("Document not found: " + ManualAPI.history.top.path).asJava)
+    document = Document.parse(content.asScala)
     documentHeight = Document.height(document, documentMaxWidth, fontRenderer)
     scrollTo(offset)
   }
@@ -109,7 +109,7 @@ class Manual extends GuiScreen with traits.Window {
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = buttonList.get(i).asInstanceOf[ImageButton]
       GlStateManager.pushMatrix()
-      GlStateManager.translate(button.x + 5, button.y + 5, zLevel)
+      GlStateManager.translate(button.x.toFloat + 5, button.y.toFloat + 5, zLevel)
       tab.renderer.render()
       GlStateManager.popMatrix()
     }
@@ -119,7 +119,7 @@ class Manual extends GuiScreen with traits.Window {
     if (!isDragging) currentSegment match {
       case Some(segment) =>
         segment.tooltip match {
-          case Some(text) if text.nonEmpty => drawHoveringText(seqAsJavaList(Localization.localizeImmediately(text).lines.toSeq), mouseX, mouseY, fontRenderer)
+          case Some(text) if text.nonEmpty => drawHoveringText(Localization.localizeImmediately(text).lines.toList, mouseX, mouseY, fontRenderer)
           case _ =>
         }
       case _ =>
@@ -128,12 +128,12 @@ class Manual extends GuiScreen with traits.Window {
     if (!isDragging) for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val button = buttonList.get(i).asInstanceOf[ImageButton]
       if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
-        drawHoveringText(seqAsJavaList(Localization.localizeImmediately(text).lines.toSeq), mouseX, mouseY, fontRenderer)
+        drawHoveringText(Localization.localizeImmediately(text).lines.toList, mouseX, mouseY, fontRenderer)
       })
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - guiLeft, mouseY - guiTop) || isDragging)) {
-      drawHoveringText(seqAsJavaList(Seq(s"${100 * offset / maxOffset}%")), guiLeft + scrollPosX + scrollWidth, scrollButton.y + scrollButton.height + 1, fontRenderer)
+      drawHoveringText(Seq(s"${100 * offset / maxOffset}%").asJava, guiLeft + scrollPosX + scrollWidth, scrollButton.y + scrollButton.height + 1, fontRenderer)
     }
   }
 
@@ -166,27 +166,27 @@ class Manual extends GuiScreen with traits.Window {
     else if (button == 1) popPage()
   }
 
-  override protected def mouseClickMove(mouseX: Int, mouseY: Int, lastButtonClicked: Int, timeSinceMouseClick: Long) {
+  override protected def mouseClickMove(mouseX: Int, mouseY: Int, lastButtonClicked: Int, timeSinceMouseClick: Long):Unit = {
     super.mouseClickMove(mouseX, mouseY, lastButtonClicked, timeSinceMouseClick)
     if (isDragging) {
       scrollMouse(mouseY)
     }
   }
 
-  override protected def mouseReleased(mouseX: Int, mouseY: Int, button: Int) {
+  override protected def mouseReleased(mouseX: Int, mouseY: Int, button: Int):Unit = {
     super.mouseReleased(mouseX, mouseY, button)
     if (button == 0) {
       isDragging = false
     }
   }
 
-  private def scrollMouse(mouseY: Int) {
+  private def scrollMouse(mouseY: Int):Unit = {
     scrollTo(math.round((mouseY - guiTop - scrollPosY - 6.5) * maxOffset / (scrollHeight - 13.0)).toInt)
   }
 
-  private def scrollUp() = scrollTo(offset - Document.lineHeight(fontRenderer) * 3)
+  private def scrollUp(): Unit = scrollTo(offset - Document.lineHeight(fontRenderer) * 3)
 
-  private def scrollDown() = scrollTo(offset + Document.lineHeight(fontRenderer) * 3)
+  private def scrollDown(): Unit = scrollTo(offset + Document.lineHeight(fontRenderer) * 3)
 
   private def scrollTo(row: Int): Unit = {
     ManualAPI.history.top.offset = math.max(0, math.min(maxOffset, row))

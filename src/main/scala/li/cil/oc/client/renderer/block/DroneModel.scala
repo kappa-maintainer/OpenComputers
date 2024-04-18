@@ -14,7 +14,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
-import scala.collection.convert.WrapAsJava.bufferAsJavaList
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object DroneModel extends SmartBlockModelBase {
@@ -25,7 +25,7 @@ object DroneModel extends SmartBlockModelBase {
 
     faces ++= Boxes.flatMap(box => bakeQuads(box, Array.fill(6)(droneTexture), None))
 
-    bufferAsJavaList(faces)
+    faces.asJava
   }
 
   protected def droneTexture = Textures.getSprite(Textures.Item.DroneItem)

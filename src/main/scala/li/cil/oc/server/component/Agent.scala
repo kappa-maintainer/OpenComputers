@@ -29,7 +29,7 @@ import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.common.MinecraftForge
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 trait Agent extends traits.WorldControl with traits.InventoryControl with traits.InventoryWorldControl with traits.TankAware with traits.TankControl with traits.TankWorldControl {
   def agent: internal.Agent
@@ -187,7 +187,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       if (args.isDouble(3)) args.checkDouble(3)
       else 0.0
 
-    def triggerDelay() {
+    def triggerDelay():Unit = {
       onWorldInteraction(context, Settings.get.useDelay)
     }
     def activationResult(activationType: ActivationType.Value) =
@@ -264,7 +264,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
     val sneaky = args.isBoolean(2) && args.checkBoolean(2)
     val stack = agent.mainInventory.getStackInSlot(agent.selectedSlot)
     if (stack.isEmpty) {
-      return result(Unit, "nothing selected")
+      return result((), "nothing selected")
     }
 
     for (side <- sides) {
@@ -305,19 +305,19 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
 
   // ----------------------------------------------------------------------- //
 
-  protected def beginConsumeDrops(entity: Entity) {
+  protected def beginConsumeDrops(entity: Entity):Unit = {
     entity.captureDrops = true
   }
 
 
-  protected def endConsumeDrops(player: Player, entity: Entity) {
+  protected def endConsumeDrops(player: Player, entity: Entity):Unit = {
     entity.captureDrops = false
     // this inventory size check is a HACK to preserve old behavior that a agent can suck items out
     // of the capturedDrops. Ideally, we'd only pick up items off the ground. We could clear the
     // capturedDrops when Player.attackTargetEntityWithCurrentItem() is called
     // But this felt slightly less hacky, slightly
     if (player.inventory.getSizeInventory > 0) {
-      for (drop <- entity.capturedDrops) {
+      for (drop <- entity.capturedDrops.asScala) {
         if (!drop.isDead) {
           val stack = drop.getItem
           InventoryUtils.addToPlayerInventory(stack, player, spawnInWorld = false)

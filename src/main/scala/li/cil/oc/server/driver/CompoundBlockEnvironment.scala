@@ -8,12 +8,13 @@ import li.cil.oc.api
 import li.cil.oc.api.network._
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.NBTTagCompound
+import scala.jdk.CollectionConverters.*
 
 class CompoundBlockEnvironment(val name: String, val environments: (String, ManagedEnvironment)*) extends ManagedEnvironment {
   // Block drivers with visibility < network usually won't make much sense,
   // but let's play it safe and use the least possible visibility based on
   // the drivers we encapsulate.
-  val node: Component = api.Network.newNode(this, (environments.filter(_._2.node != null).map(_._2.node.reachability) ++ Seq(Visibility.None)).max).
+  val node: Component = api.Network.newNode(this, (environments.filter(_._2.node != null).map(_._2.node.reachability) ++ Seq(Visibility.None)).maxBy(_.ordinal())).
     withComponent(name).
     create()
 
@@ -28,15 +29,15 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
 
   override def canUpdate: Boolean = environments.exists(_._2.canUpdate)
 
-  override def update() {
+  override def update():Unit = {
     for (environment <- updatingEnvironments) {
       environment.update()
     }
   }
 
-  override def onMessage(message: Message) {}
+  override def onMessage(message: Message):Unit = {}
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     if (node == this.node) {
       for ((_, environment) <- environments if environment.node != null) {
         node.connect(environment.node)
@@ -44,7 +45,7 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     if (node == this.node) {
       for ((_, environment) <- environments if environment.node != null) {
         environment.node.remove()
@@ -54,7 +55,7 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
 
   private final val TypeHashTag = "typeHash"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     // Ignore existing data if the underlying type is different.
     if (nbt.hasKey(TypeHashTag) && nbt.getLong(TypeHashTag) != typeHash) return
     node.load(nbt)
@@ -69,7 +70,7 @@ class CompoundBlockEnvironment(val name: String, val environments: (String, Mana
     }
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     nbt.setLong(TypeHashTag, typeHash)
     node.save(nbt)
     for ((driver, environment) <- environments) {

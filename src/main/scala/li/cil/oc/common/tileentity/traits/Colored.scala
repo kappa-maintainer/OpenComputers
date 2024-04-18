@@ -16,14 +16,14 @@ trait Colored extends TileEntity with internal.Colored {
 
   override def getColor: Int = _color
 
-  override def setColor(value: Int) = if (value != _color) {
+  override def setColor(value: Int): Unit = if (value != _color) {
     _color = value
     onColorChanged()
   }
 
   override def controlsConnectivity = false
 
-  protected def onColorChanged() {
+  protected def onColorChanged():Unit = {
     if (getWorld != null && isServer) {
       PacketSender.sendColorChange(this)
     }
@@ -34,7 +34,7 @@ trait Colored extends TileEntity with internal.Colored {
   private final val RenderColorTag = Settings.namespace + "renderColorRGB"
   private final val RenderColorTagCompat = Settings.namespace + "renderColor"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     if (nbt.hasKey(RenderColorTagCompat)) {
       _color = Color.rgbValues(EnumDyeColor.byMetadata(nbt.getInteger(RenderColorTagCompat)))
@@ -44,18 +44,18 @@ trait Colored extends TileEntity with internal.Colored {
     }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     nbt.setInteger(RenderColorTag, _color)
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     _color = nbt.getInteger(RenderColorTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     nbt.setInteger(RenderColorTag, _color)
   }

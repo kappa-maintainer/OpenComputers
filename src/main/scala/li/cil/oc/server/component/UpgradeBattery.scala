@@ -12,7 +12,7 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class UpgradeBattery(val tier: Int) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -27,5 +27,5 @@ class UpgradeBattery(val tier: Int) extends AbstractManagedEnvironment with Devi
     DeviceAttribute.Capacity -> Settings.get.bufferCapacitorUpgrades(tier).toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 }

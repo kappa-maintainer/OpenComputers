@@ -30,7 +30,7 @@ class PowerDistributor extends traits.Environment with traits.PowerBalancer with
 
   private final val ConnectorTag = Settings.namespace + "connector"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     nbt.getTagList(ConnectorTag, NBT.TAG_COMPOUND).toArray[NBTTagCompound].
       zipWithIndex.foreach {
@@ -38,7 +38,7 @@ class PowerDistributor extends traits.Environment with traits.PowerBalancer with
     }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     // Side check for Waila (and other mods that may call this client side).
     if (isServer) {

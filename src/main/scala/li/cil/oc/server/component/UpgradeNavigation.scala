@@ -27,9 +27,9 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
-class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends AbstractManagedEnvironment with DeviceInfo {
+class UpgradeNavigation(val host: EnvironmentHost & Rotatable) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
     withComponent("navigation", Visibility.Neighbors).
     withConnector().
@@ -45,7 +45,7 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
     DeviceAttribute.Capacity -> data.getSize(host.world).toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -59,7 +59,7 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
     if (math.abs(relativeX) <= size / 2 && math.abs(relativeZ) <= size / 2)
       result(relativeX, host.yPosition, relativeZ)
     else
-      result(Unit, "out of range")
+      result((), "out of range")
   }
 
   @Callback(doc = """function():number -- Get the current orientation of the robot.""")
@@ -71,8 +71,8 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
   @Callback(doc = """function(range:number):table -- Find waypoints in the specified range.""")
   def findWaypoints(context: Context, args: Arguments): Array[AnyRef] = {
     val range = args.checkDouble(0) max 0 min Settings.get.maxWirelessRange(Tier.Two)
-    if (range <= 0) return result(Array.empty)
-    if (!node.tryChangeBuffer(-range * Settings.get.wirelessCostPerRange(Tier.Two) * 0.25)) return result(Unit, "not enough energy")
+    if (range <= 0) return result(Array.empty[AnyRef])
+    if (!node.tryChangeBuffer(-range * Settings.get.wirelessCostPerRange(Tier.Two) * 0.25)) return result((), "not enough energy")
     context.pause(0.5)
     val position = BlockPosition(host)
     val positionVec = position.toVec3
@@ -107,12 +107,12 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
 
   // ----------------------------------------------------------------------- //
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     data.load(nbt)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     data.save(nbt)
   }

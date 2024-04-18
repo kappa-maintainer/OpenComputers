@@ -15,7 +15,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.language.existentials
 
 trait CPULike extends Delegate {
@@ -23,7 +23,7 @@ trait CPULike extends Delegate {
 
   override protected def tooltipData: Seq[Any] = Seq(Settings.get.cpuComponentSupport(cpuTier))
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]):Unit = {
     tooltip.addAll(Tooltip.get("cpu.Architecture", api.Machine.getArchitectureName(DriverCPU.architecture(stack))))
   }
 
@@ -32,7 +32,7 @@ trait CPULike extends Delegate {
       if (!world.isRemote) {
         api.Driver.driverFor(stack) match {
           case driver: MutableProcessor =>
-            val architectures = driver.allArchitectures.toList
+            val architectures = driver.allArchitectures.asScala.toList
             if (architectures.nonEmpty) {
               val currentIndex = architectures.indexOf(driver.architecture(stack))
               val newIndex = (currentIndex + 1) % architectures.length

@@ -8,10 +8,10 @@ import li.cil.oc.util.ScalaClosure._
 import li.cil.repack.org.luaj.vm2.LuaValue
 import li.cil.repack.org.luaj.vm2.Varargs
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class UserdataAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
-  override def initialize() {
+  override def initialize():Unit = {
     val userdata = LuaValue.tableOf()
 
     userdata.set("apply", (args: Varargs) => {
@@ -45,10 +45,10 @@ class UserdataAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
 
     userdata.set("methods", (args: Varargs) => {
       val value = args.checkuserdata(1, classOf[Value])
-      LuaValue.tableOf(machine.methods(value).map(entry => {
+      LuaValue.tableOf(machine.methods(value).asScala.flatMap(entry => {
         val (name, annotation) = entry
         Seq(LuaValue.valueOf(name), LuaValue.valueOf(annotation.direct))
-      }).flatten.toArray)
+      }).toArray)
     })
 
     userdata.set("invoke", (args: Varargs) => {
@@ -61,7 +61,7 @@ class UserdataAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
     userdata.set("doc", (args: Varargs) => {
       val value = args.checkuserdata(1, classOf[Value]).asInstanceOf[Value]
       val method = args.checkjstring(2)
-      owner.documentation(() => machine.methods(value)(method).doc)
+      owner.documentation(() => machine.methods(value).get(method).doc)
     })
 
     lua.set("userdata", userdata)

@@ -67,7 +67,7 @@ class Keyboard extends SimpleBlock(Material.ROCK) {
 
   override def shouldSideBeRendered(state: IBlockState, world: IBlockAccess, pos: BlockPos, side: EnumFacing) = true
 
-  override def preItemRender(metadata: Int) {
+  override def preItemRender(metadata: Int):Unit = {
     GlStateManager.translate(-0.75f, 0, 0)
     GlStateManager.scale(1.5f, 1.5f, 1.5f)
   }

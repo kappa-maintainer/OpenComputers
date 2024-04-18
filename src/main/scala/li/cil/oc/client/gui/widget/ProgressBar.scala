@@ -14,7 +14,7 @@ class ProgressBar(val x: Int, val y: Int) extends Widget {
 
   var level = 0.0
 
-  def draw() {
+  def draw():Unit = {
     if (level > 0) {
       val u0 = 0
       val u1 = level

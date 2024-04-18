@@ -9,7 +9,7 @@ import net.minecraftforge.common.MinecraftForge
 object ModMinecraftForge extends ModProxy {
   override def getMod: Mod = Mods.Forge
 
-  override def initialize() {
+  override def initialize():Unit = {
     MinecraftForge.EVENT_BUS.register(EventHandlerMinecraftForge)
     api.IMC.registerItemCharge("MinecraftForge",
       "li.cil.oc.integration.minecraftforge.EventHandlerMinecraftForge.canCharge",

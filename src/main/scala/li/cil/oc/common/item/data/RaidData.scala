@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.util.Constants.NBT
 
 class RaidData extends ItemData(Constants.BlockName.Raid) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     load(stack)
   }

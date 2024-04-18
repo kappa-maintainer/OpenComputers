@@ -67,7 +67,7 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
   override def tank: MultiTank {
     def tankCount: Int
 
-    def getFluidTank(index: Int): ManagedEnvironment with IFluidTank
+    def getFluidTank(index: Int): ManagedEnvironment & IFluidTank
   } = robot.tank
 
   override def selectedSlot: Int = robot.selectedSlot
@@ -90,9 +90,9 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
 
   // ----------------------------------------------------------------------- //
 
-  override def connectComponents() {}
+  override def connectComponents():Unit = {}
 
-  override def disconnectComponents() {}
+  override def disconnectComponents():Unit = {}
 
   override def isRunning: Boolean = robot.isRunning
 
@@ -126,7 +126,7 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
   def setName(context: Context, args: Arguments): Array[AnyRef] = {
     val oldName = robot.name
     val newName: String = args.checkString(0)
-    if (machine.isRunning) return result(Unit, "is running")
+    if (machine.isRunning) return result((), "is running")
     setName(newName)
     ServerPacketSender.sendRobotNameChange(robot)
     result(oldName)
@@ -135,7 +135,7 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
   @Callback(doc = "function():string -- Returns the robot name.")
   def getName(context: Context, args: Arguments): Array[AnyRef] = result(robot.name)
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != this.node) message.data match {
       case Array(packet: Packet) => robot.node.sendToReachable(message.name, packet)
@@ -145,11 +145,11 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     robot.updateEntity()
   }
 
-  override def validate() {
+  override def validate():Unit = {
     super.validate()
     val firstProxy = robot.proxy == null
     robot.proxy = this
@@ -166,20 +166,20 @@ class RobotProxy(val robot: Robot) extends traits.Computer with traits.PowerInfo
     }
   }
 
-  override def dispose() {
+  override def dispose():Unit = {
     super.dispose()
     if (robot.proxy == this) {
       robot.dispose()
     }
   }
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     robot.info.load(nbt)
     super.readFromNBTForServer(nbt)
     robot.readFromNBTForServer(nbt)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     robot.writeToNBTForServer(nbt)
   }

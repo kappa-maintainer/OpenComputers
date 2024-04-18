@@ -28,11 +28,11 @@ class Inventory(playerEntity: EntityPlayer, val agent: internal.Agent) extends I
     else inventorySlots.find(getStackInSlot(_).isEmpty).getOrElse(-1)
   }
 
-  override def changeCurrentItem(direction: Int) {}
+  override def changeCurrentItem(direction: Int):Unit = {}
 
   override def clearMatchingItems(item: Item, damage: Int, count: Int, tag: NBTTagCompound): Int = 0
 
-  override def decrementAnimations() {
+  override def decrementAnimations():Unit = {
     for (slot <- 0 until getSizeInventory) {
       StackOption(getStackInSlot(slot)) match {
         case SomeStack(stack) => try stack.updateAnimation(agent.world, if (!agent.world.isRemote) agent.player else null, slot, slot == 0) catch {
@@ -54,17 +54,17 @@ class Inventory(playerEntity: EntityPlayer, val agent: internal.Agent) extends I
 
   override def writeToNBT(nbt: NBTTagList): NBTTagList = nbt
 
-  override def readFromNBT(nbt: NBTTagList) {}
+  override def readFromNBT(nbt: NBTTagList):Unit = {}
 
   override def armorItemInSlot(slot: Int): ItemStack = ItemStack.EMPTY
 
-  override def damageArmor(damage: Float) {}
+  override def damageArmor(damage: Float):Unit = {}
 
   override def dropAllItems(): Unit = {}
 
   override def hasItemStack(stack: ItemStack): Boolean = (0 until getSizeInventory).map(getStackInSlot).filter(!_.isEmpty).exists(_.isItemEqual(stack))
 
-  override def copyInventory(from: InventoryPlayer) {}
+  override def copyInventory(from: InventoryPlayer):Unit = {}
 
   // IInventory
 

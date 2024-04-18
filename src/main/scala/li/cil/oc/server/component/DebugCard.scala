@@ -56,7 +56,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.ModAPIManager
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with DebugNode {
@@ -198,7 +198,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
   def runCommand(context: Context, args: Arguments): Array[AnyRef] = {
     checkAccess()
     val commands =
-      if (args.isTable(0)) collectionAsScalaIterable(args.checkTable(0).values())
+      if (args.isTable(0)) args.checkTable(0).values().asScala
       else Iterable(args.checkString(0))
 
     CommandSender.synchronized {
@@ -225,7 +225,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
         node.connect(other)
         result(true)
       case _ =>
-        result(Unit, "no node found at this position")
+        result((), "no node found at this position")
     }
   }
 
@@ -243,8 +243,8 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
   def test(context: Context, args: Arguments): Array[AnyRef] = {
     checkAccess()
 
-    val v1 = mutable.Map("a" -> true, "b" -> "test")
-    val v2 = Map(10 -> "zxc", false -> v1)
+    val v1 = mutable.Map[Any, Any]("a" -> true, "b" -> "test")
+    val v2 = Map[Any, Any](10 -> "zxc", false -> v1)
     v1 += "c" -> v2
 
     result(v2, new DebugCard.TestValue(), host.world)
@@ -269,15 +269,15 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
     checkAccess()
     val destination = args.checkString(0)
     DebugNetwork.getEndpoint(destination).filter(_ != this).foreach{endpoint =>
-      val packet = Network.newPacket(node.address, destination, 0, args.drop(1).toArray)
+      val packet = Network.newPacket(node.address, destination, 0, args.asScala.drop(1).toArray)
       endpoint.receivePacket(packet)
     }
     result()
   }
 
-  override def receivePacket(packet: Packet) {
+  override def receivePacket(packet: Packet):Unit = {
     val distance = 0
-    node.sendToReachable("computer.signal", Seq("debug_message", packet.source, Int.box(packet.port), Double.box(distance)) ++ packet.data: _*)
+    node.sendToReachable("computer.signal", Seq("debug_message", packet.source, Int.box(packet.port), Double.box(distance)) ++ packet.data*)
   }
 
   override def address: String = if(node != null) node.address() else "debug"
@@ -374,7 +374,7 @@ object DebugCard {
       checkAccess()
       FMLCommonHandler.instance.getMinecraftServerInstance.getPlayerList.getPlayerByUsername(name) match {
         case player: EntityPlayerMP => f(player)
-        case _ => result(Unit, "player is offline")
+        case _ => result((), "player is offline")
       }
     }
 
@@ -470,13 +470,13 @@ object DebugCard {
 
     private final val NameTag = "name"
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit = {
       super.load(nbt)
       ctx = AccessContext.load(nbt)
       name = nbt.getString(NameTag)
     }
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit = {
       super.save(nbt)
       ctx.foreach(_.save(nbt))
       nbt.setString(NameTag, name)
@@ -598,7 +598,7 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit = {
       super.load(nbt)
       ctx = AccessContext.load(nbt)
       dimension = nbt.getInteger(DimensionTag)
@@ -754,15 +754,15 @@ object DebugCard {
       val blockPos = new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       world.getTileEntity(blockPos) match {
         case tileEntity: TileEntity =>
-          typedMapToNbt(mapAsScalaMap(args.checkTable(3)).toMap) match {
+          typedMapToNbt(args.checkTable(3).asScala.toMap) match {
             case nbt: NBTTagCompound =>
               tileEntity.readFromNBT(nbt)
               tileEntity.markDirty()
               world.notifyBlockUpdate(blockPos)
               result(true)
-            case nbt => result(Unit, s"nbt tag compound expected, got '${NBTBase.NBT_TYPES(nbt.getId)}'")
+            case nbt => result((), s"nbt tag compound expected, got '${NBTBase.NBT_TYPES(nbt.getId)}'")
           }
-        case _ => result(Unit, "no tile entity")
+        case _ => result((), "no tile entity")
       }
     }
 
@@ -829,7 +829,7 @@ object DebugCard {
           val stack = new ItemStack(item, count, damage)
           stack.setTagCompound(tag)
           result(InventoryUtils.insertIntoInventory(stack, inventory))
-        case _ => result(Unit, "no inventory")
+        case _ => result((), "no inventory")
       }
     }
 
@@ -844,7 +844,7 @@ object DebugCard {
           val removed = inventory.extractItem(slot, count, false)
           if (removed.isEmpty) result(0)
           else result(removed.getCount)
-        case _ => result(Unit, "no inventory")
+        case _ => result((), "no inventory")
       }
     }
 
@@ -860,7 +860,7 @@ object DebugCard {
       val side = args.checkSideAny(5)
       world.getTileEntity(position) match {
         case handler: IFluidHandler => result(handler.fill(new FluidStack(fluid, amount), true))
-        case _ => result(Unit, "no tank")
+        case _ => result((), "no tank")
       }
     }
 
@@ -872,7 +872,7 @@ object DebugCard {
       val side = args.checkSideAny(4)
       world.getTileEntity(position) match {
         case handler: IFluidHandler => result(handler.drain(amount, true))
-        case _ => result(Unit, "no tank")
+        case _ => result((), "no tank")
       }
     }
 
@@ -881,13 +881,13 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit = {
       super.load(nbt)
       ctx = AccessContext.load(nbt)
       world = DimensionManager.getWorld(nbt.getInteger(DimensionTag))
     }
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit = {
       super.save(nbt)
       ctx.foreach(_.save(nbt))
       nbt.setInteger(DimensionTag, world.provider.getDimension)
@@ -909,7 +909,7 @@ object DebugCard {
 
     override def getEntityWorld: World = host.world
 
-    override def sendMessage(message: ITextComponent) {
+    override def sendMessage(message: ITextComponent):Unit = {
       messages = Option(messages.fold("")(_ + "\n") + message.getUnformattedText)
     }
 
@@ -951,7 +951,7 @@ object DebugCard {
 
     override def call(context: Context, arguments: Arguments): Array[AnyRef] = {
       OpenComputers.log.info("TestValue.call(" + arguments.toArray.mkString(", ") + ")")
-      result(arguments.toArray: _*)
+      result(arguments.toArray*)
     }
 
     override def dispose(context: Context): Unit = {

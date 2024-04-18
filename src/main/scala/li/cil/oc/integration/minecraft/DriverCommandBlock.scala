@@ -19,7 +19,7 @@ import net.minecraft.world.World
 import net.minecraftforge.fml.common.FMLCommonHandler
 
 object DriverCommandBlock extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[TileEntityCommandBlock]
+  override def getTileEntityClass: Class[?] = classOf[TileEntityCommandBlock]
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileEntityCommandBlock])
@@ -55,7 +55,7 @@ object DriverCommandBlock extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] = {
+    override def getEnvironment(stack: ItemStack): Class[?] = {
       if (!stack.isEmpty && Block.getBlockFromItem(stack.getItem) == Blocks.COMMAND_BLOCK)
         classOf[Environment]
       else null

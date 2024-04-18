@@ -10,9 +10,9 @@ import org.lwjgl.input.Mouse
 import scala.collection.mutable
 
 object KeyBindings {
-  val keyBindingChecks = mutable.ArrayBuffer(isKeyBindingPressedVanilla _)
+  val keyBindingChecks = mutable.ArrayBuffer(isKeyBindingPressedVanilla)
 
-  val keyBindingNameGetters = mutable.ArrayBuffer(getKeyBindingNameVanilla _)
+  val keyBindingNameGetters = mutable.ArrayBuffer(getKeyBindingNameVanilla)
 
   def showExtendedTooltips: Boolean = isKeyBindingPressed(extendedTooltip)
 

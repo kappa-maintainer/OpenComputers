@@ -49,7 +49,7 @@ class Robot(playerInventory: InventoryPlayer, robot: tileentity.Robot) extends P
   private var lastSentBufferSize = -1
 
   @SideOnly(Side.CLIENT)
-  override def updateProgressBar(id: Int, value: Int) {
+  override def updateProgressBar(id: Int, value: Int):Unit = {
     super.updateProgressBar(id, value)
     if (id == 0) {
       robot.globalBuffer = value * factor
@@ -60,7 +60,7 @@ class Robot(playerInventory: InventoryPlayer, robot: tileentity.Robot) extends P
     }
   }
 
-  override def detectAndSendChanges() {
+  override def detectAndSendChanges():Unit = {
     super.detectAndSendChanges()
     if (SideTracker.isServer) {
       val currentBuffer = robot.globalBuffer.toInt / factor

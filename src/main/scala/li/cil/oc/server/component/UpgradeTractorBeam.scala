@@ -22,8 +22,7 @@ import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.BlockPos
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object UpgradeTractorBeam {
 
@@ -41,7 +40,7 @@ object UpgradeTractorBeam {
       DeviceAttribute.Product -> "T313-K1N.3515"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   protected def position: BlockPosition
 
@@ -52,6 +51,7 @@ object UpgradeTractorBeam {
   @Callback(doc = """function():boolean -- Tries to pick up a random item in the robots' vicinity.""")
   def suck(context: Context, args: Arguments): Array[AnyRef] = {
     val items = world.getEntitiesWithinAABB(classOf[EntityItem], position.bounds.grow(pickupRadius, pickupRadius, pickupRadius))
+      .asScala
       .filter(item => item.isEntityAlive && !item.cannotPickup)
     if (items.nonEmpty) {
       val item = items(world.rand.nextInt(items.size))

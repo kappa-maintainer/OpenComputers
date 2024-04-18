@@ -30,8 +30,8 @@ import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.World
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessEndpoint {
@@ -83,7 +83,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
             case Array("saveConfiguration") =>
               val nanomachines = api.Items.get(Constants.ItemName.Nanomachines)
               try {
-                val index = player.inventory.mainInventory.indexWhere(stack => api.Items.get(stack) == nanomachines && new NanomachineData(stack).configuration.isEmpty)
+                val index = player.inventory.mainInventory.asScala.indexWhere(stack => api.Items.get(stack) == nanomachines && new NanomachineData(stack).configuration.isEmpty)
                 if (index >= 0) {
                   val stack = player.inventory.decrStackSize(index, 1)
                   new NanomachineData(this).save(stack)
@@ -138,7 +138,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
               }
             case Array("getActiveEffects") =>
               configuration.synchronized {
-                val names = getActiveBehaviors.map(_.getNameHint).filterNot(Strings.isNullOrEmpty)
+                val names = getActiveBehaviors.asScala.map(_.getNameHint).filterNot(Strings.isNullOrEmpty)
                 val joined = "{" + names.map(_.replace(',', '_').replace('"', '_')).mkString(",") + "}"
                 respond(sender, "effects", joined)
               }
@@ -204,7 +204,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
 
   override def getActiveBehaviors: lang.Iterable[Behavior] = configuration.synchronized {
     cleanActiveBehaviors(DisableReason.InputChanged)
-    activeBehaviors
+    activeBehaviors.asJava
   }
 
   override def getInputCount(behavior: Behavior): Int = configuration.synchronized(configuration.inputs(behavior))
@@ -256,7 +256,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
     }
 
     var hasPower = getLocalBuffer > 0 || Settings.get.ignorePower
-    lazy val active = getActiveBehaviors.toIterable // Wrap once.
+    lazy val active = getActiveBehaviors.asScala.toIterable // Wrap once.
     lazy val activeInputs = configuration.triggers.count(_.isActive)
 
     if (hasPower != hadPower) {
@@ -365,8 +365,8 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
     if (activeBehaviorsDirty) {
       configuration.synchronized(if (activeBehaviorsDirty) {
         val newBehaviors = configuration.behaviors.filter(_.isActive).map(_.behavior)
-        val addedBehaviors = newBehaviors -- activeBehaviors
-        val removedBehaviors = activeBehaviors -- newBehaviors
+        val addedBehaviors = newBehaviors.toSet.filterNot(activeBehaviors.contains(_))
+        val removedBehaviors = activeBehaviors.filterNot(newBehaviors.contains(_))
         activeBehaviors.clear()
         activeBehaviors ++= newBehaviors
         activeBehaviorsDirty = false

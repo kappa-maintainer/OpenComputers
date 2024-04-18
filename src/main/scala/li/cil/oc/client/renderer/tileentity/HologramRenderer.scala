@@ -65,7 +65,7 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
    */
   private var failed = false
 
-  override def render(hologram: Hologram, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(hologram: Hologram, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     if (failed) {
       HologramRendererFallback.render(hologram, x, y, z, f, damage, alpha)
       return
@@ -160,7 +160,7 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  def draw(glBuffer: Int) {
+  def draw(glBuffer: Int):Unit = {
     if (initialize()) {
       validate(glBuffer)
       publish(glBuffer)
@@ -175,7 +175,7 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
       commonBuffer = GL15.glGenBuffers()
 
       val data = BufferUtils.createFloatBuffer(hologram.width * hologram.width * hologram.height * 24 * (2 + 3 + 3))
-      def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int) {
+      def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int):Unit = {
         data.put(u)
         data.put(v)
         data.put(nx)
@@ -249,16 +249,17 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
       HologramRendererFallback.text = "Not enough memory"
       failed = true
       false
-  })
+  }
+  )
 
-  private def validate(glBuffer: Int) {
+  private def validate(glBuffer: Int):Unit = {
     // Refresh indexes when the hologram's data changed.
     if (hologram.needsRendering) {
       def value(hx: Int, hy: Int, hz: Int) = if (hx >= 0 && hy >= 0 && hz >= 0 && hx < hologram.width && hy < hologram.height && hz < hologram.width) hologram.getColor(hx, hy, hz) else 0
 
       def isSolid(hx: Int, hy: Int, hz: Int) = value(hx, hy, hz) != 0
 
-      def addFace(index: Int, color: Int) {
+      def addFace(index: Int, color: Int):Unit = {
         dataBuffer.put(index)
         dataBuffer.put(index + 1)
         dataBuffer.put(index + 2)
@@ -345,7 +346,7 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
     }
   }
 
-  private def publish(glBuffer: Int) {
+  private def publish(glBuffer: Int):Unit = {
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, commonBuffer)
     GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY)
     GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
@@ -364,7 +365,7 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
   // Cache
   // ----------------------------------------------------------------------- //
 
-  def call = {
+  def call: Int = {
     val glBuffer = GL15.glGenBuffers()
 
     // Force re-indexing.
@@ -373,12 +374,12 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
     glBuffer
   }
 
-  def onRemoval(e: RemovalNotification[TileEntity, Int]) {
+  def onRemoval(e: RemovalNotification[TileEntity, Int]):Unit = {
     val glBuffer = e.getValue
     GL15.glDeleteBuffers(glBuffer)
     dataBuffer.clear()
   }
 
   @SubscribeEvent
-  def onTick(e: ClientTickEvent) = cache.cleanUp()
+  def onTick(e: ClientTickEvent): Unit = cache.cleanUp()
 }

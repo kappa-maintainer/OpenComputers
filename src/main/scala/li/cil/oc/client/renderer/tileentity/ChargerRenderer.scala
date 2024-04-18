@@ -11,7 +11,7 @@ import net.minecraft.util.EnumFacing
 import org.lwjgl.opengl.GL11
 
 object ChargerRenderer extends TileEntitySpecialRenderer[Charger] {
-  override def render(charger: Charger, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(charger: Charger, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (charger.chargeSpeed > 0) {

@@ -18,12 +18,12 @@ trait Inventory extends TileEntity with inventory.Inventory {
 
   override def getDisplayName: ITextComponent = super[Inventory].getDisplayName
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     load(nbt)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     save(nbt)
   }

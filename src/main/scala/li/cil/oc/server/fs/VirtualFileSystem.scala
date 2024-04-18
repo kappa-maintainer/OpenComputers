@@ -149,12 +149,12 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
 
     var lastModified = System.currentTimeMillis()
 
-    def load(nbt: NBTTagCompound) {
+    def load(nbt: NBTTagCompound):Unit = {
       if (nbt.hasKey("lastModified"))
         lastModified = nbt.getLong("lastModified")
     }
 
-    def save(nbt: NBTTagCompound) {
+    def save(nbt: NBTTagCompound):Unit = {
       nbt.setLong("lastModified", lastModified)
     }
 
@@ -182,19 +182,19 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
       else {
         if (mode == Mode.Write) {
           data.clear()
-          lastModified = System.currentTimeMillis()
+          this.lastModified = System.currentTimeMillis()
         }
         handle = Some(new VirtualOutputHandle(this, owner, id, path))
         handle
       }
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit = {
       super.load(nbt)
       data.clear()
       data ++= nbt.getByteArray("data")
     }
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit = {
       super.save(nbt)
       nbt.setByteArray("data", data.toArray)
     }
@@ -219,7 +219,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
       if (children.contains(name)) false
       else {
         children += name -> new VirtualDirectory
-        lastModified = System.currentTimeMillis()
+        this.lastModified = System.currentTimeMillis()
         true
       }
 
@@ -227,7 +227,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
       children.get(name) match {
         case Some(child) if child.canDelete =>
           children -= name
-          lastModified = System.currentTimeMillis()
+          this.lastModified = System.currentTimeMillis()
           true
         case _ => false
       }
@@ -239,7 +239,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
         case None =>
           val child = new VirtualFile
           children += name -> child
-          lastModified = System.currentTimeMillis()
+          this.lastModified = System.currentTimeMillis()
           Some(child)
         case _ => None // Directory.
       }
@@ -248,7 +248,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
     private final val IsDirectoryTag = "isDirectory"
     private final val NameTag = "name"
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit = {
       super.load(nbt)
       val childrenNbt = nbt.getTagList(ChildrenTag, NBT.TAG_COMPOUND)
       (0 until childrenNbt.tagCount).map(childrenNbt.getCompoundTagAt).foreach(childNbt => {
@@ -260,7 +260,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
       })
     }
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit = {
       super.save(nbt)
       val childrenNbt = new NBTTagList()
       for ((childName, child) <- children) {

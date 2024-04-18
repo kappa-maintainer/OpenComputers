@@ -31,7 +31,7 @@ class Server(val parent: Delegator, val tier: Int) extends traits.Delegate {
     var container = ItemStack.EMPTY
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]):Unit = {
     super.tooltipExtended(stack, tooltip)
     if (KeyBindings.showExtendedTooltips) {
       HelperInventory.container = stack

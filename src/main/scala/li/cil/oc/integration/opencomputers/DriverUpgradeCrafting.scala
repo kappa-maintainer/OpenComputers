@@ -18,7 +18,7 @@ object DriverUpgradeCrafting extends Item with HostAware {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (host.world != null && host.world.isRemote) null
     else host match {
-      case robot: EnvironmentHost with Robot => new component.UpgradeCrafting(robot)
+      case robot: (EnvironmentHost & Robot) => new component.UpgradeCrafting(robot)
       case _ => null
     }
 
@@ -27,7 +27,7 @@ object DriverUpgradeCrafting extends Item with HostAware {
   override def tier(stack: ItemStack) = Tier.Two
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeCrafting]
       else null

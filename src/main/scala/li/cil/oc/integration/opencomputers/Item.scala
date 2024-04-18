@@ -15,7 +15,7 @@ import net.minecraft.nbt.NBTTagCompound
 import scala.annotation.tailrec
 
 trait Item extends DriverItem {
-  def worksWith(stack: ItemStack, host: Class[_ <: EnvironmentHost]): Boolean =
+  def worksWith(stack: ItemStack, host: Class[? <: EnvironmentHost]): Boolean =
     worksWith(stack) && !Registry.blacklist.exists {
       case (blacklistedStack, blacklistedHost) =>
         stack.isItemEqual(blacklistedStack) &&
@@ -28,21 +28,21 @@ trait Item extends DriverItem {
 
   protected def isOneOf(stack: ItemStack, items: api.detail.ItemInfo*): Boolean = items.filter(_ != null).contains(api.Items.get(stack))
 
-  protected def isAdapter(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Adapter].isAssignableFrom(host)
+  protected def isAdapter(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Adapter].isAssignableFrom(host)
 
-  protected def isComputer(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Case].isAssignableFrom(host)
+  protected def isComputer(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Case].isAssignableFrom(host)
 
-  protected def isRobot(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Robot].isAssignableFrom(host)
+  protected def isRobot(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Robot].isAssignableFrom(host)
 
-  protected def isRotatable(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Rotatable].isAssignableFrom(host)
+  protected def isRotatable(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Rotatable].isAssignableFrom(host)
 
-  protected def isServer(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Server].isAssignableFrom(host)
+  protected def isServer(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Server].isAssignableFrom(host)
 
-  protected def isTablet(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Tablet].isAssignableFrom(host)
+  protected def isTablet(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Tablet].isAssignableFrom(host)
 
-  protected def isMicrocontroller(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Microcontroller].isAssignableFrom(host)
+  protected def isMicrocontroller(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Microcontroller].isAssignableFrom(host)
 
-  protected def isDrone(host: Class[_ <: EnvironmentHost]): Boolean = classOf[internal.Drone].isAssignableFrom(host)
+  protected def isDrone(host: Class[? <: EnvironmentHost]): Boolean = classOf[internal.Drone].isAssignableFrom(host)
 }
 
 object Item {

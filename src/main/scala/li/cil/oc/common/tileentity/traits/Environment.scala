@@ -12,7 +12,7 @@ import net.minecraft.util.EnumFacing
 trait Environment extends TileEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false
 
-  override def world = getWorld
+  override def world() = getWorld
 
   override def xPosition = x + 0.5
 
@@ -26,14 +26,14 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  override protected def initialize() {
+  override protected def initialize():Unit = {
     super.initialize()
     if (isServer) {
       EventHandler.scheduleServer(this)
     }
   }
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     super.updateEntity()
     if (isChangeScheduled) {
       getWorld.markChunkDirty(getPos, this)
@@ -41,7 +41,7 @@ trait Environment extends TileEntity with network.Environment with network.Envir
     }
   }
 
-  override def dispose() {
+  override def dispose():Unit = {
     super.dispose()
     if (isServer) {
       Option(node).foreach(_.remove)
@@ -58,14 +58,14 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   private final val NodeTag = Settings.namespace + "node"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     if (node != null && node.host == this) {
       node.load(nbt.getCompoundTag(NodeTag))
     }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     if (node != null && node.host == this) {
       nbt.setNewCompoundTag(NodeTag, node.save)
@@ -74,11 +74,11 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  override def onMessage(message: network.Message) {}
+  override def onMessage(message: network.Message):Unit = {}
 
-  override def onConnect(node: network.Node) {}
+  override def onConnect(node: network.Node):Unit = {}
 
-  override def onDisconnect(node: network.Node) {
+  override def onDisconnect(node: network.Node):Unit = {
     if (node == this.node) node match {
       case connector: Connector =>
         // Set it to zero to push all energy into other nodes, to
@@ -94,5 +94,5 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   // ----------------------------------------------------------------------- //
 
-  protected def result(args: Any*) = li.cil.oc.util.ResultWrapper.result(args: _*)
+  protected def result(args: Any*) = li.cil.oc.util.ResultWrapper.result(args*)
 }

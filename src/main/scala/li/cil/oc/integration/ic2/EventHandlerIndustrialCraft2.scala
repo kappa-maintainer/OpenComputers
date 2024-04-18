@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 object EventHandlerIndustrialCraft2 {
   @SubscribeEvent
-  def onRobotApplyDamageRate(e: RobotUsedToolEvent.ApplyDamageRate) {
+  def onRobotApplyDamageRate(e: RobotUsedToolEvent.ApplyDamageRate):Unit = {
     val optManagerBefore = e.toolBeforeUse.getItem match {
       case item: ISpecialElectricItem => Option(item.getManager(e.toolBeforeUse))
       case item: IElectricItem => Option(ElectricItem.manager)

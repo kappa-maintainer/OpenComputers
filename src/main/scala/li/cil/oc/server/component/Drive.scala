@@ -27,7 +27,7 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.DimensionManager
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Option[EnvironmentHost], val sound: Option[String], val speed: Int, val isLocked: Boolean) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -64,7 +64,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
     DeviceAttribute.Clock -> (((2000 / readSectorCosts(speed)).toInt / 100).toString + "/" + ((2000 / writeSectorCosts(speed)).toInt / 100).toString + "/" + ((2000 / readByteCosts(speed)).toInt / 100).toString + "/" + ((2000 / writeByteCosts(speed)).toInt / 100).toString)
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -215,7 +215,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
 
   private def offsetSector(offset: Int) = offset / sectorSize
 
-  private def diskActivity() {
+  private def diskActivity():Unit = {
     (sound, host) match {
       case (Some(s), Some(h)) => ServerPacketSender.sendFileSystemActivity(node, h, s)
       case _ =>

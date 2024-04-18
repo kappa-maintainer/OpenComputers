@@ -1,7 +1,7 @@
 package li.cil.oc.client.gui.widget
 
 abstract class Widget {
-  var owner: WidgetContainer = _
+  var owner: WidgetContainer = scala.compiletime.uninitialized
 
   def x: Int
 

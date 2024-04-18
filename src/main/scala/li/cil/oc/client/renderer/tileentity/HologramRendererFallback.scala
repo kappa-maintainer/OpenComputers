@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
 object HologramRendererFallback extends TileEntitySpecialRenderer[Hologram] {
   var text = "Requires OpenGL 1.5"
 
-  override def render(hologram: Hologram, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(hologram: Hologram, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val fontRenderer = Minecraft.getMinecraft.fontRenderer

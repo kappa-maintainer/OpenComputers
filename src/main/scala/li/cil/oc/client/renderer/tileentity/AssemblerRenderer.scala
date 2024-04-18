@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11
 
 object AssemblerRenderer extends TileEntitySpecialRenderer[Assembler] {
 
-  override def render(assembler: Assembler, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(assembler: Assembler, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderState.pushAttrib()

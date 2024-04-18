@@ -15,7 +15,7 @@ import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.util.Random
 
@@ -34,8 +34,8 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   def reconfigure(): Unit = {
     // Rebuild list of valid behaviors.
     behaviors.clear()
-    behaviors ++= api.Nanomachines.getProviders.
-      map(p => (p, Option(p.createBehaviors(controller.player)).map(_.filter(_ != null)).orNull)). // Remove null behaviors.
+    behaviors ++= api.Nanomachines.getProviders.asScala.
+      map(p => (p, Option(p.createBehaviors(controller.player)).map(_.asScala.filter(_ != null)).orNull)). // Remove null behaviors.
       filter(_._2 != null). // Remove null lists..
       flatMap(pb => pb._2.map(b => new BehaviorNeuron(pb._1, b)))
 
@@ -105,8 +105,8 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
     log(s"Creating debug configuration for nanomachines in player ${controller.player.getDisplayName}.")
 
     behaviors.clear()
-    behaviors ++= api.Nanomachines.getProviders.
-      map(p => (p, Option(p.createBehaviors(controller.player)).map(_.filter(_ != null)).orNull)). // Remove null behaviors.
+    behaviors ++= api.Nanomachines.getProviders.asScala.
+      map(p => (p, Option(p.createBehaviors(controller.player)).map(_.asScala.filter(_ != null)).orNull)). // Remove null behaviors.
       filter(_._2 != null). // Remove null lists..
       flatMap(pb => pb._2.map(b => new BehaviorNeuron(pb._1, b)))
 
@@ -209,7 +209,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
 
     behaviors.clear()
     nbt.getTagList(BehaviorsTag, NBT.TAG_COMPOUND).foreach((t: NBTTagCompound) => {
-      api.Nanomachines.getProviders.find(p => p.readFromNBT(controller.player, t.getCompoundTag(BehaviorTag)) match {
+      api.Nanomachines.getProviders.asScala.find(p => p.readFromNBT(controller.player, t.getCompoundTag(BehaviorTag)) match {
         case b: Behavior =>
           val neuron = new BehaviorNeuron(p, b)
           neuron.inputs ++= t.getIntArray(TriggerInputsTag).map(triggers.apply)

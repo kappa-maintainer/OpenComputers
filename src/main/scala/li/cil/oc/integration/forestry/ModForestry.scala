@@ -7,7 +7,7 @@ import li.cil.oc.integration.Mods
 object ModForestry extends ModProxy {
   override def getMod = Mods.Forestry
 
-  override def initialize() {
+  override def initialize():Unit = {
     Driver.add(new ConverterIAlleles)
     Driver.add(new ConverterIIndividual)
     Driver.add(ConverterItemStack)

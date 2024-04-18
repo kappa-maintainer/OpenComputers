@@ -23,12 +23,12 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object DriverBlockInterface extends DriverSidedTileEntity {
-  def getTileEntityClass: Class[_] = AEUtil.interfaceClass
+  def getTileEntityClass: Class[?] = AEUtil.interfaceClass
 
   def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
-    new Environment(world.getTileEntity(pos).asInstanceOf[TileEntity with ISegmentedInventory with IActionHost with IGridHost])
+    new Environment(world.getTileEntity(pos).asInstanceOf[TileEntity & ISegmentedInventory & IActionHost & IGridHost])
 
-  final class Environment(val tile: TileEntity with ISegmentedInventory with IActionHost with IGridHost) extends ManagedTileEntityEnvironment[TileEntity with ISegmentedInventory with IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[TileEntity with ISegmentedInventory with IActionHost with IGridHost] {
+  final class Environment(val tile: TileEntity & ISegmentedInventory & IActionHost & IGridHost) extends ManagedTileEntityEnvironment[TileEntity & ISegmentedInventory & IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[TileEntity & ISegmentedInventory & IActionHost & IGridHost] {
     override def preferredName = "me_interface"
     override def pos: AEPartLocation = AEPartLocation.INTERNAL
 
@@ -74,7 +74,7 @@ object DriverBlockInterface extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (AEUtil.isBlockInterface(stack))
         classOf[Environment]
       else null

@@ -77,15 +77,14 @@ object Mods {
     }
   }
 
-  private def tryInit(mod: ModProxy) {
+  private def tryInit(mod: ModProxy):Unit = {
     val isBlacklisted = Settings.get.modBlacklist.contains(mod.getMod.id)
     val alwaysEnabled = mod.getMod == null || mod.getMod == Mods.Minecraft
     if (!isBlacklisted && (alwaysEnabled || mod.getMod.isModAvailable) && handlers.add(mod)) {
       li.cil.oc.OpenComputers.log.debug(s"Initializing mod integration for '${mod.getMod.id}'.")
-      try mod.initialize() catch {
+      try mod.initialize() catch 
         case e: Throwable =>
           li.cil.oc.OpenComputers.log.warn(s"Error initializing integration for '${mod.getMod.id}'", e)
-      }
     }
   }
 
@@ -143,9 +142,9 @@ object Mods {
   }
 
   class ClassBasedMod(val id: String, val classNames: String*) extends ModBase {
-    private lazy val isModAvailable_ = Loader.isModLoaded(id) && classNames.forall(className => try Class.forName(className) != null catch {
+    private lazy val isModAvailable_ = Loader.isModLoaded(id) && classNames.forall(className => try Class.forName(className) != null catch 
       case _: Throwable => false
-    })
+    )
 
     def isModAvailable: Boolean = isModAvailable_
   }

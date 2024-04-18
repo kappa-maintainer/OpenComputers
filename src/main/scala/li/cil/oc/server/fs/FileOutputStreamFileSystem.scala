@@ -42,7 +42,7 @@ trait FileOutputStreamFileSystem extends FileInputStreamFileSystem with OutputSt
 
   // ----------------------------------------------------------------------- //
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     root.mkdirs()
     root.setLastModified(System.currentTimeMillis())
@@ -59,7 +59,7 @@ trait FileOutputStreamFileSystem extends FileInputStreamFileSystem with OutputSt
 
     override def length() = file.length()
 
-    override def close() {
+    override def close():Unit = {
       super.close()
       file.close()
     }

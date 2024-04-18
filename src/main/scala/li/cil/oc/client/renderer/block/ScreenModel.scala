@@ -19,8 +19,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
 import net.minecraftforge.common.property.IExtendedBlockState
+import scala.jdk.CollectionConverters.*
 
-import scala.collection.convert.WrapAsJava._
 
 object ScreenModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrideList = ItemOverride
@@ -72,7 +72,7 @@ object ScreenModel extends SmartBlockModelBase {
                   Textures.Block.Screen.Multi(pitch)(py)(px)(facing.getIndex)
               }
 
-            seqAsJavaList(Seq(bakeQuad(safeSide, Textures.getSprite(texture), Some(screen.getColor), rotation)))
+            Seq(bakeQuad(safeSide, Textures.getSprite(texture), Some(screen.getColor), rotation)).asJava
           case _ => super.getQuads(state, safeSide, rand)
         }
       case _ => super.getQuads(state, safeSide, rand)
@@ -93,7 +93,7 @@ object ScreenModel extends SmartBlockModelBase {
           Textures.Block.Screen.SingleFront(0)
         else
           Textures.Block.Screen.Single(side.ordinal())
-      seqAsJavaList(Seq(bakeQuad(if (side != null) side else EnumFacing.SOUTH, Textures.getSprite(result), Some(Color.rgbValues(color)), 0)))
+      Seq(bakeQuad(if (side != null) side else EnumFacing.SOUTH, Textures.getSprite(result), Some(Color.rgbValues(color)), 0)).asJava
     }
   }
 

@@ -30,7 +30,7 @@ import net.minecraftforge.client.MinecraftForgeClient
 import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.GL11
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.language.implicitConversions
 
@@ -126,7 +126,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
     t.draw()
   }
 
-  def compileList() {
+  def compileList():Unit = {
     GL11.glNewList(displayList, GL11.GL_COMPILE)
 
     drawTop()
@@ -142,7 +142,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
 
   compileList()
 
-  def resetMountPoints(running: Boolean) {
+  def resetMountPoints(running: Boolean):Unit = {
     val offset = if (running) 0 else -0.06f
 
     // Left top.
@@ -209,7 +209,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
     mountPoints(6).rotation.setW(0)
   }
 
-  def renderChassis(robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false) {
+  def renderChassis(robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false):Unit = {
     val isRunning = if (robot == null) isRunningOverride else robot.isRunning
 
     val size = 0.3f
@@ -291,7 +291,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
     }
   }
 
-  override def render(proxy: tileentity.RobotProxy, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(proxy: tileentity.RobotProxy, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val robot = proxy.robot
@@ -404,11 +404,10 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
 
             itemRenderer.renderItem(Minecraft.getMinecraft.player, stack, TransformType.THIRD_PERSON_RIGHT_HAND)
           }
-          catch {
+          catch 
             case e: Throwable =>
               OpenComputers.log.warn("Failed rendering equipped item.", e)
               robot.renderingErrored = true
-          }
           GlStateManager.enableCull()
           GlStateManager.disableRescaleNormal()
           GlStateManager.popMatrix()
@@ -417,7 +416,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
       }
 
       if (MinecraftForgeClient.getRenderPass == 0) {
-        lazy val availableSlots = slotNameMapping.keys.to[mutable.Set]
+        lazy val availableSlots: mutable.Set[String] = mutable.Set.from(slotNameMapping.keys)
         lazy val wildcardRenderers = mutable.Buffer.empty[(ItemStack, UpgradeRenderer)]
         lazy val slotMapping = Array.fill(mountPoints.length)(null: (ItemStack, UpgradeRenderer))
 
@@ -425,7 +424,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
           collect { case stack if !stack.isEmpty && stack.getItem.isInstanceOf[UpgradeRenderer] => (stack, stack.getItem.asInstanceOf[UpgradeRenderer]) }
 
         for ((stack, renderer) <- renderers) {
-          val preferredSlot = renderer.computePreferredMountPoint(stack, robot, availableSlots)
+          val preferredSlot = renderer.computePreferredMountPoint(stack, robot, availableSlots.asJava)
           if (availableSlots.remove(preferredSlot)) {
             slotMapping(slotNameMapping(preferredSlot)) = (stack, renderer)
           }
@@ -447,11 +446,10 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
           renderer.render(stack, mountPoint, robot, f)
           GlStateManager.popMatrix()
         }
-        catch {
+        catch 
           case e: Throwable =>
             OpenComputers.log.warn("Failed rendering equipped upgrade.", e)
             robot.renderingErrored = true
-        }
       }
     }
     GlStateManager.popMatrix()

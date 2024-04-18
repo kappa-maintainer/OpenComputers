@@ -105,7 +105,7 @@ trait Rotatable extends RotationAware with internal.Rotatable {
 
   // ----------------------------------------------------------------------- //
 
-  protected def onRotationChanged() {
+  protected def onRotationChanged():Unit = {
     if (isServer) {
       ServerPacketSender.sendRotatableState(this)
     }

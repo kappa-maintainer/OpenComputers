@@ -20,7 +20,7 @@ import li.cil.oc.integration.util
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.fml.common.Optional
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 @Optional.InterfaceList(Array(
   new Optional.Interface(iface = "codechicken.wirelessredstone.api.WirelessReceivingDevice", modid = Mods.IDs.WirelessRedstoneCBE),
@@ -46,7 +46,7 @@ trait RedstoneWireless extends RedstoneSignaller with WirelessReceivingDevice wi
     DeviceAttribute.Width -> "1"
   )
 
-  override def getDeviceInfo: java.util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: java.util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -103,7 +103,7 @@ trait RedstoneWireless extends RedstoneSignaller with WirelessReceivingDevice wi
   // ----------------------------------------------------------------------- //
 
   @Optional.Method(modid = Mods.IDs.WirelessRedstoneCBE)
-  override def updateDevice(frequency: Int, on: Boolean) {
+  override def updateDevice(frequency: Int, on: Boolean):Unit = {
     if (frequency == wirelessFrequency && on != wirelessInput) {
       wirelessInput = on
       onRedstoneChanged(RedstoneChangedEventArgs(null, if (on) 0 else 1, if (on) 1 else 0))
@@ -124,14 +124,14 @@ trait RedstoneWireless extends RedstoneSignaller with WirelessReceivingDevice wi
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     super.onConnect(node)
     if (node == this.node) {
       EventHandler.scheduleWirelessRedstone(this)
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       util.WirelessRedstone.removeReceiver(this)
@@ -147,14 +147,14 @@ trait RedstoneWireless extends RedstoneSignaller with WirelessReceivingDevice wi
   private final val WirelessInputTag = "wirelessInput"
   private final val WirelessOutputTag = "wirelessOutput"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     wirelessFrequency = nbt.getInteger(WirelessFrequencyTag)
     wirelessInput = nbt.getBoolean(WirelessInputTag)
     wirelessOutput = nbt.getBoolean(WirelessOutputTag)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     nbt.setInteger(WirelessFrequencyTag, wirelessFrequency)
     nbt.setBoolean(WirelessInputTag, wirelessInput)

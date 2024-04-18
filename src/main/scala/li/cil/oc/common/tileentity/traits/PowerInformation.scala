@@ -19,7 +19,7 @@ trait PowerInformation extends TileEntity {
 
   def globalBufferSize_=(value: Double): Unit
 
-  protected def updatePowerInformation() {
+  protected def updatePowerInformation():Unit = {
     val ratio = if (globalBufferSize > 0) globalBuffer / globalBufferSize else 0
     if (shouldSync(ratio) || hasChangedSignificantly(ratio)) {
       lastSentRatio = ratio
@@ -44,13 +44,13 @@ trait PowerInformation extends TileEntity {
   private final val GlobalBufferSizeTag = Settings.namespace + "globalBufferSize"
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     globalBuffer = nbt.getDouble(GlobalBufferTag)
     globalBufferSize = nbt.getDouble(GlobalBufferSizeTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     lastSentRatio = if (globalBufferSize > 0) globalBuffer / globalBufferSize else 0
     nbt.setDouble(GlobalBufferTag, globalBuffer)

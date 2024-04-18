@@ -56,9 +56,9 @@ object ThreadPoolFactory {
 }
 
 class SafeThreadPool(val name: String, val threads: Int) {
-  private var _threadPool: ScheduledExecutorService = _
+  private var _threadPool: ScheduledExecutorService = scala.compiletime.uninitialized
 
-  def withPool(f: ScheduledExecutorService => Future[_], requiresPool: Boolean = true): Option[Future[_]] = {
+  def withPool(f: ScheduledExecutorService => Future[?], requiresPool: Boolean = true): Option[Future[?]] = {
     if (_threadPool == null) {
       OpenComputers.log.warn("Error handling file saving: Did the server never start?")
       if (requiresPool) {

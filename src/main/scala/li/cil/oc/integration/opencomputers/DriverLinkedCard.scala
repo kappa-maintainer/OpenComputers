@@ -22,7 +22,7 @@ object DriverLinkedCard extends Item {
   override def tier(stack: ItemStack) = Tier.Three
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.LinkedCard]
       else null

@@ -328,7 +328,7 @@ object Items extends ItemAPI {
 
   // ----------------------------------------------------------------------- //
 
-  def init() {
+  def init():Unit = {
     initMaterials()
     initTools()
     initComponents()

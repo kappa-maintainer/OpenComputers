@@ -17,8 +17,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider
 object CapabilityEnvironment {
   final val ProviderEnvironment = new ResourceLocation(Mods.IDs.OpenComputers, "environment")
 
-  class Provider(val tileEntity: TileEntity with Environment) extends ICapabilityProvider with Environment {
-    override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = {
+  class Provider(val tileEntity: TileEntity & Environment) extends ICapabilityProvider with Environment {
+    override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = {
       capability == Capabilities.EnvironmentCapability
     }
 

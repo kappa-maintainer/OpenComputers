@@ -43,13 +43,13 @@ object NanomachinesHandler {
             val left =
               math.min(width - sizeX,
                 if (x < 0) width / 2 - 91 - 12
-                else if (x < 1) width * x
-                else x)
+                else if (x < 1) width * x.toInt
+                else x.toInt)
             val top =
               math.min(height - sizeY,
                 if (y < 0) height - 39
-                else if (y < 1) y * height
-                else y)
+                else if (y < 1) y.toInt * height
+                else y.toInt)
             val fill = controller.getLocalBuffer / controller.getLocalBufferSize
             Minecraft.getMinecraft.getTextureManager.bindTexture(Textures.GUI.Nanomachines)
             drawRect(left.toInt, top.toInt, sizeX, sizeY, sizeX, sizeY)
@@ -60,7 +60,7 @@ object NanomachinesHandler {
       }
     }
 
-    private def drawRect(x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Double = 1) {
+    private def drawRect(x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Double = 1):Unit = {
       val sx = 1f / tw
       val sy = 1f / th
       val t = Tessellator.getInstance
@@ -118,16 +118,16 @@ object NanomachinesHandler {
             val nbt = new NBTTagCompound()
             controller.save(nbt)
             val fos = new FileOutputStream(file)
-            try CompressedStreamTools.writeCompressed(nbt, fos) catch {
+            try CompressedStreamTools.writeCompressed(nbt, fos) catch 
               case t: Throwable =>
                 OpenComputers.log.warn("Error saving nanomachine state.", t)
-            }
+            
             fos.close()
           }
-          catch {
+          catch 
             case t: Throwable =>
               OpenComputers.log.warn("Error saving nanomachine state.", t)
-          }
+          
         case _ => // Not a player with nanomachines.
       }
     }
@@ -140,16 +140,16 @@ object NanomachinesHandler {
           case controller: ControllerImpl =>
             try {
               val fis = new FileInputStream(file)
-              try controller.load(CompressedStreamTools.readCompressed(fis)) catch {
+              try controller.load(CompressedStreamTools.readCompressed(fis)) catch 
                 case t: Throwable =>
                   OpenComputers.log.warn("Error loading nanomachine state.", t)
-              }
+              
               fis.close()
             }
-            catch {
+            catch 
               case t: Throwable =>
                 OpenComputers.log.warn("Error loading nanomachine state.", t)
-            }
+            
           case _ => // Not a player with nanomachines.
         }
       }

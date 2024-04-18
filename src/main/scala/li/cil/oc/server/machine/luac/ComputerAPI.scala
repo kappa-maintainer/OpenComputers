@@ -7,10 +7,10 @@ import li.cil.oc.api.driver.item.Processor
 import li.cil.oc.api.network.Connector
 import li.cil.oc.util.ExtendedLuaState.extendLuaState
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize():Unit = {
     // Computer API, stuff that kinda belongs to os, but we don't want to
     // clutter it.
     lua.newTable()
@@ -55,7 +55,7 @@ class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     lua.setField(-2, "totalMemory")
 
     lua.pushScalaFunction(lua => {
-      lua.pushBoolean(machine.signal(lua.checkString(1), lua.toSimpleJavaObjects(2): _*))
+      lua.pushBoolean(machine.signal(lua.checkString(1), lua.toSimpleJavaObjects(2)*))
       1
     })
     lua.setField(-2, "pushSignal")
@@ -114,8 +114,8 @@ class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     lua.setField(-2, "maxEnergy")
 
     lua.pushScalaFunction(lua => {
-      machine.host.internalComponents.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
-        case (stack, processor: MutableProcessor) => processor.allArchitectures.toSeq
+      machine.host.internalComponents.asScala.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
+        case (stack, processor: MutableProcessor) => processor.allArchitectures.asScala.toSeq
         case (stack, processor: Processor) => Seq(processor.architecture(stack))
       } match {
         case Some(architectures) =>
@@ -128,7 +128,7 @@ class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     lua.setField(-2, "getArchitectures")
 
     lua.pushScalaFunction(lua => {
-      machine.host.internalComponents.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
+      machine.host.internalComponents.asScala.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
         case (stack, processor: Processor) =>
           lua.pushString(api.Machine.getArchitectureName(processor.architecture(stack)))
           1
@@ -138,8 +138,8 @@ class ComputerAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
 
     lua.pushScalaFunction(lua => {
       val archName = lua.checkString(1)
-      machine.host.internalComponents.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
-        case (stack, processor: MutableProcessor) => processor.allArchitectures.find(arch => api.Machine.getArchitectureName(arch) == archName) match {
+      machine.host.internalComponents.asScala.map(stack => (stack, api.Driver.driverFor(stack))).collectFirst {
+        case (stack, processor: MutableProcessor) => processor.allArchitectures.asScala.find(arch => api.Machine.getArchitectureName(arch) == archName) match {
           case Some(archClass) =>
             if (archClass != processor.architecture(stack)) {
               processor.setArchitecture(stack, archClass)

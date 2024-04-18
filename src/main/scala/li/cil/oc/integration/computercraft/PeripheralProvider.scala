@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object PeripheralProvider extends IPeripheralProvider {
-  def init() {
+  def init():Unit = {
     ComputerCraftAPI.registerPeripheralProvider(this)
   }
 

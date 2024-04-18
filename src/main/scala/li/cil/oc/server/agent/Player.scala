@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.{Event, EventPriority, Subscri
 import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper._
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object Player {
   def profileFor(agent: internal.Agent): GameProfile = {
@@ -69,7 +69,7 @@ object Player {
     }
   }
 
-  def updatePositionAndRotation(player: Player, facing: EnumFacing, side: EnumFacing) {
+  def updatePositionAndRotation(player: Player, facing: EnumFacing, side: EnumFacing):Unit = {
     player.facing = facing
     player.side = side
     val direction = new Vec3d(
@@ -88,7 +88,7 @@ object Player {
     val agent = player.agent
     def setCopyOrNull(inv: net.minecraft.util.NonNullList[ItemStack], agentInv: IInventory, slot: Int): Unit = {
       val item = agentInv.getStackInSlot(slot)
-      inv(slot) = if (item != null) item.copy() else ItemStack.EMPTY
+      if (item != null) inv.set(slot, item.copy()) else inv.set(slot, ItemStack.EMPTY)
     }
 
     for (i <- 0 until 4) {
@@ -98,7 +98,7 @@ object Player {
     // mainInventory is 36 items
     // the agent inventory is 100 items with some space for components
     // leaving us 88..we'll copy what we can
-    val size = player.inventory.mainInventory.length min agent.mainInventory.getSizeInventory
+    val size = player.inventory.mainInventory.asScala.length min agent.mainInventory.getSizeInventory
     for (i <- 0 until size) {
       setCopyOrNull(player.inventory.mainInventory, agent.mainInventory, i)
     }
@@ -106,7 +106,7 @@ object Player {
   }
 
   def detectInventoryPlayerChanges(player: Player): Unit = {
-  	val agent = player.agent
+    val agent = player.agent
     player.inventoryContainer.detectAndSendChanges()
     // The follow code will set agent.inventories = FakePlayer's inv.stack
     def setCopy(inv: IInventory, index: Int, item: ItemStack): Unit = {
@@ -117,11 +117,11 @@ object Player {
       }
     }
     for (i <- 0 until 4) {
-      setCopy(agent.equipmentInventory(), i, player.inventory.armorInventory(i))
+      setCopy(agent.equipmentInventory(), i, player.inventory.armorInventory.get(i))
     }
-    val size = player.inventory.mainInventory.length min agent.mainInventory.getSizeInventory
+    val size = player.inventory.mainInventory.asScala.length min agent.mainInventory.getSizeInventory
     for (i <- 0 until size) {
-      setCopy(agent.mainInventory, i, player.inventory.mainInventory(i))
+      setCopy(agent.mainInventory, i, player.inventory.mainInventory.get(i))
     }
   }
 }
@@ -134,7 +134,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   capabilities.isFlying = true
   onGround = true
 
-  override def getYOffset = 0.5f
+  override def getYOffset = 0.5D
 
   override def getEyeHeight = 0f
 
@@ -185,9 +185,9 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     world.getEntitiesWithinAABB(classOf[EntityItem], BlockPosition(agent).bounds.grow(2, 2, 2))
   }
 
-  private def collectDroppedItems(itemsBefore: Iterable[EntityItem]) {
+  private def collectDroppedItems(itemsBefore: Iterable[EntityItem]):Unit = {
     val itemsAfter = adjacentItems
-    val itemsDropped = itemsAfter -- itemsBefore
+    val itemsDropped = itemsAfter.asScala.toSet -- itemsBefore
     if (itemsDropped.nonEmpty) {
       for (drop <- itemsDropped) {
         drop.setNoPickupDelay()
@@ -198,7 +198,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   // ----------------------------------------------------------------------- //
 
-  override def attackTargetEntityWithCurrentItem(entity: Entity) {
+  override def attackTargetEntityWithCurrentItem(entity: Entity):Unit = {
     callUsingItemInSlot(agent.equipmentInventory, 0, stack => entity match {
       case player: EntityPlayer if !canAttackPlayer(player) => // Avoid player damage.
       case _ =>
@@ -495,11 +495,11 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
           else ForgeEventFactory.onPlayerDestroyItem(this, newStack, EnumHand.OFF_HAND)
         }
       }
-      collectDroppedItems(itemsBefore)
+      collectDroppedItems(itemsBefore.asScala)
     }
   }
 
-  private def tryRepair(stack: ItemStack, oldStack: ItemStack) {
+  private def tryRepair(stack: ItemStack, oldStack: ItemStack):Unit = {
     // Only if the underlying type didn't change.
     if (!stack.isEmpty && !oldStack.isEmpty && stack.getItem == oldStack.getItem) {
       val damageRate = new RobotUsedToolEvent.ComputeDamageRate(agent, oldStack, stack, Settings.get.itemDamageRate)
@@ -540,7 +540,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   // ----------------------------------------------------------------------- //
 
-  override def addExhaustion(amount: Float) {
+  override def addExhaustion(amount: Float):Unit = {
     if (Settings.get.robotExhaustionCost > 0) {
       agent.machine.node match {
         case connector: Connector => connector.changeBuffer(-Settings.get.robotExhaustionCost * amount)
@@ -550,7 +550,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     MinecraftForge.EVENT_BUS.post(new RobotExhaustionEvent(agent, amount))
   }
 
-  override def closeScreen() {}
+  override def closeScreen():Unit = {}
 
   override def swingArm(hand: EnumHand): Unit = {}
 
@@ -579,27 +579,27 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def attackEntityFrom(source: DamageSource, damage: Float) = false
 
-  override def heal(amount: Float) {}
+  override def heal(amount: Float):Unit = {}
 
-  override def setHealth(value: Float) {}
+  override def setHealth(value: Float):Unit = {}
 
   override def setDead(): Unit = isDead = true
 
-  override def onLivingUpdate() {}
+  override def onLivingUpdate():Unit = {}
 
-  override def onItemPickup(entity: Entity, count: Int) {}
+  override def onItemPickup(entity: Entity, count: Int):Unit = {}
 
-  override def setRevengeTarget(entity: EntityLivingBase) {}
+  override def setRevengeTarget(entity: EntityLivingBase):Unit = {}
 
-  override def setLastAttackedEntity(entity: Entity) {}
+  override def setLastAttackedEntity(entity: Entity):Unit = {}
 
   override def startRiding(entityIn: Entity, force: Boolean): Boolean = false
 
   override def trySleep(bedLocation: BlockPos) = SleepResult.OTHER_PROBLEM
 
-  override def sendMessage(message: ITextComponent) {}
+  override def sendMessage(message: ITextComponent):Unit = {}
 
-  override def displayGUIChest(inventory: IInventory) {}
+  override def displayGUIChest(inventory: IInventory):Unit = {}
 
   override def displayGuiCommandBlock(commandBlock: TileEntityCommandBlock): Unit = {}
 
@@ -607,11 +607,11 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     villager.setCustomer(null)
   }
 
-  override def displayGui(guiOwner: IInteractionObject) {}
+  override def displayGui(guiOwner: IInteractionObject):Unit = {}
 
   override def displayGuiEditCommandCart(thing: CommandBlockBaseLogic): Unit = {}
 
-  override def openEditSign(signTile: TileEntitySign) {}
+  override def openEditSign(signTile: TileEntitySign):Unit = {}
 
   // ----------------------------------------------------------------------- //
 

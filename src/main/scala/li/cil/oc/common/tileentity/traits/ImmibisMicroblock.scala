@@ -7,7 +7,7 @@ trait ImmibisMicroblock extends TileEntity {
 
   def ImmibisMicroblocks_isSideOpen(side: Int) = true
 
-  def ImmibisMicroblocks_onMicroblocksChanged() {
+  def ImmibisMicroblocks_onMicroblocksChanged():Unit = {
     api.Network.joinOrCreateNetwork(this)
   }
 }

@@ -11,8 +11,8 @@ import net.minecraft.entity.passive.{EntityOcelot, EntitySheep}
 import net.minecraft.util.DamageSource
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+
+import scala.jdk.CollectionConverters.*
 import li.cil.oc.common.tileentity.traits.Tickable
 
 class CarpetedCapacitor extends Capacitor with Tickable {
@@ -24,7 +24,7 @@ class CarpetedCapacitor extends Capacitor with Tickable {
     DeviceAttribute.Capacity -> maxCapacity.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   private def _world: net.minecraft.world.World = getWorld
   private val rng = scala.util.Random
@@ -51,9 +51,10 @@ class CarpetedCapacitor extends Capacitor with Tickable {
     power
   }
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     if (node != null && (_world.getTotalWorldTime + hashCode) % 20 == 0) {
       val entities = _world.getEntitiesWithinAABB(classOf[EntityLivingBase], capacitorPowerBounds)
+        .asScala
         .filter(entity => entity.isEntityAlive)
         .toSet
       val sheepPower = energyFromGroup(entities.filter(_.isInstanceOf[EntitySheep]), Settings.get.sheepPower)

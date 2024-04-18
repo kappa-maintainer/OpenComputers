@@ -6,7 +6,7 @@ import li.cil.repack.org.luaj.vm2.LuaValue
 import li.cil.repack.org.luaj.vm2.Varargs
 
 class SystemAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
-  override def initialize() {
+  override def initialize():Unit = {
     val system = LuaValue.tableOf()
 
     // Whether bytecode may be loaded directly.

@@ -11,6 +11,6 @@ object ResultWrapper {
       case x: ItemStack if x.isEmpty => null
       case x => x.asInstanceOf[AnyRef]
     }
-    Array(args map unwrap: _*)
+    Array(args map unwrap*)
   }
 }

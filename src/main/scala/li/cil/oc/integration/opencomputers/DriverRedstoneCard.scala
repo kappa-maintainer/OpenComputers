@@ -49,7 +49,7 @@ object DriverRedstoneCard extends Item with HostAware {
     }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack)) {
         val isAdvanced = tier(stack) == Tier.Two
         val hasBundled = BundledRedstone.isAvailable && isAdvanced

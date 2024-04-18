@@ -35,7 +35,7 @@ object DriverDataCard extends Item {
     }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack)) tier(stack) match {
         case Tier.One => classOf[component.DataCard.Tier1]
         case Tier.Two => classOf[component.DataCard.Tier2]

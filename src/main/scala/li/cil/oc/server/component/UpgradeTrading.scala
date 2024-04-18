@@ -21,8 +21,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.IMerchant
 import net.minecraft.util.math.Vec3d
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldAware with DeviceInfo {
@@ -37,7 +36,7 @@ class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironme
     DeviceAttribute.Product -> "Capitalism H.O. 1200T"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   override def position = BlockPosition(host)
 
@@ -48,6 +47,7 @@ class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironme
   @Callback(doc = "function():table -- Returns a table of trades in range as userdata objects.")
   def getTrades(context: Context, args: Arguments): Array[AnyRef] = {
     val merchants = entitiesInBounds[Entity](classOf[Entity], position.bounds.grow(maxRange, maxRange, maxRange)).
+      asScala.
       filter(isInRange).
       collect { case merchant: IMerchant => merchant }
     var nextId = 1
@@ -57,7 +57,7 @@ class UpgradeTrading(val host: EnvironmentHost) extends AbstractManagedEnvironme
       nextId += 1
     }
     // sorting the result is not necessary, but will help the merchant trades line up nicely by merchant
-    result(merchants.sortBy(m => m.getPersistentID).flatMap(merchant => merchant.getRecipes(null).indices.map(index => {
+    result(merchants.sortBy(m => m.getPersistentID).flatMap(merchant => merchant.getRecipes(null).asScala.indices.map(index => {
       new Trade(this, merchant, index, idMap(merchant.getPersistentID))
     })))
   }

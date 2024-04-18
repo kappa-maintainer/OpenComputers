@@ -33,7 +33,7 @@ class Cable extends traits.Environment with traits.NotAnalyzable with traits.Imm
 
   override def consumesDye = true
 
-  override protected def onColorChanged() {
+  override protected def onColorChanged():Unit = {
     super.onColorChanged()
     if (getWorld != null && isServer) {
       api.Network.joinOrCreateNetwork(this)

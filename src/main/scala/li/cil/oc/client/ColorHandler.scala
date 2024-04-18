@@ -81,12 +81,12 @@ object ColorHandler {
   def register(handler: (IBlockState, IBlockAccess, BlockPos, Int) => Int, blocks: Block*): Unit = {
     Minecraft.getMinecraft.getBlockColors.registerBlockColorHandler(new IBlockColor {
       override def colorMultiplier(state: IBlockState, world: IBlockAccess, pos: BlockPos, tintIndex: Int): Int = handler(state, world, pos, tintIndex)
-    }, blocks: _*)
+    }, blocks*)
   }
 
   def register(handler: (ItemStack, Int) => Int, items: Item*): Unit = {
     Minecraft.getMinecraft.getItemColors.registerItemColorHandler(new IItemColor {
       override def colorMultiplier(stack: ItemStack, tintIndex: Int): Int = handler(stack, tintIndex)
-    }, items: _*)
+    }, items*)
   }
 }

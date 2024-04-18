@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.opengl.GL11
 
 object TransposerRenderer extends TileEntitySpecialRenderer[tileentity.Transposer] {
-  override def render(transposer: tileentity.Transposer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(transposer: tileentity.Transposer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - transposer.lastOperation) / 1000.0)

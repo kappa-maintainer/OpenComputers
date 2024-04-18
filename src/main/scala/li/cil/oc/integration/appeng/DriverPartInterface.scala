@@ -27,7 +27,7 @@ object DriverPartInterface extends driver.DriverBlock {
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): DriverPartInterface.Environment = {
     val host: IPartHost = world.getTileEntity(pos).asInstanceOf[IPartHost]
-    val tile = host.asInstanceOf[TileEntity with IPartHost with ISegmentedInventory with IActionHost with IGridHost]
+    val tile = host.asInstanceOf[TileEntity & IPartHost & ISegmentedInventory & IActionHost & IGridHost]
     val aePos: AEPartLocation = side match {
       case EnumFacing.EAST => AEPartLocation.WEST
       case EnumFacing.WEST => AEPartLocation.EAST
@@ -39,10 +39,10 @@ object DriverPartInterface extends driver.DriverBlock {
     new Environment(host, tile, aePos)
   }
 
-  final class Environment(val host: IPartHost, val tile: TileEntity with IPartHost with ISegmentedInventory with IActionHost with IGridHost, val pos: AEPartLocation)
+  final class Environment(val host: IPartHost, val tile: TileEntity & IPartHost & ISegmentedInventory & IActionHost & IGridHost, val pos: AEPartLocation)
       extends ManagedTileEntityEnvironment[IPartHost](host, "me_interface")
       with NamedBlock with PartEnvironmentBase
-      with NetworkControl[TileEntity with ISegmentedInventory with IActionHost with IGridHost]
+      with NetworkControl[TileEntity & ISegmentedInventory & IActionHost & IGridHost]
   {
     override def preferredName = "me_interface"
 
@@ -56,7 +56,7 @@ object DriverPartInterface extends driver.DriverBlock {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (AEUtil.isPartInterface(stack))
         classOf[Environment]
       else null

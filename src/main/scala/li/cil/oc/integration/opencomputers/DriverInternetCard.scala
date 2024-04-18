@@ -22,7 +22,7 @@ object DriverInternetCard extends Item {
   override def tier(stack: ItemStack) = Tier.Two
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.InternetCard]
       else null

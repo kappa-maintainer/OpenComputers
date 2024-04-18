@@ -17,7 +17,7 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import net.minecraft.entity.player.EntityPlayer
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 // TODO key up when screen is disconnected from which the key down came
@@ -43,11 +43,11 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     DeviceAttribute.Product -> "Fancytyper MX-Stone"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
-  def releasePressedKeys(player: EntityPlayer) {
+  def releasePressedKeys(player: EntityPlayer):Unit = {
     pressedKeys.get(player) match {
       case Some(keys) => for ((code, char) <- keys) {
         if (Settings.get.inputUsername) {
@@ -111,5 +111,5 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
   }
 
   protected def signal(args: AnyRef*) =
-    node.sendToReachable("computer.checked_signal", args: _*)
+    node.sendToReachable("computer.checked_signal", args*)
 }

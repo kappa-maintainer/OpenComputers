@@ -33,7 +33,7 @@ import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 class Screen(val tier: Int) extends RedstoneAware {
   override def createBlockState() = new ExtendedBlockState(this, Array(PropertyRotatable.Pitch, PropertyRotatable.Yaw), Array(PropertyTile.Tile))
 
-  override def getMetaFromState(state: IBlockState): Int = (state.getValue(PropertyRotatable.Pitch).ordinal() << 2) | state.getValue(PropertyRotatable.Yaw).getHorizontalIndex
+  override def getMetaFromState(state: IBlockState): Int = state.getValue(PropertyRotatable.Pitch).ordinal().<<(2).|(state.getValue(PropertyRotatable.Yaw).getHorizontalIndex)
 
   override def getStateFromMeta(meta: Int): IBlockState = getDefaultState.withProperty(PropertyRotatable.Pitch, EnumFacing.byIndex(meta >> 2)).withProperty(PropertyRotatable.Yaw, EnumFacing.byHorizontalIndex(meta & 0x3))
 
@@ -53,7 +53,7 @@ class Screen(val tier: Int) extends RedstoneAware {
 
   override def rarity(stack: ItemStack) = Rarity.byTier(tier)
 
-  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag):Unit = {
     val (w, h) = Settings.screenResolutionsByTier(tier)
     val depth = PackedColor.Depth.bits(Settings.screenDepthsByTier(tier))
     tooltip.addAll(Tooltip.get(getClass.getSimpleName.toLowerCase, w, h, depth))
@@ -65,7 +65,7 @@ class Screen(val tier: Int) extends RedstoneAware {
 
   // ----------------------------------------------------------------------- //
 
-  override def onBlockPlacedBy(world: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack) {
+  override def onBlockPlacedBy(world: World, pos: BlockPos, state: IBlockState, placer: EntityLivingBase, stack: ItemStack):Unit = {
     super.onBlockPlacedBy(world, pos, state, placer, stack)
     world.getTileEntity(pos) match {
       case screen: tileentity.Screen => screen.delayUntilCheckForMultiBlock = 0

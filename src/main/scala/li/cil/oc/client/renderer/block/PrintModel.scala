@@ -24,8 +24,8 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
 import net.minecraftforge.common.property.IExtendedBlockState
 
-import scala.collection.convert.WrapAsJava.bufferAsJavaList
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.*
 
 object PrintModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrideList = ItemOverride
@@ -43,7 +43,7 @@ object PrintModel extends SmartBlockModelBase {
               faces ++= bakeQuads(makeBox(bounds.min, bounds.max), Array.fill(6)(texture), shape.tint.getOrElse(White))
             }
 
-            bufferAsJavaList(faces)
+            faces.asJava
           case _ => super.getQuads(state, side, rand)
         }
       case _ => super.getQuads(state, side, rand)
@@ -77,7 +77,7 @@ object PrintModel extends SmartBlockModelBase {
         faces ++= bakeQuads(makeBox(bounds.min, bounds.max), Array.fill(6)(texture), Color.rgbValues(EnumDyeColor.LIME))
       }
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

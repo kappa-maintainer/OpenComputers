@@ -22,7 +22,7 @@ import li.cil.oc.util.StackOption
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment with internal.Database with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -37,7 +37,7 @@ class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment w
     DeviceAttribute.Capacity -> size.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   override def size = data.getSizeInventory
 

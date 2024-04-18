@@ -74,11 +74,11 @@ class RobotAfterimage extends SimpleBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def onBlockAdded(world: World, pos: BlockPos, state: IBlockState) {
+  override def onBlockAdded(world: World, pos: BlockPos, state: IBlockState):Unit = {
     world.scheduleUpdate(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
   }
 
-  override def updateTick(world: World, pos: BlockPos, state: IBlockState, rand: Random) {
+  override def updateTick(world: World, pos: BlockPos, state: IBlockState, rand: Random):Unit = {
     world.setBlockToAir(pos)
   }
 

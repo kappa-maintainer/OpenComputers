@@ -19,14 +19,14 @@ object DriverUpgradePiston extends Item with HostAware {
     else host match {
       case host: internal.Drone => new component.UpgradePiston.Drone(host)
       case host: internal.Tablet => new component.UpgradePiston.Tablet(host)
-      case host: internal.Rotatable with EnvironmentHost => new component.UpgradePiston.Rotatable(host)
+      case host: (internal.Rotatable & EnvironmentHost) => new component.UpgradePiston.Rotatable(host)
       case _ => null
     }
 
   override def slot(stack: ItemStack) = Slot.Upgrade
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradePiston]
       else null

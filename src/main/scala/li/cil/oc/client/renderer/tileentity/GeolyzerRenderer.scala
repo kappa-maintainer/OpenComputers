@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.opengl.GL11
 
 object GeolyzerRenderer extends TileEntitySpecialRenderer[Geolyzer] {
-  override def render(geolyzer: Geolyzer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(geolyzer: Geolyzer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderState.pushAttrib()

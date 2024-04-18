@@ -30,7 +30,7 @@ class ModPluginOpenComputers extends IModPlugin {
 
   }
 
-  override def register(registry: IModRegistry) {
+  override def register(registry: IModRegistry):Unit = {
     if (Settings.get.lootRecrafting) {
       registry.handleRecipes(classOf[LootDiskCyclingRecipe], LootDiskCyclingRecipeHandler, VanillaRecipeCategoryUid.CRAFTING)
     }
@@ -52,9 +52,9 @@ class ModPluginOpenComputers extends IModPlugin {
     ModJEI.ingredientRegistry = Option(registry.getIngredientRegistry)
   }
 
-  private var stackUnderMouse: (GuiContainer, Int, Int) => StackOption = _
+  private var stackUnderMouse: (GuiContainer, Int, Int) => StackOption = scala.compiletime.uninitialized
 
-  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime) {
+  override def onRuntimeAvailable(jeiRuntime: IJeiRuntime):Unit = {
     if (stackUnderMouse == null) {
       ItemSearch.stackFocusing += ((container, mouseX, mouseY) => stackUnderMouse(container, mouseX, mouseY))
     }
@@ -63,10 +63,10 @@ class ModPluginOpenComputers extends IModPlugin {
     ModJEI.runtime = Option(jeiRuntime)
   }
 
-  override def registerIngredients(registry: IModIngredientRegistration) {
+  override def registerIngredients(registry: IModIngredientRegistration):Unit = {
   }
 
-  override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry) {
+  override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry):Unit = {
     def useNBT(names: String*) = names.map(name => {
       val info = Items.get(name)
       Option(info.item).getOrElse(Item.getItemFromBlock(info.block))

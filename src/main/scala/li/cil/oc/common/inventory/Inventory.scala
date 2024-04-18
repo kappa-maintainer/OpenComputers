@@ -59,7 +59,7 @@ trait Inventory extends SimpleInventory {
   private final val SlotTag = "slot"
   private final val ItemTag = "item"
 
-  def load(nbt: NBTTagCompound) {
+  def load(nbt: NBTTagCompound):Unit = {
     nbt.getTagList(ItemsTag, NBT.TAG_COMPOUND).foreach((tag: NBTTagCompound) => {
       if (tag.hasKey(SlotTag)) {
         val slot = tag.getByte(SlotTag)
@@ -70,7 +70,7 @@ trait Inventory extends SimpleInventory {
     })
   }
 
-  def save(nbt: NBTTagCompound) {
+  def save(nbt: NBTTagCompound): Unit = {
     nbt.setNewTagList(ItemsTag,
       items.zipWithIndex collect {
         case (stack, slot) if !stack.isEmpty => (stack, slot)
@@ -84,7 +84,7 @@ trait Inventory extends SimpleInventory {
 
   // ----------------------------------------------------------------------- //
 
-  protected def onItemAdded(slot: Int, stack: ItemStack) {}
+  protected def onItemAdded(slot: Int, stack: ItemStack):Unit = {}
 
-  protected def onItemRemoved(slot: Int, stack: ItemStack) {}
+  protected def onItemRemoved(slot: Int, stack: ItemStack):Unit = {}
 }

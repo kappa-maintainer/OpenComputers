@@ -28,8 +28,8 @@ import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class Charger extends traits.Environment with traits.PowerAcceptor with traits.RedstoneAware with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo {
@@ -53,7 +53,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     DeviceAttribute.Product -> "PowerUpper"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -88,7 +88,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     }
   }
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
 
     // Offset by hashcode to avoid all chargers ticking at the same time.
@@ -153,7 +153,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit ={
     super.onConnect(node)
     if (node == this.node) {
       onNeighborChanged()
@@ -169,7 +169,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
   private final val InvertSignalTag = Settings.namespace + "invertSignal"
   private final val InvertSignalTagCompat = "invertSignal"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForServer(nbt)
     if (nbt.hasKey(ChargeSpeedTagCompat))
       chargeSpeed = nbt.getDouble(ChargeSpeedTagCompat) max 0 min 1
@@ -185,7 +185,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
       invertSignal = nbt.getBoolean(InvertSignalTag)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
     nbt.setDouble(ChargeSpeedTag, chargeSpeed)
     nbt.setBoolean(HasPowerTag, hasPower)
@@ -193,13 +193,13 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForClient(nbt)
     chargeSpeed = nbt.getDouble(ChargeSpeedTag)
     hasPower = nbt.getBoolean(HasPowerTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForClient(nbt)
     nbt.setDouble(ChargeSpeedTag, chargeSpeed)
     nbt.setBoolean(HasPowerTag, hasPower)
@@ -222,7 +222,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
 
   // ----------------------------------------------------------------------- //
 
-  override def updateRedstoneInput(side: EnumFacing) {
+  override def updateRedstoneInput(side: EnumFacing):Unit ={
     super.updateRedstoneInput(side)
     val signal = getInput.max min 15
 
@@ -233,12 +233,12 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     }
   }
 
-  def onNeighborChanged() {
+  def onNeighborChanged():Unit ={
     checkRedstoneInputChanged()
     updateConnectors()
   }
 
-  def updateConnectors() {
+  def updateConnectors():Unit ={
     val robots = EnumFacing.values.map(side => {
       val blockPos = BlockPosition(this).offset(side)
       if (getWorld.blockExists(blockPos)) Option(getWorld.getTileEntity(blockPos))
@@ -247,11 +247,11 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
       case Some(t: RobotProxy) => new RobotChargeable(t.robot)
     }
     val bounds = BlockPosition(this).bounds.grow(1, 1, 1)
-    val drones = getWorld.getEntitiesWithinAABB(classOf[Drone], bounds).collect {
+    val drones = getWorld.getEntitiesWithinAABB(classOf[Drone], bounds).asScala.collect {
       case drone: Drone => new DroneChargeable(drone)
     }
 
-    val players = getWorld.getEntitiesWithinAABB(classOf[EntityPlayer], bounds).collect {
+    val players = getWorld.getEntitiesWithinAABB(classOf[EntityPlayer], bounds).asScala.collect {
       case player: EntityPlayer => player
     }
 
@@ -271,8 +271,8 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     // scan players for chargeable equipment
     equipment.clear()
     players.foreach {
-      player => player.inventory.mainInventory.foreach {
-        stack: ItemStack =>
+      player => player.inventory.mainInventory.asScala.foreach {
+        (stack: ItemStack) =>
           if (Option(Driver.driverFor(stack, getClass)) match {
             case Some(driver) if driver.slot(stack) == Slot.Tablet => true
             case _ => ItemCharge.canCharge(stack)

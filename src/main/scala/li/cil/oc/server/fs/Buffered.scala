@@ -46,7 +46,7 @@ trait Buffered extends OutputStreamFileSystem {
 
   // ----------------------------------------------------------------------- //
 
-  private var saving: Option[Future[_]] = None
+  private var saving: Option[Future[?]] = None
 
   override def load(nbt: NBTTagCompound): Unit = {
     saving.foreach(f => try {
@@ -60,7 +60,7 @@ trait Buffered extends OutputStreamFileSystem {
   }
 
   private def loadFiles(nbt: NBTTagCompound): Unit = this.synchronized {
-    def recurse(path: String, directory: io.File) {
+    def recurse(path: String, directory: io.File):Unit = {
       makeDirectory(path)
       for (child <- directory.listFiles() if FileSystem.isValidFilename(child.getName)) {
         val childPath = path + child.getName
@@ -75,13 +75,14 @@ trait Buffered extends OutputStreamFileSystem {
                 val in = new io.FileInputStream(childFile)
                 val buffer = new Array[Byte](8 * 1024)
                 var read = 0
-                do {
+                while {
                   read = in.read(buffer)
                   if (read > 0) {
                     if (read == buffer.length) stream.write(buffer)
-                    else stream.write(buffer.view(0, read).toArray)
+                    else stream.write(buffer.view.slice(0, read).toArray)
                   }
-                } while (read >= 0)
+                  read >= 0
+                } do ()
                 in.close()
               }
               catch {

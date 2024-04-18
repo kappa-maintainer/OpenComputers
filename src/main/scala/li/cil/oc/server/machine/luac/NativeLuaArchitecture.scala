@@ -18,7 +18,7 @@ import li.cil.repack.com.naef.jnlua._
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 @Architecture.Name("Lua 5.2")
 class NativeLua52Architecture(machine: api.machine.Machine) extends NativeLuaArchitecture(machine) {
@@ -162,14 +162,14 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     memoryBytes > 0
   }
 
-  private def memoryInBytes(components: java.lang.Iterable[ItemStack]) = components.foldLeft(0.0)((acc, stack) => acc + (Option(api.Driver.driverFor(stack)) match {
+  private def memoryInBytes(components: java.lang.Iterable[ItemStack]) = components.asScala.foldLeft(0.0)((acc, stack) => acc + (Option(api.Driver.driverFor(stack)) match {
     case Some(driver: Memory) => driver.amount(stack) * 1024
     case _ => 0
   })).toInt max 0 min Settings.get.maxTotalRam
 
   // ----------------------------------------------------------------------- //
 
-  override def runSynchronized() {
+  override def runSynchronized():Unit = {
     // These three asserts are all guaranteed by run().
     assert(lua.getTop == 2)
     assert(lua.isThread(1))
@@ -324,10 +324,10 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     true
   }
 
-  override def onConnect() {
+  override def onConnect():Unit = {
   }
 
-  override def close() {
+  override def close():Unit = {
     if (lua != null) {
       if (Settings.get.limitMemory) {
         lua.setTotalMemory(Integer.MAX_VALUE)
@@ -346,7 +346,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
   @Deprecated
   private def state = machine.asInstanceOf[Machine].state
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     if (!machine.isRunning) return
 
     // Unlimit memory use while unpersisting.
@@ -393,7 +393,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     recomputeMemory(machine.host.internalComponents)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     // Unlimit memory while persisting.
     if (Settings.get.limitMemory) {
       lua.setTotalMemory(Integer.MAX_VALUE)

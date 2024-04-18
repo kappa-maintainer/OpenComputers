@@ -35,7 +35,7 @@ trait InputBuffer extends DisplayBuffer {
     Keyboard.enableRepeatEvents(true)
   }
 
-  override protected def drawBufferLayer() {
+  override protected def drawBufferLayer():Unit = {
     super.drawBufferLayer()
 
     if (System.currentTimeMillis() - showKeyboardMissing < 1000) {
@@ -60,7 +60,7 @@ trait InputBuffer extends DisplayBuffer {
     }
   }
 
-  override def onGuiClosed() = {
+  override def onGuiClosed(): Unit = {
     super.onGuiClosed()
     if (buffer != null) for ((code, char) <- pressedKeys) {
       buffer.keyUp(char, code, null)
@@ -68,7 +68,7 @@ trait InputBuffer extends DisplayBuffer {
     Keyboard.enableRepeatEvents(false)
   }
 
-  override def handleKeyboardInput() {
+  override def handleKeyboardInput():Unit = {
     super.handleKeyboardInput()
 
     if (this.isInstanceOf[GuiContainer] && ItemSearch.isInputFocused) return
@@ -98,7 +98,7 @@ trait InputBuffer extends DisplayBuffer {
     }
   }
 
-  override protected def mouseClicked(x: Int, y: Int, button: Int) {
+  override protected def mouseClicked(x: Int, y: Int, button: Int):Unit = {
     super.mouseClicked(x, y, button)
     val isMiddleMouseButton = button == 2
     val isBoundMouseButton = KeyBindings.isPastingClipboard

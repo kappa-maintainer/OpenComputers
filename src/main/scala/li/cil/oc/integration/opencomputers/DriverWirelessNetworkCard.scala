@@ -33,7 +33,7 @@ object DriverWirelessNetworkCard extends Item {
     }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack)) tier(stack) match {
         case Tier.One => classOf[component.WirelessNetworkCard.Tier1]
         case Tier.Two => classOf[component.WirelessNetworkCard.Tier2]

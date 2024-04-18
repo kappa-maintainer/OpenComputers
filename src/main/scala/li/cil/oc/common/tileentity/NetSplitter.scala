@@ -17,7 +17,7 @@ import net.minecraft.util.SoundCategory
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class NetSplitter extends traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
@@ -28,7 +28,7 @@ class NetSplitter extends traits.Environment with traits.OpenSides with traits.R
     DeviceAttribute.Product -> "NetSplits",
     DeviceAttribute.Version -> "1.0",
     DeviceAttribute.Width -> "6"
-  )
+  ).asJava
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
@@ -42,7 +42,7 @@ class NetSplitter extends traits.Environment with traits.OpenSides with traits.R
 
   override def isSideOpen(side: EnumFacing): Boolean = if (isInverted) !super.isSideOpen(side) else super.isSideOpen(side)
 
-  override def setSideOpen(side: EnumFacing, value: Boolean) {
+  override def setSideOpen(side: EnumFacing, value: Boolean):Unit = {
     val previous = isSideOpen(side)
     super.setSideOpen(side, value)
     if (previous != isSideOpen(side)) {
@@ -156,7 +156,7 @@ class NetSplitter extends traits.Environment with traits.OpenSides with traits.R
   def setSideHelper(args: Arguments, value: Boolean): Array[AnyRef] = {
     val sideIndex = args.checkInteger(0)
     if (sideIndex < 0 || sideIndex > 5)
-      return result(Unit, "invalid direction")
+      return result((), "invalid direction")
     val side = EnumFacing.byIndex(sideIndex)
     result(setSide(side, value))
   }

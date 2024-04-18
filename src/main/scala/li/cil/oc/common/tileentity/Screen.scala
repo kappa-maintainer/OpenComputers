@@ -89,7 +89,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
       case _ => false
     })
 
-  def checkMultiBlock() {
+  def checkMultiBlock():Unit ={
     shouldCheckForMultiBlock = true
     width = 1
     height = 1
@@ -165,7 +165,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     }
   }
 
-  def walk(entity: Entity) {
+  def walk(entity: Entity):Unit ={
     val (x, y) = localPosition
     origin.lastWalked.put(entity, localPosition) match {
       case Some((oldX, oldY)) if oldX == x && oldY == y => // Ignore
@@ -178,13 +178,13 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     }
   }
 
-  def shot(arrow: EntityArrow) {
+  def shot(arrow: EntityArrow):Unit ={
     arrows.add(arrow)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
     if (shouldCheckForMultiBlock && ((isClient && isClientReadyForMultiBlockCheck) || (isServer && isConnected))) {
       // Make sure we merge in a deterministic order, to avoid getting
@@ -196,7 +196,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
       while (queue.nonEmpty) {
         val current = queue.dequeue()
         val lpos = project(current)
-        def tryQueue(dx: Int, dy: Int) {
+        def tryQueue(dx: Int, dy: Int):Unit ={
           val npos = unproject(lpos.x + dx, lpos.y + dy, lpos.z)
           if (getWorld.blockExists(npos)) getWorld.getTileEntity(npos) match {
             case s: Screen if s.pitch == pitch && s.yaw == yaw && pending.add(s) => queue += s
@@ -267,7 +267,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     false
   } else true
 
-  override def dispose() {
+  override def dispose():Unit ={
     super.dispose()
     screens.clone().foreach(_.checkMultiBlock())
     if (isClient) {
@@ -279,7 +279,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     }
   }
 
-  override protected def onColorChanged() {
+  override protected def onColorChanged():Unit ={
     super.onColorChanged()
     screens.clone().foreach(_.checkMultiBlock())
   }
@@ -290,7 +290,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
   private final val HadRedstoneInputTag = Settings.namespace + "hadRedstoneInput"
   private final val InvertTouchModeTag = Settings.namespace + "invertTouchMode"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     tier = nbt.getByte(TierTag) max 0 min 2
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.readFromNBTForServer(nbt)
@@ -298,7 +298,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     nbt.setByte(TierTag, tier.toByte)
     super.writeToNBTForServer(nbt)
     nbt.setBoolean(HadRedstoneInputTag, hadRedstoneInput)
@@ -306,13 +306,13 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
   }
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     tier = nbt.getByte(TierTag) max 0 min 2
     super.readFromNBTForClient(nbt)
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     nbt.setByte(TierTag, tier.toByte)
     super.writeToNBTForClient(nbt)
     nbt.setBoolean(InvertTouchModeTag, invertTouchMode)
@@ -345,7 +345,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
 
   override def onAnalyze(player: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) = Array(origin.node)
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs):Unit ={
     super.onRedstoneInputChanged(args)
     val hasRedstoneInput = screens.map(_.maxInput).max > 0
     if (hasRedstoneInput != hadRedstoneInput) {
@@ -356,7 +356,7 @@ class Screen(var tier: Int) extends traits.TextBuffer with SidedEnvironment with
     }
   }
 
-  override def onRotationChanged() {
+  override def onRotationChanged():Unit ={
     super.onRotationChanged()
     screens.clone().foreach(_.checkMultiBlock())
   }

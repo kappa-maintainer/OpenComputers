@@ -32,19 +32,19 @@ class Redstone extends traits.Environment with traits.BundledRedstoneAware with 
 
   private final val RedstoneTag = Settings.namespace + "redstone"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     instance.load(nbt.getCompoundTag(RedstoneTag))
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     nbt.setNewCompoundTag(RedstoneTag, instance.save)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs):Unit = {
     super.onRedstoneInputChanged(args)
     if (node != null && node.network != null) {
       node.connect(dummyNode)

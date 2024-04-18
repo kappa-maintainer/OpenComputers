@@ -10,7 +10,7 @@ abstract class ArchitectureAPI(val machine: api.machine.Machine) {
 
   def initialize(): Unit
 
-  def load(nbt: NBTTagCompound) {}
+  def load(nbt: NBTTagCompound):Unit = {}
 
-  def save(nbt: NBTTagCompound) {}
+  def save(nbt: NBTTagCompound):Unit = {}
 }

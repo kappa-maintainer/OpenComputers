@@ -7,11 +7,11 @@ import scala.collection.mutable
 object DebugNetwork {
   val cards = mutable.WeakHashMap.empty[DebugNode, Unit]
 
-  def add(card: DebugNode) {
-    cards.put(card, Unit)
+  def add(card: DebugNode):Unit = {
+    cards.put(card, ())
   }
 
-  def remove(card: DebugNode) {
+  def remove(card: DebugNode):Unit = {
     cards.remove(card)
   }
 

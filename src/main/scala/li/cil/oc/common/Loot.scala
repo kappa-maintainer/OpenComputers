@@ -20,7 +20,7 @@ import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 //class Loot extends WeightedRandomChestContent(api.Items.get(Constants.ItemName.Floppy).item(), api.Items.get(Constants.ItemName.Floppy).createItemStack(1).getItemDamage, 1, 1, Settings.get.lootProbability) {
@@ -90,7 +90,7 @@ object Loot {
     stack.copy()
   }
 
-  def init() {
+  def init():Unit = {
 //    for (container <- containers) {
 //      ChestGenHooks.addItem(container, new Loot())
 //    }
@@ -134,8 +134,8 @@ object Loot {
     }
   }
 
-  private def parseLootDisks(list: java.util.Properties, acc: mutable.ArrayBuffer[(ItemStack, Int)], external: Boolean) {
-    for (key <- list.stringPropertyNames) {
+  private def parseLootDisks(list: java.util.Properties, acc: mutable.ArrayBuffer[(ItemStack, Int)], external: Boolean):Unit = {
+    for (key <- list.stringPropertyNames.asScala) {
       val value = list.getProperty(key)
       try value.split(":") match {
         case Array(name, count, color) =>

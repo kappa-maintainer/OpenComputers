@@ -7,7 +7,7 @@ import li.cil.oc.integration.Mods
 object ModThaumcraft extends ModProxy {
   override def getMod: Mods.ModBase = Mods.Thaumcraft
 
-  override def initialize() {
+  override def initialize():Unit = {
     Driver.add(ConverterThaumcraftItems)
   }
 }

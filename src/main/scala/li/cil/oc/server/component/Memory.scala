@@ -12,7 +12,7 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Memory(val tier: Int) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Neighbors).
@@ -26,5 +26,5 @@ class Memory(val tier: Int) extends AbstractManagedEnvironment with DeviceInfo {
     DeviceAttribute.Clock -> (Settings.get.callBudgets(tier) * 1000).toInt.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 }

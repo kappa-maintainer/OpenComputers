@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.inventory.Container
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 // Workaround because certain other mods *cough*TMI*cough* do base class
 // transformations that break things! Such fun. Many annoyed. And yes, this
@@ -39,7 +39,7 @@ abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C) ext
       GlStateManager.disableLighting()
       GlStateManager.disableDepth()
 
-      val textWidth = text.map(line => font.getStringWidth(line)).max
+      val textWidth = text.asScala.map(line => font.getStringWidth(line)).max
 
       var posX = x + 12
       var posY = y - 12
@@ -69,8 +69,8 @@ abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C) ext
       drawGradientRect(posX - 3, posY - 3, posX + textWidth + 3, posY - 3 + 1, color1, color1)
       drawGradientRect(posX - 3, posY + textHeight + 2, posX + textWidth + 3, posY + textHeight + 3, color2, color2)
 
-      for ((line, index) <- text.zipWithIndex) {
-        font.drawStringWithShadow(line.asInstanceOf[String], posX, posY, -1)
+      for ((line, index) <- text.asScala.zipWithIndex) {
+        font.drawStringWithShadow(line, posX.toFloat, posY.toFloat, -1)
         if (index == 0) {
           posY += 2
         }

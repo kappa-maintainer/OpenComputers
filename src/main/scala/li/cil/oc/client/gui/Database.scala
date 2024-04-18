@@ -12,9 +12,9 @@ class Database(playerInventory: InventoryPlayer, val databaseInventory: Database
 
   override def lockedStack = databaseInventory.container
 
-  override def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int) {}
+  override def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int):Unit = {}
 
-  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int) {
+  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int):Unit = {
     GlStateManager.color(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Database)
     drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)

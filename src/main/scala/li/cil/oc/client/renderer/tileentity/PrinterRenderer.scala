@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
 
 object PrinterRenderer extends TileEntitySpecialRenderer[Printer] {
-  override def render(printer: Printer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(printer: Printer, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (printer.data.stateOff.nonEmpty) {

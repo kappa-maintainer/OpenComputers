@@ -9,7 +9,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent
 import net.minecraftforge.event.entity.living.LivingFallEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object HoverBootsHandler {
   @SubscribeEvent
@@ -75,5 +75,5 @@ object HoverBootsHandler {
     case _ => // Ignore.
   }
 
-  private def equippedArmor(player: EntityPlayer) = player.getArmorInventoryList.filter(!_.isEmpty)
+  private def equippedArmor(player: EntityPlayer) = player.getArmorInventoryList.asScala.filter(!_.isEmpty)
 }

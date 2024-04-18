@@ -13,8 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.util.EnumFacing
 import org.lwjgl.opengl.GL11
-
-import scala.collection.convert.WrapAsJava.asJavaCollection
+import scala.jdk.CollectionConverters.*
 
 class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends DynamicGuiContainer(new container.Rack(playerInventory, rack)) {
   ySize = 210
@@ -76,7 +75,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
   final val busToSide = EnumFacing.values().filter(_ != EnumFacing.SOUTH)
   final val sideToBus = busToSide.zipWithIndex.toMap
 
-  var relayButton: ImageButton = _
+  var relayButton: ImageButton = scala.compiletime.uninitialized
 
   // bus -> mountable -> connectable
   var wireButtons = Array.fill(rack.getSizeInventory)(Array.fill(4)(Array.fill(5)(null: ImageButton)))
@@ -103,7 +102,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
     (mountable, connectable, bus)
   }
 
-  protected override def actionPerformed(button: GuiButton) {
+  protected override def actionPerformed(button: GuiButton):Unit = {
     if (button.id == 0) {
       ClientPacketSender.sendRackRelayState(rack, !rack.isRelayEnabled)
     }
@@ -118,7 +117,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
     }
   }
 
-  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float) {
+  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float):Unit = {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until rack.getSizeInventory) {
         val presence = inventoryContainer.nodePresence(mountable)
@@ -131,7 +130,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
     super.drawScreen(mouseX, mouseY, dt)
   }
 
-  override def initGui() {
+  override def initGui():Unit = {
     super.initGui()
 
     relayButton = new ImageButton(0, guiLeft + 101, guiTop + 96, 65, 18, Textures.GUI.ButtonRelay, Localization.Rack.RelayDisabled, textIndent = 18)
@@ -255,14 +254,14 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
 
     if (relayButton.isMouseOver) {
       val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(Localization.Rack.RelayModeTooltip.lines.toIterable))
+      tooltip.addAll(Localization.Rack.RelayModeTooltip.lines.toList)
       copiedDrawHoveringText(tooltip, mouseX - guiLeft, mouseY - guiTop, fontRenderer)
     }
 
     RenderState.popAttrib()
   }
 
-  override def drawSecondaryBackgroundLayer() {
+  override def drawSecondaryBackgroundLayer():Unit = {
     GlStateManager.color(1, 1, 1) // Required under Linux.
     mc.renderEngine.bindTexture(Textures.GUI.Rack)
     drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)

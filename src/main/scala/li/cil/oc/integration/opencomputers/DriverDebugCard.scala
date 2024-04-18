@@ -19,7 +19,7 @@ object DriverDebugCard extends Item {
   override def slot(stack: ItemStack) = Slot.Card
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.DebugCard]
       else null

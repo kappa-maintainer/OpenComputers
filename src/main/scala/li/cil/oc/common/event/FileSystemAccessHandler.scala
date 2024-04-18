@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 object FileSystemAccessHandler {
   @SubscribeEvent
-  def onFileSystemAccess(e: FileSystemAccessEvent.Server) {
+  def onFileSystemAccess(e: FileSystemAccessEvent.Server):Unit = {
     e.getTileEntity match {
       case t: Rack =>
         for (slot <- 0 until t.getSizeInventory) {
@@ -40,7 +40,7 @@ object FileSystemAccessHandler {
   }
 
   @SubscribeEvent
-  def onFileSystemAccess(e: FileSystemAccessEvent.Client) {
+  def onFileSystemAccess(e: FileSystemAccessEvent.Client):Unit = {
     val volume = Settings.get.soundVolume
     val sound = new SoundEvent(new ResourceLocation(e.getSound))
     e.getWorld.playSound(e.getX, e.getY, e.getZ, sound, SoundCategory.BLOCKS, volume, 1, false)

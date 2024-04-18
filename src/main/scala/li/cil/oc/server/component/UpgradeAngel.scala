@@ -13,7 +13,7 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 // Note-to-self: this has a component to allow the robot telling it has the
 // upgrade.
@@ -29,5 +29,5 @@ class UpgradeAngel extends AbstractManagedEnvironment with DeviceInfo {
     DeviceAttribute.Capacity -> Settings.get.maxNetworkPacketSize.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 }

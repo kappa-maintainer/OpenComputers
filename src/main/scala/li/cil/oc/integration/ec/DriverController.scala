@@ -17,7 +17,7 @@ import net.minecraft.world.World
 import scala.language.existentials
 
 object DriverController extends DriverSidedTileEntity {
-  private type TileController = TileEntity with IActionHost with IGridHost
+  private type TileController = TileEntity & IActionHost & IGridHost
 
   def getTileEntityClass = AEUtil.controllerClass
 
@@ -29,7 +29,7 @@ object DriverController extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (AEUtil.isController(stack))
         classOf[Environment]
       else null

@@ -13,7 +13,7 @@ class RedstoneCard(val parent: Delegator, val tier: Int) extends traits.Delegate
   // Note: T2 is enabled in mod integration, if it makes sense.
   showInItemList = tier == Tier.One
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]):Unit = {
     super.tooltipExtended(stack, tooltip)
     if (tier == Tier.Two) {
       // TODO Generic system for redstone integration modules to register in a list of tooltip lines.

@@ -21,7 +21,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
 
   def add(value: Data): Boolean = this.synchronized {
     val replaced = remove(value)
-    val entry = new Leaf(value, new Point(value))
+    val entry = new Leaf(value, new Point(this.coordinate.apply(value)))
     entries += value -> entry
     root.add(entry) match {
       case newNode if newNode != root => root = new NonLeaf(newNode, root)
@@ -93,7 +93,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
       }
     }
 
-    private def uncheckedAdd(value: Node) {
+    private def uncheckedAdd(value: Node): Unit = {
       var bestChild: Option[Node] = null
       var bestGrowth = Double.PositiveInfinity
       var bestVolume = Double.PositiveInfinity
@@ -279,7 +279,7 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
   }
 
   private class Rectangle(val min: Point, val max: Point) {
-    def including(value: Rectangle) = new Rectangle(value.min min min, value.max max max)
+    def including(value: Rectangle) = new Rectangle(value.min `min` min, value.max `max` max)
 
     def intersects(value: Rectangle) =
       value.min.x <= max.x && value.min.y <= max.y && value.min.z <= max.z &&
@@ -300,15 +300,15 @@ class RTree[Data](private val M: Int)(implicit val coordinate: Data => (Double, 
       var min = Point.PositiveInfinity
       var max = Point.NegativeInfinity
       for (value <- values) {
-        min = value.bounds.min min min
-        max = value.bounds.max max max
+        min = value.bounds.min `min` min
+        max = value.bounds.max `max` max
       }
       new Rectangle(min, max)
     }
   }
 
   private class SplitResult(val set: mutable.Set[Node], var bounds: Rectangle) {
-    def add(value: Node) {
+    def add(value: Node):Unit = {
       set += value
       bounds = bounds.including(value.bounds)
     }

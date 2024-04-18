@@ -20,9 +20,9 @@ import net.minecraft.inventory
 import net.minecraft.inventory.{IInventory, InventoryCraftResult, SlotCrafting}
 import net.minecraft.item.crafting.CraftingManager
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
-class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends AbstractManagedEnvironment with DeviceInfo {
+class UpgradeCrafting(val host: EnvironmentHost & internal.Robot) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
     withComponent("crafting").
     create()
@@ -34,18 +34,18 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
     DeviceAttribute.Product -> "MultiCombinator-9S"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   @Callback(doc = """function([count:number]):number -- Tries to craft the specified number of items in the top left area of the inventory.""")
   def craft(context: Context, args: Arguments): Array[AnyRef] = {
     val count = args.optInteger(0, 64) max 0 min 64
-    result(CraftingInventory.craft(count): _*)
+    result(CraftingInventory.craft(count)*)
   }
 
   private object CraftingInventory extends inventory.InventoryCrafting(new inventory.Container {
     override def canInteractWith(player: EntityPlayer) = true
   }, 3, 3) {
-    def craft(wantedCount: Int): Seq[_] = {
+    def craft(wantedCount: Int): Seq[?] = {
       val player = host.player
       copyItemsFromHost(player.inventory)
       var countCrafted = 0
@@ -81,14 +81,14 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
       Seq(countCrafted > 0, countCrafted)
     }
 
-    def copyItemsFromHost(inventory: IInventory) {
+    def copyItemsFromHost(inventory: IInventory):Unit = {
       for (slot <- 0 until getSizeInventory) {
         val stack = inventory.getStackInSlot(toParentSlot(slot))
         setInventorySlotContents(slot, stack)
       }
     }
 
-    def copyItemsToHost(inventory: IInventory) {
+    def copyItemsToHost(inventory: IInventory):Unit = {
       for (slot <- 0 until getSizeInventory) {
         inventory.setInventorySlotContents(toParentSlot(slot), getStackInSlot(slot))
       }

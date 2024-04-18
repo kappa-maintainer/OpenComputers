@@ -71,9 +71,9 @@ object AssemblerTemplates {
     }
   }
 
-  class Slot(val kind: String, val tier: Int, val validator: Option[Method], val hostClass: Option[Class[_ <: EnvironmentHost]]) {
+  class Slot(val kind: String, val tier: Int, val validator: Option[Method], val hostClass: Option[Class[? <: EnvironmentHost]]) {
     def validate(inventory: IInventory, slot: Int, stack: ItemStack) = validator match {
-      case Some(method) => IMC.tryInvokeStatic(method, inventory, slot.underlying(), tier.underlying(), stack)(false)
+      case Some(method) => IMC.tryInvokeStatic(method, inventory, slot.asInstanceOf[AnyRef], tier.asInstanceOf[AnyRef], stack)(false)
       case _ => Option(hostClass.fold(api.Driver.driverFor(stack))(api.Driver.driverFor(stack, _))) match {
         case Some(driver) => try driver.slot(stack) == kind && driver.tier(stack) <= tier catch {
           case t: AbstractMethodError =>
@@ -85,7 +85,7 @@ object AssemblerTemplates {
     }
   }
 
-  private def parseSlot(nbt: NBTTagCompound, kindOverride: Option[String], hostClass: Option[Class[_ <: EnvironmentHost]]) = {
+  private def parseSlot(nbt: NBTTagCompound, kindOverride: Option[String], hostClass: Option[Class[? <: EnvironmentHost]]) = {
     val kind = kindOverride.getOrElse(if (nbt.hasKey("type")) nbt.getString("type") else Slot.None)
     val tier = if (nbt.hasKey("tier")) nbt.getInteger("tier") else Tier.Any
     val validator = if (nbt.hasKey("validate")) Option(IMC.getStaticMethod(nbt.getString("validate"), classOf[IInventory], classOf[Int], classOf[Int], classOf[ItemStack])) else None

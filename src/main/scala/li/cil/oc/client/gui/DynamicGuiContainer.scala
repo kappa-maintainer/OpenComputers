@@ -10,31 +10,33 @@ import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
+import li.cil.oc.util.StackOption.*
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.Slot
+import net.minecraft.item.ItemStack
 import net.minecraftforge.fml.common.Optional
 import org.lwjgl.opengl.GL11
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
+
+
 
 abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomGuiContainer(container) {
   protected var hoveredSlot: Option[Slot] = None
 
   protected var hoveredStackNEI: StackOption = EmptyStack
 
-  protected def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int) {
+  protected def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int):Unit = {
     fontRenderer.drawString(
       Localization.localizeImmediately("container.inventory"),
       8, ySize - 96 + 2, 0x404040)
   }
 
-  override protected def drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
+  override protected def drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int):Unit = {
     RenderState.pushAttrib()
 
     drawSecondaryForegroundLayer(mouseX, mouseY)
@@ -46,9 +48,9 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
     RenderState.popAttrib()
   }
 
-  protected def drawSecondaryBackgroundLayer() {}
+  protected def drawSecondaryBackgroundLayer():Unit = {}
 
-  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int) {
+  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int):Unit = {
     GlStateManager.color(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Background)
     drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
@@ -62,7 +64,7 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
 
   protected def drawInventorySlots(): Unit = {
     GlStateManager.pushMatrix()
-    GlStateManager.translate(guiLeft, guiTop, 0)
+    GlStateManager.translate(guiLeft.toFloat, guiTop.toFloat, 0)
     GlStateManager.disableDepth()
     for (slot <- 0 until inventorySlots.inventorySlots.size()) {
       drawSlotInventory(inventorySlots.inventorySlots.get(slot))
@@ -72,10 +74,10 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
     RenderState.makeItBlend()
   }
 
-  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float) {
-    hoveredSlot = (inventorySlots.inventorySlots collect {
+  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float):Unit = {
+    hoveredSlot = inventorySlots.inventorySlots.asScala.collectFirst {
       case slot: Slot if isPointInRegion(slot.xPos, slot.yPos, 16, 16, mouseX, mouseY) => slot
-    }).headOption
+    }
     hoveredStackNEI = ItemSearch.hoveredStack(this, mouseX, mouseY)
 
     super.drawScreen(mouseX, mouseY, dt)
@@ -85,7 +87,7 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
     }
   }
 
-  protected def drawSlotInventory(slot: Slot) {
+  protected def drawSlotInventory(slot: Slot):Unit = {
     GlStateManager.enableBlend()
     slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None =>
@@ -116,7 +118,7 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
     GlStateManager.disableBlend()
   }
 
-  protected def drawSlotHighlight(slot: Slot) {
+  protected def drawSlotHighlight(slot: Slot):Unit = {
     if (mc.player.inventory.getItemStack.isEmpty) slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None => // Ignore.
       case _ =>
@@ -148,13 +150,13 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
     case _ => false
   }
 
-  protected def drawDisabledSlot(slot: ComponentSlot) {
+  protected def drawDisabledSlot(slot: ComponentSlot):Unit = {
     GlStateManager.color(1, 1, 1, 1)
     Textures.bind(slot.tierIcon)
     Gui.drawModalRectWithCustomSizedTexture(slot.xPos, slot.yPos, 0, 0, 16, 16, 16, 16)
   }
 
-  protected def drawSlotBackground(x: Int, y: Int) {
+  protected def drawSlotBackground(x: Int, y: Int):Unit = {
     GlStateManager.color(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Slot)
     val t = Tessellator.getInstance
@@ -185,12 +187,12 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
       val overlay = runtime.getItemListOverlay
       hoveredSlot match {
         case Some(hovered) if !isInPlayerInventory(hovered) && isSelectiveSlot(hovered) =>
-          overlay.highlightStacks(overlay.getVisibleStacks.filter(hovered.isItemValid))
-        case _ => overlay.highlightStacks(List[Nothing]())
+          overlay.highlightStacks(overlay.getVisibleStacks.asScala.filter(hovered.isItemValid).asJavaCollection)
+        case _ => overlay.highlightStacks(List[ItemStack]().asJava)
       }
     }
   }
 
   @Optional.Method(modid = Mods.IDs.JustEnoughItems)
-  private def resetJEIHighlights() = ModJEI.runtime.foreach(_.getItemListOverlay.highlightStacks(List[Nothing]()))
+  private def resetJEIHighlights() = ModJEI.runtime.foreach(_.getItemListOverlay.highlightStacks(List[Nothing]().asJavaCollection))
 }

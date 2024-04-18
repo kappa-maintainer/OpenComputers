@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.SoundCategory
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class Adapter extends traits.Environment with traits.ComponentInventory with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo {
@@ -43,13 +43,13 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
     DeviceAttribute.Product -> "Multiplug Ext.1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
   override protected def defaultState = true
 
-  override def setSideOpen(side: EnumFacing, value: Boolean) {
+  override def setSideOpen(side: EnumFacing, value: Boolean):Unit ={
     super.setSideOpen(side, value)
     if (isServer) {
       ServerPacketSender.sendAdapterState(this)
@@ -74,7 +74,7 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
     if (isServer && updatingBlocks.nonEmpty) {
       for (block <- updatingBlocks) {
@@ -83,7 +83,7 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
     }
   }
 
-  def neighborChanged(d: EnumFacing) {
+  def neighborChanged(d: EnumFacing):Unit ={
     if (node != null && node.network != null) {
       val blockPos = getPos.offset(d)
       getWorld.getTileEntity(blockPos) match {
@@ -150,7 +150,7 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
     }
   }
 
-  def neighborChanged() {
+  def neighborChanged():Unit ={
     if (node != null && node.network != null) {
       for (d <- EnumFacing.values) {
         neighborChanged(d)
@@ -160,14 +160,14 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit ={
     super.onConnect(node)
     if (node == this.node) {
       neighborChanged()
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit ={
     super.onDisconnect(node)
     if (node == this.node) {
       updatingBlocks.clear()
@@ -189,7 +189,7 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
   private final val BlockNameTag = "name"
   private final val BlockDataTag = "data"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForServer(nbt)
 
     val blocksNbt = nbt.getTagList(BlocksTag, NBT.TAG_COMPOUND)
@@ -204,7 +204,7 @@ class Adapter extends traits.Environment with traits.ComponentInventory with tra
       }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
 
     val blocksNbt = new NBTTagList()

@@ -22,8 +22,9 @@ import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
 import net.minecraftforge.client.model.{ModelLoader, ModelLoaderRegistry}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import scala.jdk.CollectionConverters.*
 
-import scala.collection.convert.WrapAsScala._
+
 import scala.collection.mutable
 
 object ModelInitialization {
@@ -41,7 +42,7 @@ object ModelInitialization {
 
   private val meshableItems = mutable.ArrayBuffer.empty[Item]
   private val itemDelegates = mutable.ArrayBuffer.empty[(String, Delegate)]
-  private val itemDelegatesCustom = mutable.ArrayBuffer.empty[Delegate with CustomModel]
+  private val itemDelegatesCustom = mutable.ArrayBuffer.empty[Delegate & CustomModel]
 
   def preInit(): Unit = {
     MinecraftForge.EVENT_BUS.register(this)
@@ -158,7 +159,7 @@ object ModelInitialization {
       Constants.BlockName.Rack -> (parent => new ServerRackModel(parent))
     )
 
-    registry.getKeys.collect {
+    registry.getKeys.asScala.collect {
       case location: ModelResourceLocation => registry.getObject(location) match {
         case parent: IBakedModel =>
           for ((name, model) <- modelOverrides) {

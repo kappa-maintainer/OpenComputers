@@ -44,7 +44,7 @@ object EventHandlerMinecraftForge {
     private val providers = EnumFacing.VALUES.map(side => new EnergyStorageImpl(tile, side))
     private val nullProvider = new EnergyStorageImpl(tile, null)
 
-    override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = capability == CapabilityEnergy.ENERGY
+    override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = capability == CapabilityEnergy.ENERGY
 
     override def getCapability[T](capability: Capability[T], facing: EnumFacing): T = {
       if (capability == CapabilityEnergy.ENERGY) {

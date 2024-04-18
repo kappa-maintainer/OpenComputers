@@ -242,7 +242,7 @@ class TextBuffer(var width: Int, var height: Int, initialFormat: PackedColor.Col
     changed
   }
 
-  private def setChar(line: Array[Int], lineColor: Array[Short], x: Int, c: Int) {
+  private def setChar(line: Array[Int], lineColor: Array[Short], x: Int, c: Int):Unit = {
     if (FontUtils.wcwidth(c) > 1 && x >= line.length - 1) {
       // Don't allow setting wide chars in right-most col.
       return

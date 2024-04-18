@@ -27,7 +27,7 @@ trait DisplayBuffer extends GuiScreen {
     guiSizeChanged = true
   }
 
-  protected def drawBufferLayer() {
+  protected def drawBufferLayer():Unit = {
     val oldWidth = currentWidth
     val oldHeight = currentHeight
     currentWidth = bufferColumns

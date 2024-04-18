@@ -7,7 +7,7 @@ import li.cil.oc.integration.Mods
 object ModComputerCraft extends ModProxy {
   override def getMod = Mods.ComputerCraft
 
-  override def initialize() {
+  override def initialize():Unit = {
     PeripheralProvider.init()
 
     Driver.add(DriverComputerCraftMedia)

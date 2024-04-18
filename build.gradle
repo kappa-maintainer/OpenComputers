@@ -1,23 +1,10 @@
 plugins {
     id 'scala'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.64'
-    id 'wtf.gofancy.fancygradle' version '1.1.+'
+    id 'net.minecraftforge.gradle' version '6.10.23'
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.modrinth.minotaur' version '2.8.7'
 }
-
-fancyGradle {
-    patches {
-        resources
-        coremods
-        codeChickenLib
-        asm
-    }
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
 
 file "build.properties" withReader {
     def prop = new Properties()
@@ -50,9 +37,16 @@ version += "+" + getGitRef()
 
 ext.simpleVersion = version
 version = "MC${config.minecraft.version}-${project.version}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 minecraft {
     mappings channel: "${config.minecraft.mappings_channel}", version: "${config.minecraft.mappings_version}"
+
+    legacy {
+        fixClasspath = true
+        extractMappings = true
+        attachMappings = true
+    }
 
     runs {
         client {
@@ -102,11 +96,16 @@ if (!System.getProperty('idea.active')) {
 
 compileScala {
     configure(scalaCompileOptions.forkOptions) {
-        memoryMaximumSize = '1g'
+        memoryMaximumSize = '4g'
+    }
+    scalaCompileOptions.additionalParameters = []
+    scalaCompileOptions.with {
+        force = true
     }
 }
 
 repositories {
+    mavenCentral()
     maven {
         name "MightyPirates"
         url "https://maven.cil.li/"
@@ -133,6 +132,18 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name "Outlands"
+        url "https://maven.outlands.top/releases/"
+    }
+    maven {
+        name "CleanroomMC snapshot"
+        url "https://repo.cleanroommc.com/snapshots"
+    }
+    maven {
+        name "CleanroomMC releases"
+        url "https://repo.cleanroommc.com/releases"
+    }
     ivy {
         name 'asie dependency mirror'
         artifactPattern "https://asie.pl/javadeps/[module]-[revision](-[classifier]).[ext]"
@@ -150,7 +161,8 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
+    //minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
+    minecraft "com.cleanroommc:cleanroom:${config.cleanroom.version}"
 
     compileOnly fg.deobf("li.cil.tis3d:TIS-3D:${config.tis3d.version}") {
         exclude module: "jei_1.12"
@@ -163,7 +175,7 @@ dependencies {
     compileOnly fg.deobf("net.industrial-craft:industrialcraft-2:${config.ic2.version}")
     compileOnly fg.deobf("mcp.mobius.waila:Hwyla:${config.hwyla.version}:api")
     /* compileOnly fg.deobf("dan200.computercraft:ComputerCraft:${config.cc.version}") */
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-1.12.2:${config.cctweaked.version}")
+    //compileOnly fg.deobf("org.squiddev:cc-tweaked-1.12.2:${config.cctweaked.version}")
     compileOnly fg.deobf("charset:Charset:${config.charset.version}:api")
     compileOnly fg.deobf("curse.maven:cofh-core-69162:2920433") /* CoFHCore */
     compileOnly fg.deobf("curse.maven:ender-io-64578:3328811") /* Ender IO */
@@ -203,7 +215,14 @@ dependencies {
         exclude module: "ForgeMultipart"
     }
 
-    provided fg.deobf("mrtjp:MrTJPCore:${config.mrtjpcore.version}:universal") {
+    /*provided fg.deobf("mrtjp:MrTJPCore:${config.mrtjpcore.version}:universal") {
+        exclude module: "NotEnoughItems"
+        exclude module: "CodeChickenLib"
+        exclude module: "jei_1.12"
+        exclude module: "ForgeMultipart"
+    }*/
+
+    provided("mrtjp:mrtjpcore:2.1.5.0") {
         exclude module: "NotEnoughItems"
         exclude module: "CodeChickenLib"
         exclude module: "jei_1.12"
@@ -214,12 +233,19 @@ dependencies {
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
     embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
-    testImplementation("junit:junit:4.13")
-    testImplementation("org.mockito:mockito-all:1.10.19")
-    testImplementation("org.scalactic:scalactic_2.11:2.2.6")
-    testImplementation("org.scalatest:scalatest_2.11:2.2.6")
+    implementation 'org.scala-lang:scala3-compiler_3:3.4.1'
+    implementation 'org.scala-lang:scala3-library_3:3.4.1'
+    implementation 'com.typesafe:config:1.4.3'
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.10.2')
+    testImplementation('org.mockito:mockito-core:5.11.0')
+    testImplementation("org.scalactic:scalactic_3:3.2.18")
+    testImplementation("org.scalatest:scalatest_3:3.2.18")
 
     provided fg.deobf("codechicken:EnderStorage:${config.minecraft.version}-${config.enderstorage.version}:universal")
+
+    compileOnly fileTree("./libs")
 }
 
 processResources {
@@ -241,6 +267,7 @@ processResources {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     configurations.embedded.each { dep ->
         from(project.zipTree(dep)) {
             exclude 'META-INF', 'META-INF/**'
@@ -252,26 +279,26 @@ jar {
         attributes FMLAT: "oc_at.cfg"
     }
 }
-
+/*
 javadoc {
     include 'li/cil/oc/api/**'
-}
+}*/
 
 task apiJar(type: Jar) {
     from sourceSets.main.allSource
     from sourceSets.main.output
-    classifier = 'api'
+    archiveClassifier = 'api'
     include 'li/cil/oc/api/**'
 }
-
+/*
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
-    classifier 'javadoc'
-}
+    archiveClassifier = 'javadoc'
+}*/
 
 artifacts {
     archives apiJar
-    archives javadocJar
+    //archives javadocJar
 }
 
 publishing {
@@ -282,7 +309,7 @@ publishing {
             version = mod_version
             artifact jar
             artifact apiJar
-            artifact javadocJar
+            //artifact javadocJar
         }
     }
     repositories {

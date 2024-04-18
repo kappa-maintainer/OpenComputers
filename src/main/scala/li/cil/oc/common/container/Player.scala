@@ -3,18 +3,19 @@ package li.cil.oc.common.container
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.Tier
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
 import li.cil.oc.util.SideTracker
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory._
+import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.util.FakePlayer
 
-import scala.collection.convert.WrapAsScala._
+import java.util
+import scala.jdk.CollectionConverters.*
 
 abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: IInventory) extends Container {
   /** Number of player inventory slots to display horizontally. */
@@ -98,31 +99,31 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
   }
 
   protected def fillOrder(backFill: Boolean): Seq[Int] = {
-    (if (backFill) inventorySlots.indices.reverse else inventorySlots.indices).sortBy(i => inventorySlots(i) match {
+    (if (backFill) inventorySlots.asScala.indices.reverse else inventorySlots.asScala.indices).sortBy(i => inventorySlots.get(i) match {
       case s: Slot if s.getHasStack => -1
       case s: ComponentSlot => s.tier
       case _ => 99
     })
   }
 
-  protected def tryTransferStackInSlot(from: Slot, intoPlayerInventory: Boolean) {
+  protected def tryTransferStackInSlot(from: Slot, intoPlayerInventory: Boolean):Unit = {
     for (i <- fillOrder(intoPlayerInventory)) {
       if (inventorySlots.get(i) match { case slot: Slot => tryMoveAllSlotToSlot(from, slot) case _ => false })
         return
     }
   }
 
-  def addSlotToContainer(x: Int, y: Int, slot: String = common.Slot.Any, tier: Int = common.Tier.Any) {
+  def addSlotToContainer(x: Int, y: Int, slot: String = common.Slot.Any, tier: Int = common.Tier.Any):Unit = {
     val index = inventorySlots.size
     addSlotToContainer(new StaticComponentSlot(this, otherInventory, index, x, y, slot, tier))
   }
 
-  def addSlotToContainer(x: Int, y: Int, info: Array[Array[InventorySlot]], containerTierGetter: () => Int) {
+  def addSlotToContainer(x: Int, y: Int, info: Array[Array[InventorySlot]], containerTierGetter: () => Int):Unit = {
     val index = inventorySlots.size
     addSlotToContainer(new DynamicComponentSlot(this, otherInventory, index, x, y, slot => info(slot.containerTierGetter())(slot.getSlotIndex), containerTierGetter))
   }
 
-  def addSlotToContainer(x: Int, y: Int, info: DynamicComponentSlot => InventorySlot) {
+  def addSlotToContainer(x: Int, y: Int, info: DynamicComponentSlot => InventorySlot):Unit = {
     val index = inventorySlots.size
     addSlotToContainer(new DynamicComponentSlot(this, otherInventory, index, x, y, info, () => Tier.One))
   }
@@ -149,8 +150,8 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
     }
   }
 
-  protected def sendWindowProperty(id: Int, value: Int) {
-    listeners.foreach(_.sendWindowProperty(this, id, value))
+  protected def sendWindowProperty(id: Int, value: Int):Unit = {
+    listeners.asScala.foreach(_.sendWindowProperty(this, id, value))
   }
 
   override def detectAndSendChanges(): Unit = {
@@ -158,7 +159,7 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
     if (SideTracker.isServer) {
       val nbt = new NBTTagCompound()
       detectCustomDataChanges(nbt)
-      for (entry <- listeners) entry match {
+      for (entry <- listeners.asScala) entry match {
         case _: FakePlayer => // Nope
         case player: EntityPlayerMP => ServerPacketSender.sendContainerUpdate(this, nbt, player)
         case _ =>
@@ -181,7 +182,7 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
   def updateCustomData(nbt: NBTTagCompound): Unit = {
     if (nbt.hasKey("delta")) {
       val delta = nbt.getCompoundTag("delta")
-      delta.getKeySet.foreach {
+      delta.getKeySet.asScala.foreach {
         case key: String => synchronizedData.setTag(key, delta.getTag(key))
       }
     }
@@ -240,12 +241,12 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
     }
 
     override def setByteArray(key: String, value: Array[Byte]): Unit = this.synchronized {
-      if (value.deep != getByteArray(key).deep) delta.setByteArray(key, value)
+      if (value.sameElements(getByteArray(key))) delta.setByteArray(key, value)
       super.setByteArray(key, value)
     }
 
     override def setIntArray(key: String, value: Array[Int]): Unit = this.synchronized {
-      if (value.deep != getIntArray(key).deep) delta.setIntArray(key, value)
+      if (value.sameElements(getIntArray(key))) delta.setIntArray(key, value)
       super.setIntArray(key, value)
     }
 

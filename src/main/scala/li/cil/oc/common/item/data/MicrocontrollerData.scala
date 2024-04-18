@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.util.Constants.NBT
 
 class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller) extends ItemData(itemName) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     load(stack)
   }
@@ -25,7 +25,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
   private final val ComponentsTag = Settings.namespace + "components"
   private final val StoredEnergyTag = Settings.namespace + "storedEnergy"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     tier = nbt.getByte(TierTag)
     components = nbt.getTagList(ComponentsTag, NBT.TAG_COMPOUND).
       toArray[NBTTagCompound].map(new ItemStack(_)).filter(!_.isEmpty)
@@ -38,7 +38,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
     }
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     nbt.setByte(TierTag, tier.toByte)
     nbt.setNewTagList(ComponentsTag, components.filter(!_.isEmpty).toIterable)
     nbt.setInteger(StoredEnergyTag, storedEnergy)

@@ -43,7 +43,7 @@ object LuaStateFactory {
 
   def setDefaultArch(stack: ItemStack): ItemStack = {
     if (default53) {
-      val lua53: Class[_ <: Architecture] = classOf[NativeLua53Architecture]
+      val lua53: Class[? <: Architecture] = classOf[NativeLua53Architecture]
       Option(api.Driver.driverFor(stack)).foreach{
         case driver: api.driver.item.MutableProcessor => {
           driver.setArchitecture(stack, lua53)
@@ -179,7 +179,7 @@ abstract class LuaStateFactory {
   // shared libraries somewhere so that we can load them, because we cannot
   // load them directly from a JAR. Lastly, we need to handle library overrides in
   // case the user wants to use custom libraries, or are not on a supported platform.
-  def init() {
+  def init():Unit = {
     if (libraryName == null) {
       return
     }
@@ -246,7 +246,7 @@ abstract class LuaStateFactory {
           val inExisting = new FileInputStream(tmpLibFile)
           var inCurrentByte = 0
           var inExistingByte = 0
-          do {
+          while ({ {
             inCurrentByte = inCurrent.read()
             inExistingByte = inExisting.read()
             if (inCurrentByte != inExistingByte) {
@@ -255,7 +255,7 @@ abstract class LuaStateFactory {
               inExistingByte = -1
             }
           }
-          while (inCurrentByte != -1 && inExistingByte != -1)
+          ; inCurrentByte != -1 && inExistingByte != -1}) ()
           inCurrent.close()
           inExisting.close()
         }

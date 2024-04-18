@@ -26,7 +26,7 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Printer extends traits.Environment with traits.Inventory with traits.Rotatable with SidedEnvironment with traits.StateAware with traits.Tickable with ISidedInventory with DeviceInfo {
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
@@ -57,7 +57,7 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
     DeviceAttribute.Product -> "Omni-Materializer T6.1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -170,7 +170,7 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
   @Callback(doc = """function(minX:number, minY:number, minZ:number, maxX:number, maxY:number, maxZ:number, texture:string[, state:boolean=false][,tint:number]) -- Adds a shape to the printers configuration, optionally specifying whether it is for the off or on state.""")
   def addShape(context: Context, args: Arguments): Array[Object] = {
     if (data.stateOff.size > Settings.get.maxPrintComplexity || data.stateOn.size > Settings.get.maxPrintComplexity) {
-      return result(Unit, "model too complex")
+      return result((), "model too complex")
     }
     val minX = (args.checkInteger(0) max 0 min 16) / 16f
     val minY = (args.checkInteger(1) max 0 min 16) / 16f
@@ -211,7 +211,7 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
   @Callback(doc = """function([count:number]):boolean -- Commit and begin printing the current configuration.""")
   def commit(context: Context, args: Arguments): Array[Object] = {
     if (!canPrint) {
-      return result(Unit, "model invalid")
+      return result((), "model invalid")
     }
     limit = (args.optDouble(0, 1) max 0 min Integer.MAX_VALUE).toInt
     isActive = limit > 0
@@ -313,7 +313,7 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     amountMaterial = nbt.getInteger(AmountMaterialTag)
     amountInk = nbt.getInteger(AmountInkTag)
@@ -330,7 +330,7 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     nbt.setInteger(AmountMaterialTag, amountMaterial)
     nbt.setInteger(AmountInkTag, amountInk)
@@ -343,13 +343,13 @@ class Printer extends traits.Environment with traits.Inventory with traits.Rotat
   }
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     data.load(nbt.getCompoundTag(DataTag))
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     nbt.setNewCompoundTag(DataTag, data.save)
     nbt.setDouble(RemainingTag, requiredEnergy)

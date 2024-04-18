@@ -38,30 +38,30 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
 
   // Component containers.
   for (i <- 0 until 3) {
-    addSlotToContainer(34 + i * slotSize, 70, slotInfo _)
+    addSlotToContainer(34 + i * slotSize, 70, slotInfo)
   }
 
   // Components.
   for (i <- 0 until 9) {
-    addSlotToContainer(34 + (i % 3) * slotSize, 12 + (i / 3) * slotSize, slotInfo _)
+    addSlotToContainer(34 + (i % 3) * slotSize, 12 + (i / 3) * slotSize, slotInfo)
   }
 
   // Cards.
   for (i <- 0 until 3) {
-    addSlotToContainer(104, 12 + i * slotSize, slotInfo _)
+    addSlotToContainer(104, 12 + i * slotSize, slotInfo)
   }
 
   // CPU.
-  addSlotToContainer(126, 12, slotInfo _)
+  addSlotToContainer(126, 12, slotInfo)
 
   // RAM.
   for (i <- 0 until 2) {
-    addSlotToContainer(126, 30 + i * slotSize, slotInfo _)
+    addSlotToContainer(126, 30 + i * slotSize, slotInfo)
   }
 
   // Floppy/EEPROM + HDDs.
   for (i <- 0 until 3) {
-    addSlotToContainer(148, 12 + i * slotSize, slotInfo _)
+    addSlotToContainer(148, 12 + i * slotSize, slotInfo)
   }
 
   // Show the player's inventory.

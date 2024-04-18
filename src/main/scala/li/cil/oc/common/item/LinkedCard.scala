@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.world.World
 
 class LinkedCard(val parent: Delegator) extends traits.Delegate with traits.ItemTier {
-  override def tooltipLines(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  override def tooltipLines(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     if (stack.hasTagCompound && stack.getTagCompound.hasKey(Settings.namespace + "data")) {
       val data = stack.getTagCompound.getCompoundTag(Settings.namespace + "data")
       if (data.hasKey(Settings.namespace + "tunnel")) {

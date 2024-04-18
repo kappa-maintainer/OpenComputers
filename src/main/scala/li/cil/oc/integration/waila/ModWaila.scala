@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms
 object ModWaila extends ModProxy {
   override def getMod = Mods.Waila
 
-  override def initialize() {
+  override def initialize():Unit = {
     FMLInterModComms.sendMessage(Mods.IDs.Waila, "register", "li.cil.oc.integration.waila.BlockDataProvider.init")
   }
 }

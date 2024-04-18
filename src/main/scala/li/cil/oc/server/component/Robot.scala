@@ -26,11 +26,11 @@ import li.cil.oc.util.StackOption._
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumParticleTypes
-
-import scala.collection.convert.WrapAsJava._
+import li.cil.oc.api.network.ComponentConnector
+import scala.jdk.CollectionConverters.*
 
 class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with Agent with DeviceInfo {
-  override val node = api.Network.newNode(this, Visibility.Network).
+  override val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
     withComponent("robot").
     withConnector(Settings.get.bufferRobot).
     create()
@@ -46,7 +46,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
     DeviceAttribute.Capacity -> agent.getSizeInventory.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -77,9 +77,9 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
       case SomeStack(item) =>
         ToolDurabilityProviders.getDurability(item) match {
           case Some(durability) => result(durability)
-          case _ => result(Unit, "tool cannot be damaged")
+          case _ => result((), "tool cannot be damaged")
         }
-      case _ => result(Unit, "no tool equipped")
+      case _ => result((), "no tool equipped")
     }
   }
 
@@ -91,18 +91,18 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
     if (agent.isAnimatingMove) {
       // This shouldn't really happen due to delays being enforced, but just to
       // be on the safe side...
-      result(Unit, "already moving")
+      result((), "already moving")
     }
     else {
       val (something, what) = blockContent(direction)
       if (something) {
         context.pause(0.4)
         PacketSender.sendParticleEffect(BlockPosition(agent), EnumParticleTypes.CRIT, 8, 0.25, Some(direction))
-        result(Unit, what)
+        result((), what)
       }
       else {
         if (!node.tryChangeBuffer(-Settings.get.robotMoveCost)) {
-          result(Unit, "not enough energy")
+          result((), "not enough energy")
         }
         else if (agent.move(direction)) {
           context.pause(Settings.get.moveDelay)
@@ -112,7 +112,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
           node.changeBuffer(Settings.get.robotMoveCost)
           context.pause(0.4)
           PacketSender.sendParticleEffect(BlockPosition(agent), EnumParticleTypes.CRIT, 8, 0.25, Some(direction))
-          result(Unit, "impossible move")
+          result((), "impossible move")
         }
       }
     }
@@ -129,13 +129,13 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
       result(true)
     }
     else {
-      result(Unit, "not enough energy")
+      result((), "not enough energy")
     }
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     super.onConnect(node)
     if (node == this.node) {
       romRobot.foreach(fs => {
@@ -145,7 +145,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != agent.node) message.data match {
       case Array(packet: Packet) => agent.proxy.node.sendToReachable(message.name, packet)
@@ -157,12 +157,12 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   private final val RomRobotTag = "romRobot"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     romRobot.foreach(_.load(nbt.getCompoundTag(RomRobotTag)))
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     romRobot.foreach(fs => nbt.setNewCompoundTag(RomRobotTag, fs.save))
   }

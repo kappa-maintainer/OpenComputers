@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.world.World
 
 class Disassembler extends SimpleBlock with traits.PowerAcceptor with traits.StateAware with traits.GUI {
-  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag):Unit = {
     tooltip.addAll(Tooltip.get(getClass.getSimpleName.toLowerCase, (Settings.get.disassemblerBreakChance * 100).toInt.toString))
   }
 

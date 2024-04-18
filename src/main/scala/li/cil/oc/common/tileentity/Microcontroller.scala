@@ -28,7 +28,7 @@ import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.Computer with ISidedInventory with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
@@ -63,7 +63,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
     DeviceAttribute.Capacity -> getSizeInventory.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -91,7 +91,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
 
   // ----------------------------------------------------------------------- //
 
-  override def internalComponents(): java.lang.Iterable[ItemStack] = asJavaIterable(info.components)
+  override def internalComponents(): java.lang.Iterable[ItemStack] = info.components.toList.asJava
 
   override def componentSlot(address: String): Int = components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
@@ -129,7 +129,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     super.updateEntity()
 
     // Pump energy into the internal network.
@@ -148,7 +148,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
 
   // ----------------------------------------------------------------------- //
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node):Unit = {
     if (machine != null && machine.node != null && node != null) {
       api.Network.joinNewNetwork(machine.node)
       machine.node.connect(node)
@@ -174,7 +174,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
       componentNodes(plug.side.ordinal).remove()
   }
 
-  override protected def onPlugDisconnect(plug: Plug, node: Node) {
+  override protected def onPlugDisconnect(plug: Plug, node: Node):Unit = {
     super.onPlugDisconnect(plug, node)
     if (plug.isPrimary && node != plug.node)
       plug.node.connect(componentNodes(plug.side.ordinal()))
@@ -186,14 +186,14 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
 
   override protected def onPlugMessage(plug: Plug, message: Message): Unit = {
     if (message.name == "network.message" && message.source.network != snooperNode.network) {
-      snooperNode.sendToReachable(message.name, message.data: _*)
+      snooperNode.sendToReachable(message.name, message.data*)
     }
   }
 
   override def onMessage(message: Message): Unit = {
     if (message.name == "network.message" && message.source.network == snooperNode.network) {
       for (side <- EnumFacing.values if outputSides(side.ordinal) && side != facing) {
-        sidedNode(side).sendToReachable(message.name, message.data: _*)
+        sidedNode(side).sendToReachable(message.name, message.data*)
       }
     }
   }
@@ -205,7 +205,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
   private final val SnooperTag = Settings.namespace + "snooper"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     // Load info before inventory and such, to avoid initializing components
     // to empty inventory.
     info.load(nbt.getCompoundTag(InfoTag))
@@ -220,7 +220,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
     machine.node.connect(snooperNode)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     nbt.setNewCompoundTag(InfoTag, info.save)
     nbt.setBooleanArray(OutputsTag, outputSides)
@@ -235,12 +235,12 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
   }
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     info.load(nbt.getCompoundTag(InfoTag))
     super.readFromNBTForClient(nbt)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     nbt.setNewCompoundTag(InfoTag, info.save)
   }
@@ -256,7 +256,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
   override def isItemValidForSlot(slot: Int, stack: ItemStack) = false
 
   // Nope.
-  override def setInventorySlotContents(slot: Int, stack: ItemStack) {}
+  override def setInventorySlotContents(slot: Int, stack: ItemStack):Unit = {}
 
   // Nope.
   override def decrStackSize(slot: Int, amount: Int) = ItemStack.EMPTY

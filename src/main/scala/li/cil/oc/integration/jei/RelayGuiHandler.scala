@@ -6,7 +6,7 @@ import java.util
 import li.cil.oc.client.gui.Relay
 import mezz.jei.api.gui.IAdvancedGuiHandler
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object RelayGuiHandler extends IAdvancedGuiHandler[Relay] {
 
@@ -14,7 +14,7 @@ object RelayGuiHandler extends IAdvancedGuiHandler[Relay] {
 
   override def getGuiExtraAreas(gui: Relay): util.List[Rectangle] = List(
     new Rectangle(gui.windowX + gui.tabPosition.getX, gui.windowY + gui.tabPosition.getY, gui.tabPosition.getWidth, gui.tabPosition.getHeight)
-  )
+  ).asJava
 
   override def getIngredientUnderMouse(guiContainer: Relay, mouseX: Int, mouseY: Int) = null
 }

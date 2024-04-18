@@ -5,7 +5,7 @@ import li.cil.oc.util.ExtendedLuaState.extendLuaState
 import li.cil.oc.util.{ExtendedUnicodeHelper, FontUtils}
 
 class UnicodeAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  override def initialize() {
+  override def initialize():Unit = {
     // Provide some better Unicode support.
     lua.newTable()
 

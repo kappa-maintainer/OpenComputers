@@ -13,8 +13,7 @@ import li.cil.oc.server.machine.luac.NativeLuaArchitecture
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object DriverCPU extends DriverCPU
 
@@ -38,9 +37,9 @@ abstract class DriverCPU extends Item with api.driver.item.MutableProcessor with
 
   override def supportedComponents(stack: ItemStack) = Settings.get.cpuComponentSupport(cpuTier(stack))
 
-  override def allArchitectures = api.Machine.architectures.toList
+  override def allArchitectures = api.Machine.architectures.asScala.toList.asJava
 
-  override def architecture(stack: ItemStack): Class[_ <: api.machine.Architecture] = {
+  override def architecture(stack: ItemStack): Class[? <: api.machine.Architecture] = {
     if (stack.hasTagCompound) {
       val archClass = stack.getTagCompound.getString(Settings.namespace + "archClass") match {
         case clazz if clazz == classOf[NativeLuaArchitecture].getName =>
@@ -56,10 +55,10 @@ abstract class DriverCPU extends Item with api.driver.item.MutableProcessor with
           stack.getTagCompound.removeTag(Settings.namespace + "archName")
       }
     }
-    api.Machine.architectures.headOption.orNull
+    api.Machine.architectures.asScala.headOption.orNull
   }
 
-  override def setArchitecture(stack: ItemStack, architecture: Class[_ <: api.machine.Architecture]): Unit = {
+  override def setArchitecture(stack: ItemStack, architecture: Class[? <: api.machine.Architecture]): Unit = {
     if (!worksWith(stack)) throw new IllegalArgumentException("Unsupported processor type.")
     if (!stack.hasTagCompound) stack.setTagCompound(new NBTTagCompound())
     stack.getTagCompound.setString(Settings.namespace + "archClass", architecture.getName)

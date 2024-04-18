@@ -27,7 +27,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.property.ExtendedBlockState
 import net.minecraftforge.common.property.IExtendedBlockState
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
 class Print(protected implicit val tileTag: ClassTag[tileentity.Print]) extends RedstoneAware with traits.CustomDrops[tileentity.Print] {
@@ -54,7 +54,7 @@ class Print(protected implicit val tileTag: ClassTag[tileentity.Print]) extends 
   override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) = {
     super.tooltipBody(metadata, stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.lines.toIterable))
+    data.tooltip.foreach(s => tooltip.addAll(s.lines.toList))
   }
 
   override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) = {

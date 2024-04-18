@@ -17,7 +17,7 @@ object MFUTargetRenderer {
   private lazy val mfu = api.Items.get(Constants.ItemName.MFU)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
+  def onRenderWorldLastEvent(e: RenderWorldLastEvent):Unit = {
     val mc = Minecraft.getMinecraft
     val player = mc.player
     if (player == null) return
@@ -65,7 +65,7 @@ object MFUTargetRenderer {
     }
   }
 
-  private def drawBox(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double) {
+  private def drawBox(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double):Unit = {
     GL11.glBegin(GL11.GL_QUADS)
     GL11.glVertex3d(minX, minY, minZ)
     GL11.glVertex3d(minX, minY, maxZ)

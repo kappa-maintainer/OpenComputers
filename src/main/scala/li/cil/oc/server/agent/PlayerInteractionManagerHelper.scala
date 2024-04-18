@@ -12,7 +12,7 @@ import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.common.eventhandler.{EventPriority, SubscribeEvent}
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object PlayerInteractionManagerHelper {
 
@@ -47,12 +47,12 @@ object PlayerInteractionManagerHelper {
     }
 
     //PlayerEvent.BreakSpeed
-    val infBreaker = new {
+    object infBreaker {
       var expToDrop: Int = 0
 
       val hasExperienceUpgrade: Boolean = {
         val machineNode = player.agent.machine.node
-        machineNode.reachableNodes.exists {
+        machineNode.reachableNodes.asScala.exists {
           case node: Node if node.canBeReachedFrom(machineNode) =>
             node.host.isInstanceOf[li.cil.oc.common.item.UpgradeExperience] ||
             node.host.isInstanceOf[li.cil.oc.server.component.UpgradeExperience]

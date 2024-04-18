@@ -20,9 +20,9 @@ object DriverUpgradeTankController extends Item with HostAware {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (host.world != null && host.world.isRemote) null
     else host match {
-      case host: EnvironmentHost with Adapter => new component.UpgradeTankController.Adapter(host)
-      case host: EnvironmentHost with Drone => new component.UpgradeTankController.Drone(host)
-      case host: EnvironmentHost with Robot => new component.UpgradeTankController.Robot(host)
+      case host: (EnvironmentHost & Adapter) => new component.UpgradeTankController.Adapter(host)
+      case host: (EnvironmentHost & Drone) => new component.UpgradeTankController.Drone(host)
+      case host: (EnvironmentHost & Robot) => new component.UpgradeTankController.Robot(host)
       case _ => null
     }
 
@@ -31,7 +31,7 @@ object DriverUpgradeTankController extends Item with HostAware {
   override def tier(stack: ItemStack) = Tier.Two
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeTankController.Robot]
       else null

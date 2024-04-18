@@ -21,9 +21,9 @@ class ZipFileInputStreamFileSystem(private val archive: ArchiveDirectory) extend
   def spaceUsed = spaceUsed_
 
   private lazy val spaceUsed_ = ZipFileInputStreamFileSystem.synchronized {
-    def recurse(d: ArchiveDirectory): Long = d.children.foldLeft(0L)((acc, c) => acc + (c match {
+    def recurse(d: ArchiveDirectory): Long = d.children.foldLeft(0L)((acc: Long, c) => acc + (c match {
       case directory: ArchiveDirectory => recurse(directory)
-      case file: ArchiveFile => file.size
+      case file: ArchiveFile => file.size.toLong
     }))
     recurse(archive)
   }
@@ -168,7 +168,7 @@ object ZipFileInputStreamFileSystem {
       else None
   }
 
-  private class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
+  class ArchiveDirectory(entry: ZipEntry, root: String) extends Archive(entry, root) {
     val children = mutable.Set.empty[Archive]
 
     val size = 0

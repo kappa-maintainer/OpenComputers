@@ -521,7 +521,7 @@ object Textures {
       )
 
       // The hacks I do for namespacing...
-      private[Block] def makeSureThisIsInitialized() {}
+      private[Block] def makeSureThisIsInitialized(): Unit = {}
     }
 
     Screen.makeSureThisIsInitialized()

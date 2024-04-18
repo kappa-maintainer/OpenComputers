@@ -16,7 +16,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.fml.common.eventhandler.Event.Result
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 trait InventoryWorldControl extends InventoryAware with WorldAware with SideRestricted {
   @Callback(doc = "function(side:number[, fuzzy:boolean=false]):boolean -- Compare the block on the specified side with the one in the selected slot. Returns true if equal.")
@@ -85,7 +85,7 @@ trait InventoryWorldControl extends InventoryAware with WorldAware with SideRest
     * @return the number of items sucked
     */
   def suckFromItems(facing: EnumFacing): Int = {
-    for (entity <- suckableItems(facing) if !entity.isDead && !entity.cannotPickup) {
+    for (entity <- suckableItems(facing).asScala if !entity.isDead && !entity.cannotPickup) {
       val stack = entity.getItem
       val size = stack.getCount
       onSuckCollect(entity)

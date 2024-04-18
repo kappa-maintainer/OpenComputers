@@ -89,14 +89,14 @@ object Document {
     GlStateManager.pushMatrix()
     GlStateManager.translate(0, 0, 500)
     GL11.glBegin(GL11.GL_QUADS)
-    GL11.glVertex2f(0, y)
-    GL11.glVertex2f(mc.displayWidth, y)
-    GL11.glVertex2f(mc.displayWidth, 0)
+    GL11.glVertex2f(0, y.toFloat)
+    GL11.glVertex2f(mc.displayWidth.toFloat, y.toFloat)
+    GL11.glVertex2f(mc.displayWidth.toFloat, 0)
     GL11.glVertex2f(0, 0)
-    GL11.glVertex2f(0, mc.displayHeight)
-    GL11.glVertex2f(mc.displayWidth, mc.displayHeight)
-    GL11.glVertex2f(mc.displayWidth, y + maxHeight)
-    GL11.glVertex2f(0, y + maxHeight)
+    GL11.glVertex2f(0, mc.displayHeight.toFloat)
+    GL11.glVertex2f(mc.displayWidth.toFloat, mc.displayHeight.toFloat)
+    GL11.glVertex2f(mc.displayWidth.toFloat, (y + maxHeight).toFloat)
+    GL11.glVertex2f(0, (y + maxHeight).toFloat)
     GL11.glEnd()
     GlStateManager.popMatrix()
     GlStateManager.colorMask(true, true, true, true)
@@ -153,12 +153,12 @@ object Document {
   // ----------------------------------------------------------------------- //
 
   private val segmentTypes = Array(
-    """^(#+)\s(.*)""".r -> HeaderSegment _, // headers: # ...
-    """(`)(.*?)\1""".r -> CodeSegment _, // code: `...`
-    """!\[([^\[]*)\]\(([^\)]+)\)""".r -> ImageSegment _, // images: ![...](...)
-    """\[([^\[]+)\]\(([^\)]+)\)""".r -> LinkSegment _, // links: [...](...)
-    """(\*\*|__)(\S.*?\S|$)\1""".r -> BoldSegment _, // bold: **...** | __...__
-    """(\*|_)(\S.*?\S|$)\1""".r -> ItalicSegment _, // italic: *...* | _..._
-    """~~(\S.*?\S|$)~~""".r -> StrikethroughSegment _ // strikethrough: ~~...~~
+    """^(#+)\s(.*)""".r -> HeaderSegment, // headers: # ...
+    """(`)(.*?)\1""".r -> CodeSegment, // code: `...`
+    """!\[([^\[]*)\]\(([^\)]+)\)""".r -> ImageSegment, // images: ![...](...)
+    """\[([^\[]+)\]\(([^\)]+)\)""".r -> LinkSegment, // links: [...](...)
+    """(\*\*|__)(\S.*?\S|$)\1""".r -> BoldSegment, // bold: **...** | __...__
+    """(\*|_)(\S.*?\S|$)\1""".r -> ItalicSegment, // italic: *...* | _..._
+    """~~(\S.*?\S|$)~~""".r -> StrikethroughSegment // strikethrough: ~~...~~
   )
 }

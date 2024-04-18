@@ -21,11 +21,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object IMC {
   def handleEvent(e: IMCEvent): Unit = {
-    for (message <- e.getMessages) {
+    for (message <- e.getMessages.asScala) {
       if (message.key == api.IMC.REGISTER_ASSEMBLER_TEMPLATE && message.isNBTMessage) {
         if (message.getNBTValue.hasKey("name", NBT.TAG_STRING))
           OpenComputers.log.debug(s"Registering new assembler template '${message.getNBTValue.getString("name")}' from mod ${message.getSender}.")
@@ -97,7 +97,7 @@ object IMC {
       }
       else if (message.key == api.IMC.REGISTER_PROGRAM_DISK_LABEL && message.isNBTMessage) {
         OpenComputers.log.debug(s"Registering new program location mapping for program '${message.getNBTValue.getString("program")}' being on disk '${message.getNBTValue.getString("label")}' from mod ${message.getSender}.")
-        ProgramLocations.addMapping(message.getNBTValue.getString("program"), message.getNBTValue.getString("label"), message.getNBTValue.getTagList("architectures", NBT.TAG_STRING).map((tag: NBTTagString) => tag.getString()).toArray: _*)
+        ProgramLocations.addMapping(message.getNBTValue.getString("program"), message.getNBTValue.getString("label"), message.getNBTValue.getTagList("architectures", NBT.TAG_STRING).map((tag: NBTTagString) => tag.getString()).toArray*)
       }
       else {
         OpenComputers.log.warn(s"Got an unrecognized or invalid IMC message '${message.key}' from mod ${message.getSender}.")
@@ -105,23 +105,23 @@ object IMC {
     }
   }
 
-  def getStaticMethod(name: String, signature: Class[_]*): Method = {
+  def getStaticMethod(name: String, signature: Class[?]*): Method = {
     val nameSplit = name.lastIndexOf('.')
     val className = name.substring(0, nameSplit)
     val methodName = name.substring(nameSplit + 1)
     val clazz = Class.forName(className)
-    val method = clazz.getDeclaredMethod(methodName, signature: _*)
+    val method = clazz.getDeclaredMethod(methodName, signature*)
     if (!Modifier.isStatic(method.getModifiers)) throw new IllegalArgumentException(s"Method $name is not static.")
     method
   }
 
-  def tryInvokeStatic[T](method: Method, args: AnyRef*)(default: T): T = try method.invoke(null, args: _*).asInstanceOf[T] catch {
+  def tryInvokeStatic[T](method: Method, args: AnyRef*)(default: T): T = try method.invoke(null, args*).asInstanceOf[T] catch {
     case t: Throwable =>
       OpenComputers.log.warn(s"Error invoking callback ${method.getDeclaringClass.getCanonicalName + "." + method.getName}.", t)
       default
   }
 
-  def tryInvokeStaticVoid(method: Method, args: AnyRef*): Unit = try method.invoke(null, args: _*) catch {
+  def tryInvokeStaticVoid(method: Method, args: AnyRef*): Unit = try method.invoke(null, args*) catch {
     case t: Throwable =>
       OpenComputers.log.warn(s"Error invoking callback ${method.getDeclaringClass.getCanonicalName + "." + method.getName}.", t)
   }

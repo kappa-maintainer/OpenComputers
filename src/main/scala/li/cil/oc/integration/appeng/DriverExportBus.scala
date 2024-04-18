@@ -75,15 +75,15 @@ object DriverExportBus extends driver.DriverBlock {
       val part = host.getPart(side)
 
       if (part == null || !AEUtil.isExportBus(part.getItemStack(PartItemStack.PICK))) {
-        return result(Unit, "no export bus")
+        return result((), "no export bus")
       }
 
-      val exportBus = part.asInstanceOf[ISegmentedInventory with IConfigurableObject with IUpgradeableHost with IActionHost with IGridHost]
+      val exportBus = part.asInstanceOf[ISegmentedInventory & IConfigurableObject & IUpgradeableHost & IActionHost & IGridHost]
       val location = host.getLocation
 
       val inventory: IItemHandler = InventoryUtils.inventoryAt(new BlockPosition(location.x, location.y, location.z, Some(location.getWorld)).offset(side), side.getOpposite) match {
         case Some(inv) => inv
-        case _ => return result(Unit, "no inventory")
+        case _ => return result((), "no inventory")
       }
 
       val targetSlot: Option[Int] = args.optSlot(inventory, 1, -1) match {
@@ -121,14 +121,14 @@ object DriverExportBus extends driver.DriverBlock {
         }
       }
       if (potentialWork == count)
-        result(Unit, "no items moved")
+        result((), "no items moved")
       else
         result(potentialWork - count)
     }
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (AEUtil.isExportBus(stack))
         classOf[Environment]
       else null

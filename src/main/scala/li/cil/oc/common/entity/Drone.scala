@@ -48,7 +48,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.fluids.IFluidTank
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object Drone {
   val DataRunning: DataParameter[lang.Boolean] = EntityDataManager.createKey(classOf[Drone], DataSerializers.BOOLEAN)
@@ -67,8 +67,8 @@ object Drone {
 // internal.Rotatable is also in internal.Drone, but it wasn't since the start
 // so this is to ensure it is implemented here, in the very unlikely case that
 // someone decides to ship that specific version of the API.
-class Drone(world: World) extends Entity(world) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
-  override def world: World = getEntityWorld
+class Drone(iworld: World) extends Entity(iworld) with MachineHost with internal.Drone with internal.Rotatable with Analyzable with Context {
+  override def world(): World = getEntityWorld
 
   // Some basic constants.
   val gravity = 0.05f
@@ -91,12 +91,12 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   // Logic stuff, components, machine and such.
   val info = new DroneData()
-  val machine: api.machine.Machine = if (!world.isRemote) {
+  val machine: api.machine.Machine = if (!iworld.isRemote) {
     val m = Machine.create(this)
     m.node.asInstanceOf[Connector].setLocalBufferSize(0)
     m
   } else null
-  val control: component.Drone = if (!world.isRemote) new component.Drone(this) else null
+  val control: component.Drone = if (!iworld.isRemote) new component.Drone(this) else null
   val components = new ComponentInventory {
     override def host: Drone = Drone.this
 
@@ -104,7 +104,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
     override def getSizeInventory: Int = info.components.length
 
-    override def markDirty() {}
+    override def markDirty():Unit = {}
 
     override def isItemValidForSlot(slot: Int, stack: ItemStack) = true
 
@@ -112,11 +112,11 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
     override def node: Node = Option(machine).map(_.node).orNull
 
-    override def onConnect(node: Node) {}
+    override def onConnect(node: Node):Unit = {}
 
-    override def onDisconnect(node: Node) {}
+    override def onDisconnect(node: Node):Unit = {}
 
-    override def onMessage(message: Message) {}
+    override def onMessage(message: Message):Unit = {}
   }
   val equipmentInventory = new Inventory {
     val items = Array.empty[ItemStack]
@@ -138,7 +138,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
     override def getInventoryStackLimit = 64
 
-    override def markDirty() {} // TODO update client GUI?
+    override def markDirty():Unit = {} // TODO update client GUI?
 
     override def isItemValidForSlot(slot: Int, stack: ItemStack): Boolean = slot >= 0 && slot < getSizeInventory
 
@@ -187,7 +187,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
   override def isPaused: Boolean = machine.isPaused
 
   override def start(): Boolean = {
-    if (world.isRemote || machine.isRunning) {
+    if (iworld.isRemote || machine.isRunning) {
       return false
     }
     preparePowerUp()
@@ -200,7 +200,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   override def consumeCallBudget(callCost: Double): Unit = machine.consumeCallBudget(callCost)
 
-  override def signal(name: String, args: AnyRef*): Boolean = machine.signal(name, args: _*)
+  override def signal(name: String, args: AnyRef*): Boolean = machine.signal(name, args*)
 
   // ----------------------------------------------------------------------- //
 
@@ -228,7 +228,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   override def zPosition: Double = posZ
 
-  override def markChanged() {}
+  override def markChanged():Unit = {}
 
   // ----------------------------------------------------------------------- //
 
@@ -244,13 +244,13 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   // ----------------------------------------------------------------------- //
 
-  override def internalComponents(): Iterable[ItemStack] = asJavaIterable(info.components)
+  override def internalComponents(): Iterable[ItemStack] = info.components.toSeq.asJava
 
   override def componentSlot(address: String): Int = components.components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
-  override def onMachineConnect(node: Node) {}
+  override def onMachineConnect(node: Node) : Unit = {}
 
-  override def onMachineDisconnect(node: Node) {}
+  override def onMachineDisconnect(node: Node) : Unit = {}
 
   def computeInventorySize(): Int = math.min(maxInventorySize, info.components.foldLeft(0)((acc, component) => acc + (Option(component) match {
     case Some(stack) => Option(Driver.driverFor(stack, getClass)) match {
@@ -262,7 +262,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   // ----------------------------------------------------------------------- //
 
-  override def entityInit() {
+  override def entityInit() : Unit = {
     getDataManager.register(Drone.DataRunning, java.lang.Boolean.FALSE)
     getDataManager.register(Drone.DataTargetX, Float.box(0f))
     getDataManager.register(Drone.DataTargetY, Float.box(0f))
@@ -276,7 +276,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     getDataManager.register(Drone.DataLightColor, Int.box(0x66DD55))
   }
 
-  def initializeAfterPlacement(stack: ItemStack, player: EntityPlayer, position: Vec3d) {
+  def initializeAfterPlacement(stack: ItemStack, player: EntityPlayer, position: Vec3d) : Unit = {
     info.load(stack)
     control.node.changeBuffer(info.storedEnergy - control.node.localBuffer)
     wireThingsTogether()
@@ -284,7 +284,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     setPosition(position.x, position.y, position.z)
   }
 
-  def preparePowerUp() {
+  def preparePowerUp() : Unit = {
     targetX = math.floor(posX).toFloat + 0.5f
     targetY = math.round(posY).toFloat + 0.5f
     targetZ = math.floor(posZ).toFloat + 0.5f
@@ -300,7 +300,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     components.connectComponents()
   }
 
-  def isRunning: Boolean = getDataManager.get(Drone.DataRunning)
+  def isRunning: Boolean = getDataManager.get(Drone.DataRunning).booleanValue()
 
   def targetX: lang.Float = getDataManager.get(Drone.DataTargetX)
 
@@ -339,7 +339,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
 
   def globalBufferSize_=(value: Int): Unit = getDataManager.set(Drone.DataMaxEnergy, Int.box(value))
 
-  def statusText_=(value: String): Unit = getDataManager.set(Drone.DataStatusText, Option(value).fold("")(_.lines.map(_.take(10)).take(2).mkString("\n")))
+  def statusText_=(value: String): Unit = getDataManager.set(Drone.DataStatusText, Option(value).fold("")(_.lines.map(_.take(10)).toList.asScala.take(2).mkString("\n")))
 
   def inventorySize_=(value: Int): Unit = getDataManager.set(Drone.DataInventorySize, Int.box(value.toByte))
 
@@ -359,10 +359,10 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     }
   }
 
-  override def onUpdate() {
+  override def onUpdate() : Unit = {
     super.onUpdate()
 
-    if (!world.isRemote) {
+    if (!iworld.isRemote) {
       if (isInsideOfMaterial(Material.WATER) || isInsideOfMaterial(Material.LAVA)) {
         // We're not water-proof!
         machine.stop()
@@ -372,7 +372,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
       setRunning(machine.isRunning)
 
       val buffer = math.round(machine.node.asInstanceOf[Connector].globalBuffer).toInt
-      if (math.abs(lastEnergyUpdate - buffer) > 1 || world.getTotalWorldTime % 200 == 0) {
+      if (math.abs(lastEnergyUpdate - buffer) > 1 || iworld.getTotalWorldTime % 200 == 0) {
         lastEnergyUpdate = buffer
         globalBuffer = buffer
         globalBufferSize = machine.node.asInstanceOf[Connector].globalBufferSize.toInt
@@ -382,7 +382,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
       if (isRunning) {
         // Client side update; occasionally update wing pitch and rotation to
         // make the drones look a bit more dynamic.
-        val rng = world.rand
+        val rng = iworld.rand
         nextFlapChange -= 1
         nextAngularVelocityChange -= 1
 
@@ -458,7 +458,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
       motionZ *= drag
     }
     else {
-      val groundDrag = world.getBlock(BlockPosition(this: Entity).offset(EnumFacing.DOWN)).slipperiness * drag
+      val groundDrag = iworld.getBlock(BlockPosition(this: Entity).offset(EnumFacing.DOWN)).slipperiness * drag
       motionX *= groundDrag
       motionY *= drag
       motionZ *= groundDrag
@@ -471,7 +471,7 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
   override def hitByEntity(entity: Entity): Boolean = {
     if (isRunning) {
       val direction = new Vec3d(entity.posX - posX, entity.posY + entity.getEyeHeight - posY, entity.posZ - posZ).normalize()
-      if (!world.isRemote) {
+      if (!iworld.isRemote) {
         if (Settings.get.inputUsername)
           machine.signal("hit", Double.box(direction.x), Double.box(direction.z), Double.box(direction.y), entity.getName)
         else
@@ -488,16 +488,16 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     if (isDead) return false
     if (player.isSneaking) {
       if (Wrench.isWrench(player.getHeldItemMainhand)) {
-        if(!world.isRemote) {
+        if(!iworld.isRemote) {
           outOfWorld()
         }
       }
-      else if (!world.isRemote && !machine.isRunning) {
+      else if (!iworld.isRemote && !machine.isRunning) {
         start()
       }
     }
-    else if (!world.isRemote) {
-      player.openGui(OpenComputers, GuiType.Drone.id, world, getEntityId, 0, 0)
+    else if (!iworld.isRemote) {
+      player.openGui(OpenComputers, GuiType.Drone.id, iworld, getEntityId, 0, 0)
     }
     true
   }
@@ -545,9 +545,9 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     }
   }
 
-  override def setDead() {
+  override def setDead():Unit = {
     super.setDead()
-    if (!world.isRemote && !isChangingDimension) {
+    if (!iworld.isRemote && !isChangingDimension) {
       machine.stop()
       machine.node.remove()
       components.disconnectComponents()
@@ -558,13 +558,13 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
   override def outOfWorld(): Unit = {
     if (isDead) return
     super.outOfWorld()
-    if (!world.isRemote) {
+    if (!iworld.isRemote) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt
       info.save(stack)
-      val entity = new EntityItem(world, posX, posY, posZ, stack)
+      val entity = new EntityItem(iworld, posX, posY, posZ, stack)
       entity.setPickupDelay(15)
-      world.spawnEntity(entity)
+      iworld.spawnEntity(entity)
       InventoryUtils.dropAllSlots(BlockPosition(this: Entity), mainInventory)
     }
   }
@@ -572,14 +572,14 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
   override def getName: String = Localization.localizeImmediately("entity.oc.Drone.name")
 
   override def handleWaterMovement(): Boolean = {
-    inWater = world.handleMaterialAcceleration(getEntityBoundingBox, Material.WATER, this)
+    inWater = iworld.handleMaterialAcceleration(getEntityBoundingBox, Material.WATER, this)
     inWater
   }
 
-  override def readEntityFromNBT(nbt: NBTTagCompound) {
+  override def readEntityFromNBT(nbt: NBTTagCompound):Unit = {
     info.load(nbt.getCompoundTag("info"))
     inventorySize = computeInventorySize()
-    if (!world.isRemote) {
+    if (!iworld.isRemote) {
       machine.load(nbt.getCompoundTag("machine"))
       control.load(nbt.getCompoundTag("control"))
       components.load(nbt.getCompoundTag("components"))
@@ -603,12 +603,12 @@ class Drone(world: World) extends Entity(world) with MachineHost with internal.D
     }
   }
 
-  override def writeEntityToNBT(nbt: NBTTagCompound) {
-    if (world.isRemote) return
+  override def writeEntityToNBT(nbt: NBTTagCompound):Unit = {
+    if (iworld.isRemote) return
     components.saveComponents()
     info.storedEnergy = globalBuffer.toInt
     nbt.setNewCompoundTag("info", info.save)
-    if (!world.isRemote) {
+    if (!iworld.isRemote) {
       nbt.setNewCompoundTag("machine", machine.save)
       nbt.setNewCompoundTag("control", control.save)
       nbt.setNewCompoundTag("components", components.save)

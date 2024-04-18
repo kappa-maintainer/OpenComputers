@@ -19,8 +19,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TextFormatting
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object CallbackDocHandler {
@@ -29,31 +28,31 @@ object CallbackDocHandler {
 
   private val VexPattern = """(?s)^function(\(.*?\).*?); (.*)$""".r
 
-  def getRecipes(registry: IModRegistry): util.List[CallbackDocRecipe] = registry.getIngredientRegistry.getIngredients(classOf[ItemStack]).collect {
+  def getRecipes(registry: IModRegistry): util.List[CallbackDocRecipe] = registry.getIngredientRegistry.getIngredients(classOf[ItemStack]).asScala.collect {
     case stack: ItemStack =>
-      val callbacks = api.Driver.environmentsFor(stack).flatMap(getCallbacks).toBuffer
+      val callbacks = api.Driver.environmentsFor(stack).asScala.flatMap(getCallbacks).toBuffer
 
       if (callbacks.nonEmpty) {
         val pages = mutable.Buffer.empty[String]
         val lastPage = callbacks.toArray.sorted.foldLeft("") {
           (last, doc) =>
-            if (last.lines.length + 2 + doc.lines.length > 12) {
+            if (last.lines.toList.size + 2 + doc.lines.toList.size > 12) {
               // We've potentially got some pretty long documentation here, split it up first
-              last.lines.grouped(12).map(_.mkString("\n")).foreach(pages += _)
+              last.lines.toList.asScala.grouped(12).map(_.mkString("\n")).foreach(pages += _)
               doc
             }
             else if (last.nonEmpty) last + "\n\n" + doc
             else doc
         }
         // The last page may be too long as well.
-        lastPage.lines.grouped(12).map(_.mkString("\n")).foreach(pages += _)
+        lastPage.lines.toList.asScala.grouped(12).map(_.mkString("\n")).foreach(pages += _)
 
         Option(pages.map(page => new CallbackDocRecipe(stack, page)))
       }
       else None
-  }.flatten.flatten.toList
+  }.flatten.flatten.toList.asJava
 
-  private def getCallbacks(env: Class[_]) = if (env != null) {
+  private def getCallbacks(env: Class[?]) = if (env != null) {
 
     Callbacks.fromClass(env).map {
       case (name, callback) =>
@@ -65,9 +64,9 @@ object CallbackDocHandler {
             case VexPattern(head, tail) => (name + head, tail)
             case _ => (name, doc)
           }
-          wrap(signature, 160).map(TextFormatting.BLACK.toString + _).mkString("\n") +
+          wrap(signature, 160).asScala.map(TextFormatting.BLACK.toString + _).mkString("\n") +
             TextFormatting.RESET + "\n" +
-            wrap(documentation, 152).map("  " + _).mkString("\n")
+            wrap(documentation, 152).asScala.map("  " + _).mkString("\n")
         }
     }
   }
@@ -81,10 +80,10 @@ object CallbackDocHandler {
 
   class CallbackDocRecipe(val stack: ItemStack, val page: String) extends BlankRecipeWrapper {
 
-    override def getIngredients(ingredients: IIngredients): Unit = ingredients.setInputs(classOf[ItemStack], List(stack))
+    override def getIngredients(ingredients: IIngredients): Unit = ingredients.setInputs(classOf[ItemStack], List(stack).asJava)
 
     override def drawInfo(@Nonnull minecraft: Minecraft, recipeWidth: Int, recipeHeight: Int, mouseX: Int, mouseY: Int): Unit = {
-      for ((text, line) <- page.lines.zipWithIndex) {
+      for ((text, line) <- page.lines.toList.asScala.zipWithIndex) {
         minecraft.fontRenderer.drawString(text, 4, 4 + line * (minecraft.fontRenderer.FONT_HEIGHT + 1), 0x333333, false)
       }
     }
@@ -93,10 +92,10 @@ object CallbackDocHandler {
   object CallbackDocRecipeCategory extends IRecipeCategory[CallbackDocRecipe] {
     val recipeWidth: Int = 160
     val recipeHeight: Int = 125
-    private var background: IDrawable = _
-    private var icon: IDrawable = _
+    private var background: IDrawable = scala.compiletime.uninitialized
+    private var icon: IDrawable = scala.compiletime.uninitialized
 
-    def initialize(guiHelper: IGuiHelper) {
+    def initialize(guiHelper: IGuiHelper):Unit = {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
       icon = new DrawableAnimatedIcon(new ResourceLocation(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
         guiHelper.createTickTimer(20, 1, true), 0, 16)
@@ -106,7 +105,7 @@ object CallbackDocHandler {
 
     override def getBackground: IDrawable = background
 
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients):Unit = {
     }
 
     override def getTitle = "OpenComputers API"

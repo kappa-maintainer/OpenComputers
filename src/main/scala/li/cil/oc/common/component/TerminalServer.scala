@@ -33,8 +33,8 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsScala._
-import scala.collection.convert.WrapAsJava._
+
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environment with EnvironmentHost with Analyzable with RackMountable with Lifecycle with DeviceInfo {
@@ -94,12 +94,12 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     DeviceAttribute.Product -> "RemoteViewing EX"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     if (node == this.node) {
       node.connect(buffer.node)
       node.connect(keyboard.node)
@@ -107,14 +107,14 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     if (node == this.node) {
       buffer.node.remove()
       keyboard.node.remove()
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
   }
 
   // ----------------------------------------------------------------------- //
@@ -293,7 +293,7 @@ object TerminalServer {
 
     def find(address: String): Option[TerminalServer] = {
       completePending()
-      ready.getOrDefault(address, null) match {
+      ready.asJava.getOrDefault(address, null) match {
         case term: TerminalServer => Option(term)
         case _ => None
       }

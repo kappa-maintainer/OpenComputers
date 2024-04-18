@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object DriverFurnace extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[TileEntityFurnace]
+  override def getTileEntityClass: Class[?] = classOf[TileEntityFurnace]
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileEntityFurnace])
@@ -55,7 +55,7 @@ object DriverFurnace extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] = {
+    override def getEnvironment(stack: ItemStack): Class[?] = {
       if (!stack.isEmpty && Block.getBlockFromItem(stack.getItem) == Blocks.FURNACE)
         classOf[Environment]
       else null

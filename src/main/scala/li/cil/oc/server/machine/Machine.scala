@@ -45,9 +45,7 @@ import net.minecraft.server.integrated.IntegratedServer
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.common.FMLCommonHandler
 
-import scala.Array.canBuildFrom
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class Machine(val host: MachineHost) extends AbstractManagedEnvironment with machine.Machine with Runnable with DeviceInfo {
@@ -61,7 +59,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
       fromMemory(Settings.get.tmpSize * 1024), "tmpfs", null, null, 5))
   } else None
 
-  var architecture: Architecture = _
+  var architecture: Architecture = scala.compiletime.uninitialized
 
   private[machine] val state = mutable.Stack(Machine.State.Stopped)
 
@@ -110,19 +108,19 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
   override def onHostChanged(): Unit = {
     val components = host.internalComponents
-    maxComponents = components.foldLeft(0)((sum, item) => sum + (Option(item) match {
+    maxComponents = components.asScala.foldLeft(0)((sum, item) => sum + (Option(item) match {
       case Some(stack) => Option(Driver.driverFor(stack, host.getClass)) match {
         case Some(driver: Processor) => driver.supportedComponents(stack)
         case _ => 0
       }
       case _ => 0
     }))
-    val callBudgets = components.map(stack => (stack, Option(Driver.driverFor(stack, host.getClass)))).collect({
+    val callBudgets = components.asScala.map(stack => (stack, Option(Driver.driverFor(stack, host.getClass)))).collect({
       case (stack, Some(driver: CallBudget)) => driver.getCallBudget(stack)
     })
     maxCallBudget = if (callBudgets.isEmpty) 1.0 else callBudgets.sum / callBudgets.size
     var newArchitecture: Architecture = null
-    components.find {
+    components.asScala.find {
       case stack: ItemStack => Option(Driver.driverFor(stack, host.getClass)) match {
         case Some(driver: Processor) if driver.slot(stack) == Slot.CPU =>
           Option(driver.architecture(stack)) match {
@@ -152,7 +150,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     hasMemory = Option(architecture).fold(false)(_.recomputeMemory(components))
   }
 
-  override def components: util.Map[String, String] = scala.collection.convert.WrapAsJava.mapAsJavaMap(_components)
+  override def components: util.Map[String, String] = _components.asJava
 
   def componentCount: Int = (_components.foldLeft(0.0)((acc, entry) => entry match {
     case (_, name) => acc + (if (name != "filesystem") 1.0 else 0.25)
@@ -294,7 +292,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, frequency, duration)
   }
 
-  override def beep(pattern: String) {
+  override def beep(pattern: String) :Unit ={
     PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, pattern)
   }
 
@@ -339,12 +337,12 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
         }
         else {
           signals.enqueue(new Machine.Signal(name, args.map {
-            case null | Unit | None => null
+            case null | None => null
             case arg: Map[_, _] if arg.isEmpty || arg.head._1.isInstanceOf[String] && arg.head._2.isInstanceOf[String] => arg
             case arg: mutable.Map[_, _] if arg.isEmpty || arg.head._1.isInstanceOf[String] && arg.head._2.isInstanceOf[String] => arg.toMap
             case arg: java.util.Map[_, _] => {
               val convertedMap = new mutable.HashMap[AnyRef, AnyRef]
-              for ((key, value) <- arg) {
+              for ((key, value) <- arg.asScala) {
                 val convertedKey = convertArg(key)
                 if (convertedKey != null) {
                   val convertedValue = convertArg(value)
@@ -370,7 +368,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
   override def methods(value: scala.AnyRef): util.Map[String, Callback] = Callbacks(value).map(entry => {
     val (name, callback) = entry
     name -> callback.annotation
-  })
+  }).asJava
 
   override def invoke(address: String, method: String, args: Array[AnyRef]): Array[AnyRef] = {
     if (node != null && node.network != null) {
@@ -380,7 +378,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
           if (annotation.direct) {
             consumeCallBudget(1.0 / annotation.limit)
           }
-          component.invoke(method, this, args: _*)
+          component.invoke(method, this, args*)
         case _ => throw new IllegalArgumentException("no such component")
       }
     }
@@ -398,13 +396,13 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
         if (annotation.direct) {
           consumeCallBudget(1.0 / annotation.limit)
         }
-        val arguments = new ArgumentsImpl(Seq(args: _*))
+        val arguments = new ArgumentsImpl(Seq(args*))
         Registry.convert(callback(value, this, arguments))
       case _ => throw new NoSuchMethodException()
     }
   }
 
-  override def addUser(name: String) {
+  override def addUser(name: String):Unit = {
     if (_users.size >= Settings.get.maxUsers)
       throw new Exception("too many users")
 
@@ -463,7 +461,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
   @Callback(doc = """function():table -- Collect information on all connected devices.""")
   def getDeviceInfo(context: Context, args: Arguments): Array[AnyRef] = {
     context.pause(1) // Iterating all nodes is potentially expensive, and I see no practical reason for having to call this frequently.
-    Array[AnyRef](node.network.nodes.map(n => (n, n.host)).collect {
+    Array[AnyRef](node.network.nodes.asScala.map(n => (n, n.host)).collect {
       case (n: Component, deviceInfo: DeviceInfo) =>
         if (n.canBeSeenFrom(node) || n == node) {
           Option(deviceInfo.getDeviceInfo) match {
@@ -630,20 +628,20 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
   // ----------------------------------------------------------------------- //
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
     message.data match {
       case Array(name: String, args@_*) if message.name == "computer.signal" =>
-        signal(name, Seq(message.source.address) ++ args: _*)
+        signal(name, Seq(message.source.address) ++ args*)
       case Array(player: EntityPlayer, name: String, args@_*) if message.name == "computer.checked_signal" =>
         if (canInteract(player.getName))
-          signal(name, Seq(message.source.address) ++ args: _*)
+          signal(name, Seq(message.source.address) ++ args*)
       case _ =>
         if (message.name == "computer.start" && !isPaused) start()
         else if (message.name == "computer.stop") stop()
     }
   }
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     if (node == this.node) {
       _components += this.node.address -> this.node.name
       tmp.foreach(fs => node.connect(fs.node))
@@ -659,7 +657,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     host.onMachineConnect(node)
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     if (node == this.node) {
       close()
       tmp.foreach(_.node.remove())
@@ -676,13 +674,13 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
   // ----------------------------------------------------------------------- //
 
-  def addComponent(component: Component) {
+  def addComponent(component: Component):Unit = {
     if (!_components.contains(component.address)) {
       addedComponents += component
     }
   }
 
-  def removeComponent(component: Component) {
+  def removeComponent(component: Component):Unit = {
     if (_components.contains(component.address)) {
       _components.synchronized(_components -= component.address)
       signal("component_removed", component.address, component.name)
@@ -690,7 +688,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     addedComponents -= component
   }
 
-  private def processAddedComponents() {
+  private def processAddedComponents():Unit = {
     if (addedComponents.nonEmpty) {
       for (component <- addedComponents) {
         if (component.canBeSeenFrom(node)) {
@@ -706,7 +704,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
   }
 
-  private def verifyComponents() {
+  private def verifyComponents():Unit = {
     val invalid = mutable.Set.empty[String]
     for ((address, name) <- _components) {
       node.network.node(address) match {
@@ -845,7 +843,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
     nbt.setTag(ComponentsTag, componentsNbt)
 
-    tmp.foreach(fs => SaveHandler.scheduleSave(host, nbt, tmpPath, fs.save _))
+    tmp.foreach(fs => SaveHandler.scheduleSave(host, nbt, tmpPath, fs.save))
 
     if (state.top != Machine.State.Stopped) try {
       architecture.save(nbt)
@@ -1066,9 +1064,9 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
 object Machine extends MachineAPI {
   // Keep registration order, to allow deterministic iteration of the architectures.
-  val checked: mutable.LinkedHashSet[Class[_ <: Architecture]] = mutable.LinkedHashSet.empty[Class[_ <: Architecture]]
+  val checked: mutable.LinkedHashSet[Class[? <: Architecture]] = mutable.LinkedHashSet.empty[Class[? <: Architecture]]
 
-  override def add(architecture: Class[_ <: Architecture]) {
+  override def add(architecture: Class[? <: Architecture]):Unit = {
     if (!checked.contains(architecture)) {
       try {
         architecture.getConstructor(classOf[machine.Machine])
@@ -1080,9 +1078,9 @@ object Machine extends MachineAPI {
     }
   }
 
-  override def architectures: util.List[Class[_ <: Architecture]] = checked.toSeq
+  override def architectures: util.List[Class[? <: Architecture]] = checked.toSeq.asJava
 
-  def getArchitectureName(architecture: Class[_ <: Architecture]): String =
+  def getArchitectureName(architecture: Class[? <: Architecture]): String =
     architecture.getAnnotation(classOf[Architecture.Name]) match {
       case annotation: Architecture.Name => annotation.value
       case _ => architecture.getSimpleName

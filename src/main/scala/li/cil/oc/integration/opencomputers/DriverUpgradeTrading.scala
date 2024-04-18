@@ -24,7 +24,7 @@ object DriverUpgradeTrading extends Item with HostAware {
   override def tier(stack: ItemStack) = Tier.Two
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeTrading]
       else null

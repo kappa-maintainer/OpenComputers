@@ -15,14 +15,13 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.SoundCategory
 
-import scala.tools.nsc.doc.model.Entity
 
 object PacketSender {
   // Timestamp after which the next clipboard message may be sent. Used to
   // avoid spamming large packets on key repeat.
   protected var clipboardCooldown = 0L
 
-  def sendComputerPower(t: Computer, power: Boolean) {
+  def sendComputerPower(t: Computer, power: Boolean): Unit = {
     val pb = new SimplePacketBuilder(PacketType.ComputerPower)
 
     pb.writeTileEntity(t)
@@ -31,7 +30,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendDriveMode(unmanaged: Boolean) {
+  def sendDriveMode(unmanaged: Boolean): Unit = {
     val pb = new SimplePacketBuilder(PacketType.DriveMode)
 
     pb.writeBoolean(unmanaged)
@@ -45,7 +44,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendDronePower(e: Drone, power: Boolean) {
+  def sendDronePower(e: Drone, power: Boolean): Unit = {
     val pb = new SimplePacketBuilder(PacketType.DronePower)
 
     pb.writeEntity(e)
@@ -54,7 +53,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendKeyDown(address: String, char: Char, code: Int) {
+  def sendKeyDown(address: String, char: Char, code: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.KeyDown)
 
     pb.writeUTF(address)
@@ -64,7 +63,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendKeyUp(address: String, char: Char, code: Int) {
+  def sendKeyUp(address: String, char: Char, code: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.KeyUp)
 
     pb.writeUTF(address)
@@ -74,7 +73,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendClipboard(address: String, value: String) {
+  def sendClipboard(address: String, value: String): Unit = {
     if (value != null && !value.isEmpty) {
       if (value.length > 64 * 1024 || System.currentTimeMillis() < clipboardCooldown) {
         val player = Minecraft.getMinecraft.player
@@ -103,7 +102,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendMouseClick(address: String, x: Double, y: Double, drag: Boolean, button: Int) {
+  def sendMouseClick(address: String, x: Double, y: Double, drag: Boolean, button: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.MouseClickOrDrag)
 
     pb.writeUTF(address)
@@ -115,7 +114,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendMouseScroll(address: String, x: Double, y: Double, scroll: Int) {
+  def sendMouseScroll(address: String, x: Double, y: Double, scroll: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.MouseScroll)
 
     pb.writeUTF(address)
@@ -126,7 +125,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendMouseUp(address: String, x: Double, y: Double, button: Int) {
+  def sendMouseUp(address: String, x: Double, y: Double, button: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.MouseUp)
 
     pb.writeUTF(address)
@@ -146,12 +145,12 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendMultiPlace() {
+  def sendMultiPlace(): Unit = {
     val pb = new SimplePacketBuilder(PacketType.MultiPartPlace)
     pb.sendToServer()
   }
 
-  def sendPetVisibility() {
+  def sendPetVisibility(): Unit = {
     val pb = new SimplePacketBuilder(PacketType.PetVisibility)
 
     pb.writeBoolean(!Settings.get.hideOwnPet)
@@ -159,7 +158,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendRackMountableMapping(t: Rack, mountableIndex: Int, nodeIndex: Int, side: Option[EnumFacing]) {
+  def sendRackMountableMapping(t: Rack, mountableIndex: Int, nodeIndex: Int, side: Option[EnumFacing]): Unit = {
     val pb = new SimplePacketBuilder(PacketType.RackMountableMapping)
 
     pb.writeTileEntity(t)
@@ -170,7 +169,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendRackRelayState(t: Rack, enabled: Boolean) {
+  def sendRackRelayState(t: Rack, enabled: Boolean): Unit = {
     val pb = new SimplePacketBuilder(PacketType.RackRelayState)
 
     pb.writeTileEntity(t)
@@ -179,7 +178,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendRobotAssemblerStart(t: Assembler) {
+  def sendRobotAssemblerStart(t: Assembler): Unit = {
     val pb = new SimplePacketBuilder(PacketType.RobotAssemblerStart)
 
     pb.writeTileEntity(t)
@@ -187,7 +186,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendRobotStateRequest(dimension: Int, x: Int, y: Int, z: Int) {
+  def sendRobotStateRequest(dimension: Int, x: Int, y: Int, z: Int): Unit = {
     val pb = new SimplePacketBuilder(PacketType.RobotStateRequest)
 
     pb.writeInt(dimension)
@@ -198,7 +197,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendServerPower(t: Rack, mountableIndex: Int, power: Boolean) {
+  def sendServerPower(t: Rack, mountableIndex: Int, power: Boolean) : Unit ={
     val pb = new SimplePacketBuilder(PacketType.ServerPower)
 
     pb.writeTileEntity(t)
@@ -208,7 +207,7 @@ object PacketSender {
     pb.sendToServer()
   }
 
-  def sendTextBufferInit(address: String) {
+  def sendTextBufferInit(address: String): Unit = {
     val pb = new SimplePacketBuilder(PacketType.TextBufferInit)
 
     pb.writeUTF(address)

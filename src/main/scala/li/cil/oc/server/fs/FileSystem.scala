@@ -57,7 +57,7 @@ object FileSystem extends api.detail.FileSystemAPI {
     path
   }
 
-  override def fromClass(clazz: Class[_], domain: String, root: String): api.fs.FileSystem = {
+  override def fromClass(clazz: Class[?], domain: String, root: String): api.fs.FileSystem = {
     val innerPath = ("/assets/" + domain + "/" + (root.trim + "/")).replace("//", "/")
 
     val codeSource = clazz.getProtectionDomain.getCodeSource.getLocation.getPath
@@ -167,9 +167,9 @@ object FileSystem extends api.detail.FileSystemAPI {
 
     private final val LabelTag = Settings.namespace + "fs.label"
 
-    override def load(nbt: NBTTagCompound) {}
+    override def load(nbt: NBTTagCompound):Unit = {}
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit = {
       if (label != null) {
         nbt.setString(LabelTag, label)
       }

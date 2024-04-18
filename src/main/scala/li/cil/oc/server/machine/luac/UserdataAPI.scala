@@ -14,10 +14,10 @@ import li.cil.oc.util.ExtendedLuaState.extendLuaState
 import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class UserdataAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
-  def initialize() {
+  def initialize():Unit = {
     lua.newTable()
 
     lua.pushScalaFunction(lua => {
@@ -89,7 +89,7 @@ class UserdataAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
 
     lua.pushScalaFunction(lua => {
       val value = lua.toJavaObjectRaw(1).asInstanceOf[Value]
-      lua.pushValue(machine.methods(value).map(entry => {
+      lua.pushValue(machine.methods(value).asScala.map(entry => {
         val (name, annotation) = entry
         name -> annotation.direct
       }))
@@ -108,7 +108,7 @@ class UserdataAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
     lua.pushScalaFunction(lua => {
       val value = lua.toJavaObjectRaw(1).asInstanceOf[Value]
       val method = lua.checkString(2)
-      owner.documentation(() => machine.methods(value)(method).doc)
+      owner.documentation(() => machine.methods(value).get(method).doc)
     })
     lua.setField(-2, "doc")
 

@@ -85,16 +85,16 @@ class RobotProxy extends RedstoneAware with traits.StateAware {
     Rarity.byTier(data.tier)
   }
 
-  override protected def tooltipHead(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipHead(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) : Unit = {
     super.tooltipHead(metadata, stack, world, tooltip, advanced)
     addLines(stack, tooltip)
   }
 
-  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) : Unit = {
     tooltip.addAll(Tooltip.get("robot"))
   }
 
-  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) : Unit = {
     super.tooltipTail(metadata, stack, world, tooltip, flag)
     if (KeyBindings.showExtendedTooltips) {
       val info = new RobotData(stack)
@@ -108,7 +108,7 @@ class RobotProxy extends RedstoneAware with traits.StateAware {
     }
   }
 
-  private def addLines(stack: ItemStack, tooltip: util.List[String]) {
+  private def addLines(stack: ItemStack, tooltip: util.List[String]) : Unit = {
     if (stack.hasTagCompound) {
       if (stack.getTagCompound.hasKey(Settings.namespace + "xp")) {
         val xp = stack.getTagCompound.getDouble(Settings.namespace + "xp")
@@ -216,7 +216,7 @@ class RobotProxy extends RedstoneAware with traits.StateAware {
     else false
   }
 
-  override def onBlockPlacedBy(world: World, pos: BlockPos, state: IBlockState, entity: EntityLivingBase, stack: ItemStack) {
+  override def onBlockPlacedBy(world: World, pos: BlockPos, state: IBlockState, entity: EntityLivingBase, stack: ItemStack):Unit = {
     super.onBlockPlacedBy(world, pos, state, entity, stack)
     if (!world.isRemote) ((entity, world.getTileEntity(pos)) match {
       case (player: agent.Player, proxy: tileentity.RobotProxy) =>

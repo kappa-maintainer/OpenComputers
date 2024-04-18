@@ -1,11 +1,13 @@
 package li.cil.oc.client.gui.widget
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters.*
 
 trait WidgetContainer {
-  protected val widgets = mutable.ArrayBuffer.empty[Widget]
+  private val widgets: ArrayBuffer[Widget] = mutable.ArrayBuffer.empty[Widget]
 
-  def addWidget[T <: Widget](widget: T) = {
+  def addWidget[T <: Widget](widget: T): T = {
     widgets += widget
     widget.owner = this
     widget
@@ -17,7 +19,7 @@ trait WidgetContainer {
 
   def windowZ = 0f
 
-  def drawWidgets() {
+  def drawWidgets():Unit = {
     widgets.foreach(_.draw())
   }
 }

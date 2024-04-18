@@ -63,17 +63,17 @@ object ExtendedArguments {
       else checkTankProperties(handler, n)
     }
 
-    def checkSideAny(index: Int) = checkSide(index, EnumFacing.values: _*)
+    def checkSideAny(index: Int) = checkSide(index, EnumFacing.values*)
 
     def optSideAny(index: Int, default: EnumFacing) =
       if (!isDefined(index)) default
       else checkSideAny(index)
 
-    def checkSideExcept(index: Int, invalid: EnumFacing*) = checkSide(index, EnumFacing.values.filterNot(invalid.contains): _*)
+    def checkSideExcept(index: Int, invalid: EnumFacing*) = checkSide(index, EnumFacing.values.filterNot(invalid.contains)*)
 
     def optSideExcept(index: Int, default: EnumFacing, invalid: EnumFacing*) =
       if (!isDefined(index)) default
-      else checkSideExcept(index, invalid: _*)
+      else checkSideExcept(index, invalid*)
 
     def checkSideForAction(index: Int) = checkSide(index, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN)
 

@@ -28,7 +28,7 @@ import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.fml.common.eventhandler.Event
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   private final lazy val deviceInfo = Map(
@@ -38,14 +38,14 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
     DeviceAttribute.Product -> "Labelizer Deluxe"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   def host: EnvironmentHost
 
   protected def getValue(tileEntity: Option[TileEntitySign]): Array[AnyRef] = {
     tileEntity match {
       case Some(sign) => result(sign.signText.map(_.getUnformattedText).mkString("\n"))
-      case _ => result(Unit, "no sign")
+      case _ => result((), "no sign")
     }
   }
 
@@ -57,10 +57,10 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
           case _ => FakePlayerFactory.get(host.world.asInstanceOf[WorldServer], Settings.get.fakePlayerProfile)
         }
 
-        val lines = text.lines.padTo(4, "").map(line => if (line.length > 15) line.substring(0, 15) else line).toArray
+        val lines = text.lines.toList.asScala.padTo(4, "").map(line => if (line.length > 15) line.substring(0, 15) else line).toArray
 
         if (!canChangeSign(player, sign, lines)) {
-          return result(Unit, "not allowed")
+          return result((), "not allowed")
         }
 
         lines.map(line => new TextComponentString(line)).copyToArray(sign.signText)
@@ -69,7 +69,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))
 
         result(sign.signText.mkString("\n"))
-      case _ => result(Unit, "no sign")
+      case _ => result((), "no sign")
     }
   }
 

@@ -10,7 +10,7 @@ import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.OreDictionary
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object RecipeHandler {
@@ -20,9 +20,9 @@ object RecipeHandler {
     Recipes.registerRecipeHandler("furnace", addFurnaceRecipe)
   }
 
-  def addShapedRecipe(output: ItemStack, recipe: Config) {
-    val rows = recipe.getList("input").unwrapped().map {
-      case row: java.util.List[AnyRef]@unchecked => row.map(Recipes.parseIngredient)
+  def addShapedRecipe(output: ItemStack, recipe: Config):Unit = {
+    val rows = recipe.getList("input").unwrapped().asScala.map {
+      case row: java.util.List[AnyRef]@unchecked => row.asScala.map(Recipes.parseIngredient)
       case other => throw new RecipeException(s"Invalid row entry for shaped recipe (not a list: $other).")
     }
     output.setCount(Recipes.tryGetCount(recipe))
@@ -44,23 +44,23 @@ object RecipeHandler {
       input ++= ingredients
     }
     if (input.nonEmpty && output.getCount > 0) {
-      Recipes.addRecipe(new ExtendedShapedOreRecipe(output, shape ++ input: _*))
+      Recipes.addRecipe(new ExtendedShapedOreRecipe(output, shape.toArray ++ input*))
     }
   }
 
-  def addShapelessRecipe(output: ItemStack, recipe: Config) {
+  def addShapelessRecipe(output: ItemStack, recipe: Config):Unit = {
     val input = recipe.getValue("input").unwrapped() match {
-      case list: java.util.List[AnyRef]@unchecked => list.map(Recipes.parseIngredient)
+      case list: java.util.List[AnyRef]@unchecked => list.asScala.map(Recipes.parseIngredient)
       case other => Seq(Recipes.parseIngredient(other))
     }
     output.setCount(Recipes.tryGetCount(recipe))
 
     if (input.nonEmpty && output.getCount > 0) {
-      Recipes.addRecipe(new ExtendedShapelessOreRecipe(output, input: _*))
+      Recipes.addRecipe(new ExtendedShapelessOreRecipe(output, input.toArray))
     }
   }
 
-  def addFurnaceRecipe(output: ItemStack, recipe: Config) {
+  def addFurnaceRecipe(output: ItemStack, recipe: Config):Unit = {
     val input = Recipes.parseIngredient(recipe.getValue("input").unwrapped())
     output.setCount(Recipes.tryGetCount(recipe))
 
@@ -68,7 +68,7 @@ object RecipeHandler {
       case stack: ItemStack =>
         FurnaceRecipes.instance.addSmeltingRecipe(stack, output, 0)
       case name: String =>
-        for (stack <- OreDictionary.getOres(name)) {
+        for (stack <- OreDictionary.getOres(name).asScala) {
           FurnaceRecipes.instance.addSmeltingRecipe(stack, output, 0)
         }
       case _ =>

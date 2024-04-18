@@ -38,7 +38,7 @@ trait TextBufferProxy extends api.internal.TextBuffer {
 
   override def setForegroundColor(color: Int): Unit = setForegroundColor(color, isFromPalette = false)
 
-  override def setForegroundColor(color: Int, isFromPalette: Boolean) {
+  override def setForegroundColor(color: Int, isFromPalette: Boolean):Unit = {
     val value = PackedColor.Color(color, isFromPalette)
     if (data.foreground != value) {
       data.foreground = value
@@ -52,7 +52,7 @@ trait TextBufferProxy extends api.internal.TextBuffer {
 
   override def setBackgroundColor(color: Int): Unit = setBackgroundColor(color, isFromPalette = false)
 
-  override def setBackgroundColor(color: Int, isFromPalette: Boolean) {
+  override def setBackgroundColor(color: Int, isFromPalette: Boolean):Unit = {
     val value = PackedColor.Color(color, isFromPalette)
     if (data.background != value) {
       data.background = value

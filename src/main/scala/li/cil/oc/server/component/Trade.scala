@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.village.MerchantRecipe
 import net.minecraftforge.common.DimensionManager
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.ref.WeakReference
 
 class Trade(val info: TradeInfo) extends AbstractValue {
@@ -197,7 +197,7 @@ class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[I
     val dimension = nbt.getInteger(DimensionIDTag)
     val world = DimensionManager.getWorld(dimension)
 
-    world.loadedEntityList.find {
+    world.loadedEntityList.asScala.find {
       case entity: Entity if entity.getPersistentID == uuid => true
       case _ => false
     }
@@ -205,7 +205,7 @@ class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[I
 
   private def loadHostEntity(nbt: NBTTagCompound): Option[EnvironmentHost] = {
     loadEntity(nbt, new UUID(nbt.getLong(HostUUIDMost), nbt.getLong(HostUUIDLeast))) match {
-      case Some(entity: Entity with li.cil.oc.api.internal.Agent) => Option(entity: EnvironmentHost)
+      case Some(entity: (Entity & li.cil.oc.api.internal.Agent)) => Option(entity: EnvironmentHost)
       case _ => None
     }
   }

@@ -16,7 +16,7 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.item.TabletWrapper
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Tablet(val tablet: TabletWrapper) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -32,7 +32,7 @@ class Tablet(val tablet: TabletWrapper) extends AbstractManagedEnvironment with 
     DeviceAttribute.Capacity -> tablet.getSizeInventory.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 

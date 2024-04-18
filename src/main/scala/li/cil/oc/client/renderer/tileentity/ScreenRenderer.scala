@@ -35,7 +35,7 @@ object ScreenRenderer extends TileEntitySpecialRenderer[Screen] {
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  override def render(screen: Screen, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(screen: Screen, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     this.screen = screen
@@ -104,7 +104,7 @@ object ScreenRenderer extends TileEntitySpecialRenderer[Screen] {
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def transform() {
+  private def transform():Unit = {
     screen.yaw match {
       case EnumFacing.WEST => GlStateManager.rotate(-90, 0, 1, 0)
       case EnumFacing.NORTH => GlStateManager.rotate(180, 0, 1, 0)
@@ -163,7 +163,7 @@ object ScreenRenderer extends TileEntitySpecialRenderer[Screen] {
     }
   }
 
-  private def draw() {
+  private def draw():Unit = {
     RenderState.checkError(getClass.getName + ".draw: entering (aka: wasntme)")
 
     val sx = screen.width

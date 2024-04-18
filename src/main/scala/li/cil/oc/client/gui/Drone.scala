@@ -17,14 +17,15 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.player.InventoryPlayer
 import org.lwjgl.opengl.GL11
+import scala.jdk.CollectionConverters.*
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends DynamicGuiContainer(new container.Drone(playerInventory, drone)) with traits.DisplayBuffer {
   xSize = 176
   ySize = 148
 
-  protected var powerButton: ImageButton = _
+  protected var powerButton: ImageButton = scala.compiletime.uninitialized
 
   private val buffer = new TextBuffer(20, 2, new PackedColor.SingleBitFormat(0x33FF33))
   private val bufferRenderer = new TextBufferRenderData {
@@ -53,28 +54,28 @@ class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends D
   private val selectionsStates = 17
   private val selectionStepV = 1 / selectionsStates.toDouble
 
-  protected override def actionPerformed(button: GuiButton) {
+  protected override def actionPerformed(button: GuiButton):Unit = {
     if (button.id == 0) {
       ClientPacketSender.sendDronePower(drone, !drone.isRunning)
     }
   }
 
-  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float) {
+  override def drawScreen(mouseX: Int, mouseY: Int, dt: Float):Unit = {
     powerButton.toggled = drone.isRunning
-    bufferRenderer.dirty = drone.statusText.lines.zipWithIndex.exists {
+    bufferRenderer.dirty = drone.statusText.lines.toList.asScala.zipWithIndex.exists {
       case (line, i) => buffer.set(0, i, line, vertical = false)
     }
     super.drawScreen(mouseX, mouseY, dt)
   }
 
-  override def initGui() {
+  override def initGui():Unit = {
     super.initGui()
     powerButton = new ImageButton(0, guiLeft + 7, guiTop + 45, 18, 18, Textures.GUI.ButtonPower, canToggle = true)
     add(buttonList, powerButton)
   }
 
-  override protected def drawBuffer() {
-    GlStateManager.translate(bufferX, bufferY, 0)
+  override protected def drawBuffer():Unit = {
+    GlStateManager.translate(bufferX.toFloat, bufferY.toFloat, 0)
     RenderState.disableEntityLighting()
     RenderState.makeItBlend()
     GlStateManager.scale(scale, scale, 1)
@@ -87,7 +88,7 @@ class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends D
 
   override protected def changeSize(w: Double, h: Double, recompile: Boolean) = 2.0
 
-  override protected def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int) {
+  override protected def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int):Unit = {
     drawBufferLayer()
     RenderState.pushAttrib()
     if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX, mouseY)) {
@@ -101,13 +102,13 @@ class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends D
     }
     if (powerButton.isMouseOver) {
       val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(if (drone.isRunning) Localization.Computer.TurnOff.lines.toIterable else Localization.Computer.TurnOn.lines.toIterable))
+      tooltip.addAll(if (drone.isRunning) Localization.Computer.TurnOff.lines.toList else Localization.Computer.TurnOn.lines.toList)
       copiedDrawHoveringText(tooltip, mouseX - guiLeft, mouseY - guiTop, fontRenderer)
     }
     RenderState.popAttrib()
   }
 
-  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int) {
+  override protected def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int):Unit = {
     GlStateManager.color(1, 1, 1)
     Textures.bind(Textures.GUI.Drone)
     drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
@@ -121,9 +122,9 @@ class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends D
   }
 
   // No custom slots, we just extend DynamicGuiContainer for the highlighting.
-  override protected def drawSlotBackground(x: Int, y: Int) {}
+  override protected def drawSlotBackground(x: Int, y: Int):Unit = {}
 
-  private def drawSelection() {
+  private def drawSelection():Unit = {
     val slot = drone.selectedSlot
     if (slot >= 0 && slot < 16) {
       RenderState.makeItBlend()

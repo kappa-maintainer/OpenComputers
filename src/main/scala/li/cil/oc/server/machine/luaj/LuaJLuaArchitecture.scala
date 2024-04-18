@@ -19,17 +19,17 @@ import li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 @Architecture.Name("LuaJ")
 class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture {
-  private[machine] var lua: Globals = _
+  private[machine] var lua: Globals = scala.compiletime.uninitialized
 
-  private var thread: LuaThread = _
+  private var thread: LuaThread = scala.compiletime.uninitialized
 
-  private var synchronizedCall: LuaFunction = _
+  private var synchronizedCall: LuaFunction = scala.compiletime.uninitialized
 
-  private var synchronizedResult: LuaValue = _
+  private var synchronizedResult: LuaValue = scala.compiletime.uninitialized
 
   private var doneWithInitRun = false
 
@@ -102,14 +102,14 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
     memory > 0
   }
 
-  private def memoryInBytes(components: java.lang.Iterable[ItemStack]) = components.foldLeft(0.0)((acc, stack) => acc + (Option(api.Driver.driverFor(stack)) match {
+  private def memoryInBytes(components: java.lang.Iterable[ItemStack]) = components.asScala.foldLeft(0.0)((acc, stack) => acc + (Option(api.Driver.driverFor(stack)) match {
     case Some(driver: Memory) => driver.amount(stack) * 1024
     case _ => 0
   })).toInt max 0 min Settings.get.maxTotalRam
 
   // ----------------------------------------------------------------------- //
 
-  override def runSynchronized() {
+  override def runSynchronized():Unit = {
     synchronizedResult = synchronizedCall.call()
     synchronizedCall = null
   }
@@ -237,7 +237,7 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
     true
   }
 
-  override def onConnect() {
+  override def onConnect():Unit = {
   }
 
   override def close() = {
@@ -250,12 +250,12 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
 
   // ----------------------------------------------------------------------- //
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     if (machine.isRunning) {
       machine.stop()
       machine.start()
     }
   }
 
-  override def save(nbt: NBTTagCompound) {}
+  override def save(nbt: NBTTagCompound):Unit = {}
 }

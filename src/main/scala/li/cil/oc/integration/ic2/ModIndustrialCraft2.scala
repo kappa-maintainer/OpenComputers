@@ -19,7 +19,7 @@ object ModIndustrialCraft2 extends ModProxy {
     }
   }
 
-  override def initialize() {
+  override def initialize():Unit = {
     api.IMC.registerToolDurabilityProvider("li.cil.oc.integration.ic2.EventHandlerIndustrialCraft2.getDurability")
     api.IMC.registerWrenchTool("li.cil.oc.integration.ic2.EventHandlerIndustrialCraft2.useWrench")
     api.IMC.registerWrenchToolCheck("li.cil.oc.integration.ic2.EventHandlerIndustrialCraft2.isWrench")

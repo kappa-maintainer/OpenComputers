@@ -24,7 +24,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.oredict.ShapedOreRecipe
 import net.minecraftforge.oredict.ShapelessOreRecipe
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object ItemUtils {
@@ -103,11 +103,12 @@ object ItemUtils {
     }
 
     val (ingredients, count) = CraftingManager.REGISTRY.
+      asScala.
       filter(recipe => !recipe.getRecipeOutput.isEmpty && recipe.getRecipeOutput.isItemEqual(stack)).collect {
-      case recipe: ShapedRecipes => getFilteredInputs(resolveOreDictEntries(recipe.recipeItems), getOutputSize(recipe))
-      case recipe: ShapelessRecipes => getFilteredInputs(resolveOreDictEntries(recipe.recipeItems), getOutputSize(recipe))
-      case recipe: ShapedOreRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
-      case recipe: ShapelessOreRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
+      case recipe: ShapedRecipes => getFilteredInputs(resolveOreDictEntries(recipe.recipeItems.asScala), getOutputSize(recipe))
+      case recipe: ShapelessRecipes => getFilteredInputs(resolveOreDictEntries(recipe.recipeItems.asScala), getOutputSize(recipe))
+      case recipe: ShapedOreRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients.asScala), getOutputSize(recipe))
+      case recipe: ShapelessOreRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients.asScala), getOutputSize(recipe))
     }.collectFirst {
       case (inputs, outputSize) if !inputs.exists(isInputBlacklisted) => (inputs, outputSize)
     } match {

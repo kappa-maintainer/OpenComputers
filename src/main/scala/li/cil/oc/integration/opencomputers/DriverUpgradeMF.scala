@@ -18,7 +18,7 @@ object DriverUpgradeMF extends Item with HostAware {
   override def worksWith(stack: ItemStack): Boolean = isOneOf(stack,
     api.Items.get(Constants.ItemName.MFU))
 
-  override def worksWith(stack: ItemStack, host: Class[_ <: EnvironmentHost]): Boolean =
+  override def worksWith(stack: ItemStack, host: Class[? <: EnvironmentHost]): Boolean =
     worksWith(stack) && isAdapter(host)
 
   override def slot(stack: ItemStack): String = Slot.Upgrade
@@ -42,7 +42,7 @@ object DriverUpgradeMF extends Item with HostAware {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeMF]
       else null

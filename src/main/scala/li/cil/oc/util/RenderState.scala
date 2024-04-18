@@ -20,7 +20,7 @@ import org.lwjgl.util.glu.GLU
 object RenderState {
   val arb = GLContext.getCapabilities.GL_ARB_multitexture && !GLContext.getCapabilities.OpenGL13
 
-  def checkError(where: String) {
+  def checkError(where: String):Unit = {
     val error = GL11.glGetError
     if (error != 0 && Settings.get.logOpenGLErrors) {
       OpenComputers.log.warn("GL ERROR @ " + where + ": " + GLU.gluErrorString(error))
@@ -46,7 +46,7 @@ object RenderState {
 //    GlStateManager.popAttrib()
   }
 
-  def disableEntityLighting() {
+  def disableEntityLighting():Unit = {
     Minecraft.getMinecraft.entityRenderer.disableLightmap()
     GlStateManager.disableLighting()
     GlStateManager.disableLight(0)
@@ -54,7 +54,7 @@ object RenderState {
     GlStateManager.disableColorMaterial()
   }
 
-  def enableEntityLighting() {
+  def enableEntityLighting():Unit = {
     Minecraft.getMinecraft.entityRenderer.enableLightmap()
     GlStateManager.enableLighting()
     GlStateManager.enableLight(0)
@@ -62,19 +62,19 @@ object RenderState {
     GlStateManager.enableColorMaterial()
   }
 
-  def makeItBlend() {
+  def makeItBlend():Unit = {
     GlStateManager.enableBlend()
     GL11.glEnable(GL11.GL_BLEND)
     GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
   }
 
-  def disableBlend() {
+  def disableBlend():Unit = {
     GlStateManager.blendFunc(GL11.GL_ONE, GL11.GL_ZERO)
     GlStateManager.disableBlend()
     GL11.glDisable(GL11.GL_BLEND)
   }
 
-  def setBlendAlpha(alpha: Float) = {
+  def setBlendAlpha(alpha: Float): Unit = {
     GlStateManager.color(1, 1, 1, alpha)
     GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE)
   }

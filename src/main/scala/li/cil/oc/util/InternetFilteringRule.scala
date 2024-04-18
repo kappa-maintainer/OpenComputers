@@ -14,7 +14,7 @@ class InternetFilteringRule(val ruleString: String) {
       ruleParts.head match {
         case "allow" | "deny" =>
           val value = ruleParts.head.equals("allow")
-          val predicates = mutable.MutableList[(InetAddress, String) => Boolean]()
+          val predicates = mutable.ArrayDeque[(InetAddress, String) => Boolean]()
           ruleParts.tail.foreach(f => {
             val filter = f.split(":", 2)
             filter.head match {

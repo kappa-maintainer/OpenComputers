@@ -1,10 +1,9 @@
 package li.cil.oc.common
 
 import java.util.Calendar
-
 import appeng.api.networking.IGridBlock
 import appeng.api.util.AEPartLocation
-import li.cil.oc._
+import li.cil.oc.*
 import li.cil.oc.api.Network
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.internal.Colored
@@ -34,10 +33,10 @@ import li.cil.oc.server.component.Keyboard
 import li.cil.oc.server.machine.Callbacks
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.server.machine.luac.LuaStateFactory
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.StackOption._
-import li.cil.oc.util._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedWorld.*
+import li.cil.oc.util.StackOption.*
+import li.cil.oc.util.{UpdateCheck, *}
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.init.SoundEvents
@@ -54,16 +53,17 @@ import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Optional
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.PlayerEvent._
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.*
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Success
 
 object EventHandler {
   private var serverTicks = 0L
@@ -79,23 +79,23 @@ object EventHandler {
 
   private val machines = mutable.Set.empty[Machine]
 
-  def onRobotStart(robot: Robot): Unit = runningRobots += robot
+  def onRobotStart(robot: Robot): Unit = runningRobots.add(robot)
 
-  def onRobotStopped(robot: Robot): Unit = runningRobots -= robot
+  def onRobotStopped(robot: Robot): Unit = runningRobots.remove(robot)
 
-  def addKeyboard(keyboard: Keyboard): Unit = keyboards += keyboard
+  def addKeyboard(keyboard: Keyboard): Unit = keyboards.add(keyboard)
 
-  def scheduleClose(machine: Machine): Unit = machines += machine
+  def scheduleClose(machine: Machine): Unit = machines.add(machine)
 
-  def unscheduleClose(machine: Machine): Unit = machines -= machine
+  def unscheduleClose(machine: Machine): Unit = machines.remove(machine)
 
-  def scheduleServer(tileEntity: TileEntity) {
+  def scheduleServer(tileEntity: TileEntity):Unit ={
     if (SideTracker.isServer) pendingServer.synchronized {
       pendingServer += (() => Network.joinOrCreateNetwork(tileEntity))
     }
   }
 
-  def scheduleServer(f: () => Unit) {
+  def scheduleServer(f: () => Unit):Unit ={
     pendingServer.synchronized {
       pendingServer += f
     }
@@ -107,14 +107,14 @@ object EventHandler {
     }
   }
 
-  def scheduleClient(f: () => Unit) {
+  def scheduleClient(f: () => Unit):Unit ={
     pendingClient.synchronized {
       pendingClient += f
     }
   }
 
   @Optional.Method(modid = Mods.IDs.IndustrialCraft2)
-  def scheduleIC2Add(tileEntity: power.IndustrialCraft2Experimental) {
+  def scheduleIC2Add(tileEntity: power.IndustrialCraft2Experimental):Unit ={
     if (SideTracker.isServer) pendingServer.synchronized {
       tileEntity match {
         case tile: ic2.api.energy.tile.IEnergyTile =>
@@ -134,7 +134,7 @@ object EventHandler {
     }
   }
 
-  def scheduleWirelessRedstone(rs: server.component.RedstoneWireless) {
+  def scheduleWirelessRedstone(rs: server.component.RedstoneWireless):Unit ={
     if (SideTracker.isServer) pendingServer.synchronized {
       pendingServer += (() => if (rs.node.network != null) {
         util.WirelessRedstone.addReceiver(rs)
@@ -164,13 +164,13 @@ object EventHandler {
   @SubscribeEvent
   def onAttachCapabilities(event: AttachCapabilitiesEvent[TileEntity]): Unit = {
     event.getObject match {
-      case tileEntity: TileEntity with Environment =>
+      case tileEntity: (TileEntity & Environment) =>
         event.addCapability(CapabilityEnvironment.ProviderEnvironment, new CapabilityEnvironment.Provider(tileEntity))
       case _ =>
     }
 
     event.getObject match {
-      case tileEntity: TileEntity with Environment with SidedComponent =>
+      case tileEntity: (TileEntity & Environment & SidedComponent) =>
         event.addCapability(CapabilitySidedComponent.SidedComponent, new CapabilitySidedComponent.Provider(tileEntity))
       case tileEntity: TileEntity with SidedEnvironment =>
         event.addCapability(CapabilitySidedEnvironment.ProviderSidedEnvironment, new CapabilitySidedEnvironment.Provider(tileEntity))
@@ -178,7 +178,7 @@ object EventHandler {
     }
 
     event.getObject match {
-      case tileEntity: TileEntity with Colored =>
+      case tileEntity: (TileEntity & Colored) =>
         event.addCapability(CapabilityColored.ProviderColored, new CapabilityColored.Provider(tileEntity))
       case _ =>
     }
@@ -237,7 +237,7 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def playerLoggedIn(e: PlayerLoggedInEvent) {
+  def playerLoggedIn(e: PlayerLoggedInEvent):Unit ={
     if (SideTracker.isServer) e.player match {
       case _: FakePlayer => // Nope
       case player: EntityPlayerMP =>
@@ -263,18 +263,18 @@ object EventHandler {
         // Do update check in local games and for OPs.
         val server = FMLCommonHandler.instance.getMinecraftServerInstance
         if (!server.isDedicatedServer || server.getPlayerList.canSendCommands(player.getGameProfile)) {
-          Future {
-            UpdateCheck.info onSuccess {
-              case Some(release) => player.sendMessage(Localization.Chat.InfoNewVersion(release.tag_name))
+          Future ({
+            UpdateCheck.info.onComplete {
+              case Success(option) => if (option.nonEmpty) player.sendMessage(Localization.Chat.InfoNewVersion(option.get.tag_name))
             }
-          }
+          })
         }
       case _ =>
     }
   }
 
   @SubscribeEvent
-  def clientLoggedIn(e: ClientConnectedToServerEvent) {
+  def clientLoggedIn(e: ClientConnectedToServerEvent):Unit ={
     PetRenderer.isInitialized = false
     PetRenderer.hidden.clear()
     Loot.disksForClient.clear()
@@ -301,18 +301,18 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def onPlayerRespawn(e: PlayerRespawnEvent) {
-    keyboards.foreach(_.releasePressedKeys(e.player))
+  def onPlayerRespawn(e: PlayerRespawnEvent):Unit ={
+    keyboards.asScala.foreach(_.releasePressedKeys(e.player))
   }
 
   @SubscribeEvent
-  def onPlayerChangedDimension(e: PlayerChangedDimensionEvent) {
-    keyboards.foreach(_.releasePressedKeys(e.player))
+  def onPlayerChangedDimension(e: PlayerChangedDimensionEvent):Unit ={
+    keyboards.asScala.foreach(_.releasePressedKeys(e.player))
   }
 
   @SubscribeEvent
-  def onPlayerLogout(e: PlayerLoggedOutEvent) {
-    keyboards.foreach(_.releasePressedKeys(e.player))
+  def onPlayerLogout(e: PlayerLoggedOutEvent):Unit ={
+    keyboards.asScala.foreach(_.releasePressedKeys(e.player))
   }
 
   @SubscribeEvent
@@ -437,10 +437,10 @@ object EventHandler {
   @SubscribeEvent
   def onWorldUnload(e: WorldEvent.Unload): Unit = this.synchronized {
     if (!e.getWorld.isRemote) {
-      e.getWorld.loadedTileEntityList.collect {
+      e.getWorld.loadedTileEntityList.asScala.collect {
         case te: tileentity.traits.TileEntity => te.dispose()
       }
-      e.getWorld.loadedEntityList.collect {
+      e.getWorld.loadedEntityList.asScala.collect {
         case host: MachineHost => host.machine.stop()
       }
 
@@ -454,7 +454,7 @@ object EventHandler {
   @SubscribeEvent
   def onChunkUnload(e: ChunkEvent.Unload): Unit = {
     if (!e.getWorld.isRemote) {
-      e.getChunk.getEntityLists.foreach(_.collect {
+      e.getChunk.getEntityLists.foreach(_.asScala.collect {
         case host: MachineHost => host.machine match {
           case machine: Machine => scheduleClose(machine)
           case _ => // Dafuq?

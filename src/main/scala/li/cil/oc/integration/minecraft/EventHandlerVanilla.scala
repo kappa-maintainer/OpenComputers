@@ -13,11 +13,11 @@ import net.minecraft.init.Blocks
 import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object EventHandlerVanilla {
   @SubscribeEvent
-  def onGeolyzerScan(e: GeolyzerEvent.Scan) {
+  def onGeolyzerScan(e: GeolyzerEvent.Scan):Unit = {
     val world = e.host.world
     val blockPos = BlockPosition(e.host)
     val includeReplaceable = e.options.get("includeReplaceable") match {
@@ -54,29 +54,29 @@ object EventHandlerVanilla {
   private def isFluid(block: Block) = FluidRegistry.lookupFluidForBlock(block) != null
 
   private def getGrowth(blockState: IBlockState) = {
-    blockState.getPropertyKeys().find(prop => {prop.isInstanceOf[PropertyInteger] && prop.getName() == "age"}) match {
+    blockState.getPropertyKeys.asScala.find(prop => {prop.isInstanceOf[PropertyInteger] && prop.getName() == "age"}) match {
       case Some(prop) => {
         val propAge = prop.asInstanceOf[PropertyInteger]
-        Some((blockState.getValue(propAge).toFloat / propAge.getAllowedValues().max) max 0 min 1)
+        Some((blockState.getValue(propAge).toFloat / propAge.getAllowedValues.asScala.max) max 0 min 1)
       }
       case None => None
     }
   }
 
   @SubscribeEvent
-  def onGeolyzerAnalyze(e: GeolyzerEvent.Analyze) {
+  def onGeolyzerAnalyze(e: GeolyzerEvent.Analyze):Unit = {
     val world = e.host.world
     val blockState = world.getBlockState(e.pos).getActualState(world, e.pos)
     val block = blockState.getBlock
 
-    e.data += "name" -> Block.REGISTRY.getNameForObject(block)
-    e.data += "hardness" -> Float.box(blockState.getBlockHardness(world, e.pos))
-    e.data += "harvestLevel" -> Int.box(block.getHarvestLevel(blockState))
-    e.data += "harvestTool" -> block.getHarvestTool(blockState)
-    e.data += "color" -> Int.box(blockState.getMapColor(world, e.pos).colorValue)
+    e.data.asScala += "name" -> Block.REGISTRY.getNameForObject(block)
+    e.data.asScala += "hardness" -> Float.box(blockState.getBlockHardness(world, e.pos))
+    e.data.asScala += "harvestLevel" -> Int.box(block.getHarvestLevel(blockState))
+    e.data.asScala += "harvestTool" -> block.getHarvestTool(blockState)
+    e.data.asScala += "color" -> Int.box(blockState.getMapColor(world, e.pos).colorValue)
 
     // backward compatibility
-    e.data += "metadata" -> Int.box({
+    e.data.asScala += "metadata" -> Int.box({
       try {
         block.getMetaFromState(blockState)
       } catch {
@@ -84,16 +84,16 @@ object EventHandlerVanilla {
       }
     })
 
-    e.data += "properties" -> {
+    e.data.asScala += "properties" -> {
       var props:Map[String, Any] = Map();
-      for (prop <- blockState.getProperties().keySet()) {
+      for (prop <- blockState.getProperties().keySet().asScala) {
         props += prop.getName() -> blockState.getValue(prop)
       }
       props
     }
 
     if (Settings.get.insertIdsInConverters) {
-      e.data += "id" -> Int.box(Block.getIdFromBlock(block))
+      e.data.asScala += "id" -> Int.box(Block.getIdFromBlock(block))
     }
 
     {
@@ -105,7 +105,7 @@ object EventHandlerVanilla {
         None
       }
     } foreach { growth =>
-      e.data += "growth" -> Float.box(growth)
+      e.data.asScala += "growth" -> Float.box(growth)
     }
   }
 }

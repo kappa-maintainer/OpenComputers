@@ -15,7 +15,7 @@ import net.minecraft.nbt.{NBTTagCompound, NBTTagList}
 import li.cil.oc.common.component
 import li.cil.oc.common.component.GpuTextBuffer
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.util.matching.Regex
 
 // IMPORTANT: usually methods with side effects should *not* be direct
@@ -50,12 +50,12 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     if (index == RESERVED_SCREEN_INDEX) {
       screenInstance match {
         case Some(screen) => screen.synchronized(f(screen))
-        case _ => Array(Unit, "no screen")
+        case _ => Array("no screen")
       }
     } else {
       getBuffer(index) match {
         case Some(buffer: api.internal.TextBuffer) => f(buffer)
-        case _ => Array(Unit, "invalid buffer index")
+        case _ => Array("invalid buffer index")
       }
     }
   }
@@ -94,7 +94,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 
   def clockInfo: String = ((2000 / setBackgroundCosts(tier)).toInt / 100).toString + "/" + ((2000 / setForegroundCosts(tier)).toInt / 100).toString + "/" + ((2000 / setPaletteColorCosts(tier)).toInt / 100).toString + "/" + ((2000 / setCosts(tier)).toInt / 100).toString + "/" + ((2000 / copyCosts(tier)).toInt / 100).toString + "/" + ((2000 / fillCosts(tier)).toInt / 100).toString
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -117,7 +117,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val previousIndex: Int = bufferIndex
     val newIndex: Int = args.checkInteger(0)
     if (newIndex != RESERVED_SCREEN_INDEX && getBuffer(newIndex).isEmpty) {
-      result(Unit, "invalid buffer index")
+      result((), "invalid buffer index")
     } else {
       bufferIndex = newIndex
       if (bufferIndex == RESERVED_SCREEN_INDEX) {
@@ -138,12 +138,12 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val height: Int = args.optInteger(1, maxResolution._2)
     val size: Int = width * height
     if (width <= 0 || height <= 0) {
-      result(Unit, "invalid page dimensions: must be greater than zero")
+      result((), "invalid page dimensions: must be greater than zero")
     }
-    else if (size > (totalVRAM - calculateUsedMemory)) {
-      result(Unit, "not enough video memory")
+    else if (size > (totalVRAM - calculateUsedMemory())) {
+      result((), "not enough video memory")
     } else if (node == null) {
-      result(Unit, "graphics card appears disconnected")
+      result((), "graphics card appears disconnected")
     } else {
       val format: PackedColor.ColorFormat = PackedColor.Depth.format(Settings.screenDepthsByTier(tier))
       val buffer = new li.cil.oc.util.TextBuffer(width, height, format)
@@ -172,7 +172,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
   def freeBuffer(context: Context, args: Arguments): Array[AnyRef] = {
     val index: Int = args.optInteger(0, bufferIndex)
     if (removeBuffers(Array(index)) == 1) result(true)
-    else result(Unit, "no buffer at index")
+    else result((), "no buffer at index")
   }
 
   @Callback(direct = true, doc = """function(): number -- Closes all buffers and returns the count. If the active buffer is closed, index moves to 0""")
@@ -185,7 +185,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 
   @Callback(direct = true, doc = """function(): number -- returns the total free memory not allocated to buffers. This does not include the screen.""")
   def freeMemory(context: Context, args: Arguments): Array[AnyRef] = {
-    result(totalVRAM - calculateUsedMemory)
+    result(totalVRAM - calculateUsedMemory())
   }
 
   @Callback(direct = true, doc = """function(index: number): number, number -- returns the buffer size at index. Returns the screen resolution for index 0. returns nil for invalid indexes""")
@@ -262,7 +262,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
             component.GpuTextBuffer.bitblt(dst, col, row, w, h, src, fromCol, fromRow)
             result(true)
           }
-        } else result(Unit, "not enough energy")
+        } else result((), "not enough energy")
       })
     })
   }
@@ -272,7 +272,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     val address = args.checkString(0)
     val reset = args.optBoolean(1, true)
     node.network.node(address) match {
-      case null => result(Unit, "invalid address")
+      case null => result((), "invalid address")
       case node: Node if node.host.isInstanceOf[api.internal.TextBuffer] =>
         screenAddress = Option(address)
         screenInstance = Some(node.host.asInstanceOf[api.internal.TextBuffer])
@@ -293,7 +293,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           else context.pause(0) // To discourage outputting "in realtime" to multiple screens using one GPU.
           result(true)
         })
-      case _ => result(Unit, "not a screen")
+      case _ => result((), "not a screen")
     }
   }
 
@@ -317,7 +317,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(oldValue), oldValue)
         }
         else {
-          (oldValue, Unit)
+          (oldValue, ())
         }
       s.setBackgroundColor(color, args.optBoolean(1, false))
       result(oldColor, oldIndex)
@@ -337,12 +337,12 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     screen(s => {
       val oldValue = s.getForegroundColor
       val (oldColor, oldIndex) =
-        if (s.isForegroundFromPalette) {
+        (if (s.isForegroundFromPalette) {
           (s.getPaletteColor(oldValue), oldValue)
         }
         else {
-          (oldValue, Unit)
-        }
+          (oldValue)
+        }): @unchecked
       s.setForegroundColor(color, args.optBoolean(1, false))
       result(oldColor, oldIndex)
     })
@@ -463,7 +463,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(fgValue), fgValue)
         }
         else {
-          (fgValue, Unit)
+          (fgValue, ())
         }
 
       val bgValue = s.getBackgroundColor(x, y)
@@ -472,7 +472,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
           (s.getPaletteColor(bgValue), bgValue)
         }
         else {
-          (bgValue, Unit)
+          (bgValue, ())
         }
 
       result(new java.lang.StringBuilder().appendCodePoint(s.getCodePoint(x, y)).toString, fgColor, bgColor, fgIndex, bgIndex)
@@ -490,7 +490,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
       if (resolveInvokeCosts(bufferIndex, context, setCosts(tier), ExtendedUnicodeHelper.length(value), Settings.get.gpuSetCost)) {
         s.set(x, y, value, vertical)
         result(true)
-      } else result(Unit, "not enough energy")
+      } else result((), "not enough energy")
     })
   }
 
@@ -507,7 +507,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
         s.copy(x, y, w, h, tx, ty)
         result(true)
       }
-      else result(Unit, "not enough energy")
+      else result((), "not enough energy")
     })
   }
 
@@ -526,7 +526,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
         result(true)
       }
       else {
-        result(Unit, "not enough energy")
+        result((), "not enough energy")
       }
     })
     else throw new Exception("invalid fill value")
@@ -536,7 +536,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 
   // ----------------------------------------------------------------------- //
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
     super.onMessage(message)
     if (node.isNeighborOf(message.source)) {
       if (message.name == "computer.stopped" || message.name == "computer.started") {
@@ -562,7 +562,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
             s.fill(0, 0, w, h, 0x20)
             try {
               val wrapRegEx = s"(.{1,${math.max(1, w - 2)}})\\s".r
-              val lines = wrapRegEx.replaceAllIn(Localization.localizeImmediately(machine.lastError).replace("\t", "  ") + "\n", m => Regex.quoteReplacement(m.group(1) + "\n")).lines.toArray
+              val lines: Array[String] = wrapRegEx.replaceAllIn(Localization.localizeImmediately(machine.lastError).replace("\t", "  ") + "\n", m => Regex.quoteReplacement(m.group(1) + "\n")).lines.toList.asScala.toArray
               val firstRow = ((h - lines.length) / 2) max 2
 
               val message = "Unrecoverable Error"
@@ -598,7 +598,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node || screenAddress.contains(node.address)) {
       screenAddress = None
@@ -616,7 +616,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
   private final val NBT_PAGE_DATA: String = "page_data"
   private val COMPOUND_ID = (new NBTTagCompound).getId
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
 
     if (nbt.hasKey(SCREEN_KEY)) {
@@ -644,7 +644,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     }
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
 
     if (screenAddress.isDefined) {

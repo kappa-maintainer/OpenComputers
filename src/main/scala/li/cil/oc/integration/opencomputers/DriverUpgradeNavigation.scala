@@ -18,7 +18,7 @@ object DriverUpgradeNavigation extends Item with HostAware {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (host.world != null && host.world.isRemote) null
     else host match {
-      case rotatable: EnvironmentHost with Rotatable => new component.UpgradeNavigation(rotatable)
+      case rotatable: (EnvironmentHost & Rotatable) => new component.UpgradeNavigation(rotatable)
       case _ => null
     }
 
@@ -27,7 +27,7 @@ object DriverUpgradeNavigation extends Item with HostAware {
   override def tier(stack: ItemStack) = Tier.Two
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeNavigation]
       else null

@@ -32,33 +32,33 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
 
   // ----------------------------------------------------------------------- //
 
-  def updateEntity() {
+  def updateEntity():Unit ={
     if (Settings.get.periodicallyForceLightUpdate && getWorld.getTotalWorldTime % 40 == 0 && getBlockType.getLightValue(getWorld.getBlockState(getPos), getWorld, getPos) > 0) {
       getWorld.notifyBlockUpdate(getPos, getWorld.getBlockState(getPos), getWorld.getBlockState(getPos), 3)
     }
   }
 
-  override def validate() {
+  override def validate():Unit ={
     super.validate()
     initialize()
   }
 
-  override def invalidate() {
+  override def invalidate():Unit ={
     super.invalidate()
     dispose()
   }
 
-  override def onChunkUnload() {
+  override def onChunkUnload():Unit ={
     super.onChunkUnload()
     try dispose() catch {
       case t: Throwable => OpenComputers.log.error("Failed properly disposing a tile entity, things may leak and or break.", t)
     }
   }
 
-  protected def initialize() {
+  protected def initialize():Unit ={
   }
 
-  def dispose() {
+  def dispose():Unit ={
     if (isClient) {
       // Note: chunk unload is handled by sound via event handler.
       Sound.stopLoop(this)
@@ -77,7 +77,7 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
   }
 
   @SideOnly(Side.CLIENT)
-  def readFromNBTForClient(nbt: NBTTagCompound) {}
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit ={}
 
   def writeToNBTForClient(nbt: NBTTagCompound): Unit = {
     nbt.setBoolean(IsServerDataTag, false)
@@ -123,7 +123,7 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
     nbt
   }
 
-  override def onDataPacket(manager: NetworkManager, packet: SPacketUpdateTileEntity) {
+  override def onDataPacket(manager: NetworkManager, packet: SPacketUpdateTileEntity):Unit ={
     try readFromNBTForClient(packet.getNbtCompound) catch {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
     }

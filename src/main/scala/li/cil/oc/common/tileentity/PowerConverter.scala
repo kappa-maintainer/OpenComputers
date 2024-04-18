@@ -13,7 +13,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class PowerConverter extends traits.PowerAcceptor with traits.Environment with traits.NotAnalyzable with DeviceInfo {
   val node = api.Network.newNode(this, Visibility.None).
@@ -28,7 +28,7 @@ class PowerConverter extends traits.PowerAcceptor with traits.Environment with t
     DeviceAttribute.Capacity -> energyThroughput.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   @SideOnly(Side.CLIENT)
   override protected def hasConnector(side: EnumFacing) = true

@@ -13,7 +13,7 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.common.tileentity.traits.BundledRedstoneAware
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 trait RedstoneBundled extends RedstoneVanilla {
   private final lazy val deviceInfo = Map(
@@ -25,13 +25,13 @@ trait RedstoneBundled extends RedstoneVanilla {
     DeviceAttribute.Width -> "16"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   private val COLOR_RANGE = 0 until 16
 
   // ----------------------------------------------------------------------- //
 
-  override def redstone: EnvironmentHost with BundledRedstoneAware
+  override def redstone: EnvironmentHost & BundledRedstoneAware
 
   private def getBundleKey(args: Arguments): (Option[EnumFacing], Option[Int]) = {
     args.count match {
@@ -42,7 +42,7 @@ trait RedstoneBundled extends RedstoneVanilla {
     }
   }
 
-  private def tableToColorValues(table: util.Map[_, _]): Array[Int] = {
+  private def tableToColorValues(table: util.Map[?, ?]): Array[Int] = {
     COLOR_RANGE.collect {
       case color: Int if table.containsKey(color) => {
         table.get(color) match {
@@ -104,7 +104,7 @@ trait RedstoneBundled extends RedstoneVanilla {
     var ret: AnyRef = null
     if (getBundleAssignment(args) match {
       case (side: EnumFacing, color: Int, value: Int) =>
-        ret = new java.lang.Integer(redstone.getBundledOutput(side, color))
+        ret = java.lang.Integer.valueOf(redstone.getBundledOutput(side, color))
         redstone.setBundledOutput(side, color, value)
       case (side: EnumFacing, value: util.Map[_, _], _) =>
         ret = redstone.getBundledOutput(side)

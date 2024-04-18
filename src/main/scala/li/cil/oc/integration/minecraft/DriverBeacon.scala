@@ -19,7 +19,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object DriverBeacon extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[TileEntityBeacon]
+  override def getTileEntityClass: Class[?] = classOf[TileEntityBeacon]
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileEntityBeacon])
@@ -53,7 +53,7 @@ object DriverBeacon extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] = {
+    override def getEnvironment(stack: ItemStack): Class[?] = {
       if (!stack.isEmpty && Block.getBlockFromItem(stack.getItem) == Blocks.BEACON)
         classOf[Environment]
       else null

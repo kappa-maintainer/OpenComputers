@@ -42,19 +42,19 @@ class Debugger(val parent: Delegator) extends traits.Delegate {
 object Debugger extends Environment {
   var node = api.Network.newNode(this, Visibility.Network).create()
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node) : Unit = {
     OpenComputers.log.info(s"[NETWORK DEBUGGER] New node in network: ${nodeInfo(node)}")
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node) : Unit = {
     OpenComputers.log.info(s"[NETWORK DEBUGGER] Node removed from network: ${nodeInfo(node)}")
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message) : Unit = {
     OpenComputers.log.info(s"[NETWORK DEBUGGER] Received message: ${messageInfo(message)}.")
   }
 
-  def reconnect(nodes: Array[Node]) {
+  def reconnect(nodes: Array[Node]) : Unit = {
     node.remove()
     api.Network.joinNewNetwork(node)
     for (node <- nodes if node != null) {

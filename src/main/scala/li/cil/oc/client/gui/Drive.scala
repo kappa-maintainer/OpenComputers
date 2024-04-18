@@ -14,11 +14,11 @@ class Drive(playerInventory: InventoryPlayer, val driveStack: () => ItemStack) e
 
   override def backgroundImage = Textures.GUI.Drive
 
-  protected var managedButton: ImageButton = _
-  protected var unmanagedButton: ImageButton = _
-  protected var lockedButton: ImageButton = _
+  protected var managedButton: ImageButton = scala.compiletime.uninitialized
+  protected var unmanagedButton: ImageButton = scala.compiletime.uninitialized
+  protected var lockedButton: ImageButton = scala.compiletime.uninitialized
 
-  protected override def actionPerformed(button: GuiButton) {
+  protected override def actionPerformed(button: GuiButton):Unit = {
     if (button.id == 0) {
       ClientPacketSender.sendDriveMode(unmanaged = false)
       DriveData.setUnmanaged(driveStack(), unmanaged = false)

@@ -7,7 +7,7 @@ import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class APU(tier: Int) extends GraphicsCard(tier) {
   private final lazy val deviceInfo = Map(
@@ -20,5 +20,5 @@ class APU(tier: Int) extends GraphicsCard(tier) {
     DeviceAttribute.Clock -> ((Settings.get.callBudgets(tier) * 1000).toInt.toString + "+" + clockInfo)
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 }

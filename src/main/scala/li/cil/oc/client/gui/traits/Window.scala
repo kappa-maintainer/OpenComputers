@@ -37,7 +37,7 @@ trait Window extends GuiScreen {
 
   override def drawScreen(mouseX: Int, mouseY: Int, dt: Float): Unit = {
     mc.renderEngine.bindTexture(backgroundImage)
-    Gui.drawModalRectWithCustomSizedTexture(guiLeft, guiTop, 0, 0, xSize, ySize, windowWidth, windowHeight)
+    Gui.drawModalRectWithCustomSizedTexture(guiLeft, guiTop, 0, 0, xSize, ySize, windowWidth.toFloat, windowHeight.toFloat)
 
     super.drawScreen(mouseX, mouseY, dt)
   }

@@ -40,7 +40,7 @@ class Database(playerInventory: InventoryPlayer, databaseInventory: DatabaseInve
     ItemStack.EMPTY
   }
 
-  override protected def tryTransferStackInSlot(from: Slot, intoPlayerInventory: Boolean) {
+  override protected def tryTransferStackInSlot(from: Slot, intoPlayerInventory: Boolean):Unit = {
     if (intoPlayerInventory) {
       from.onSlotChanged()
       return

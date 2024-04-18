@@ -47,13 +47,13 @@ object DriverComputerCraftMedia extends Item {
 
     override def getLabel = media.getLabel(stack)
 
-    override def setLabel(value: String) {
+    override def setLabel(value: String):Unit = {
       media.setLabel(stack, value)
     }
 
-    override def load(nbt: NBTTagCompound) {}
+    override def load(nbt: NBTTagCompound):Unit = {}
 
-    override def save(nbt: NBTTagCompound) {}
+    override def save(nbt: NBTTagCompound):Unit = {}
   }
 
 }

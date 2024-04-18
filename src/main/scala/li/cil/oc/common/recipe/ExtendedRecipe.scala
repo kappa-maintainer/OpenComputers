@@ -21,7 +21,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Breaks._
 
 object ExtendedRecipe {
@@ -107,7 +107,7 @@ object ExtendedRecipe {
         for (stack <- getItems(inventory)) {
           if (api.Items.get(stack) == floppy && stack.hasTagCompound) {
             val oldData = stack.getTagCompound
-            for (oldTagName <- oldData.getKeySet.map(_.asInstanceOf[String]) if !nbt.hasKey(oldTagName)) {
+            for (oldTagName <- oldData.getKeySet.asScala if !nbt.hasKey(oldTagName)) {
               nbt.setTag(oldTagName, oldData.getTag(oldTagName).copy())
             }
           }
@@ -192,7 +192,7 @@ object ExtendedRecipe {
 
   private def getItems(inventory: InventoryCrafting) = (0 until inventory.getSizeInventory).map(inventory.getStackInSlot).filter(!_.isEmpty)
 
-  private def recraft(craftedStack: ItemStack, inventory: InventoryCrafting, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
+  private def recraft(craftedStack: ItemStack, inventory: InventoryCrafting, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper):Unit = {
     if (api.Items.get(craftedStack) == descriptor) {
       // Find old Microcontroller.
       getItems(inventory).find(api.Items.get(_) == descriptor) match {

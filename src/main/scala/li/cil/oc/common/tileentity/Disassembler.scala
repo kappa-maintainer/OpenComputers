@@ -25,7 +25,7 @@ import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -61,7 +61,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
     DeviceAttribute.Product -> "Break.3R-100"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -80,7 +80,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
     if (isServer && getWorld.getTotalWorldTime % Settings.get.tickFrequency == 0) {
       if (queue.isEmpty) {
@@ -109,7 +109,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
     }
   }
 
-  def disassemble(stack: ItemStack, instant: Boolean = false) {
+  def disassemble(stack: ItemStack, instant: Boolean = false):Unit ={
     // Validate the item, never trust Minecraft / other Mods on anything!
     if (isItemValidForSlot(0, stack)) {
       val ingredients = ItemUtils.getIngredients(stack)
@@ -130,7 +130,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
     }
   }
 
-  private def drop(stack: ItemStack) {
+  private def drop(stack: ItemStack):Unit ={
     if (!stack.isEmpty) {
       for (side <- EnumFacing.values if stack.getCount > 0) {
         InventoryUtils.insertIntoInventoryAt(stack, BlockPosition(this).offset(side), Some(side.getOpposite))
@@ -148,7 +148,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
   private final val TotalTag = Settings.namespace + "total"
   private final val IsActiveTag = Settings.namespace + "isActive"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForServer(nbt)
     queue.clear()
     queue ++= nbt.getTagList(QueueTag, NBT.TAG_COMPOUND).
@@ -158,7 +158,7 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
     isActive = queue.nonEmpty
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
     nbt.setNewTagList(QueueTag, queue)
     nbt.setDouble(BufferTag, buffer)
@@ -166,12 +166,12 @@ class Disassembler extends traits.Environment with traits.PowerAcceptor with tra
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForClient(nbt)
     isActive = nbt.getBoolean(IsActiveTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForClient(nbt)
     nbt.setBoolean(IsActiveTag, isActive)
   }

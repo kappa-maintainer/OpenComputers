@@ -22,7 +22,7 @@ import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 trait Computer extends Environment with ComponentInventory with Rotatable with BundledRedstoneAware with api.network.Analyzable with api.machine.MachineHost with StateAware with Tickable {
@@ -66,7 +66,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   }
 
   @SideOnly(Side.CLIENT)
-  def setUsers(list: Iterable[String]) {
+  def setUsers(list: Iterable[String]):Unit = {
     _users.clear()
     _users ++= list
   }
@@ -80,7 +80,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   override def internalComponents(): lang.Iterable[ItemStack] = (0 until getSizeInventory).collect {
     case slot if !getStackInSlot(slot).isEmpty && isComponentSlot(slot, getStackInSlot(slot)) => getStackInSlot(slot)
-  }
+  }.toList.asJava
 
 
   override def onMachineConnect(node: api.network.Node): Unit = this.onConnect(node)
@@ -140,7 +140,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   private final val IsRunningTag = Settings.namespace + "isRunning"
   private final val UsersTag = Settings.namespace + "users"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForServer(nbt)
     // God, this is so ugly... will need to rework the robot architecture.
     // This is required for loading auxiliary data (kernel state), because the
@@ -158,7 +158,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     _isOutputEnabled = hasRedstoneCard
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
     if (machine != null) {
       nbt.setNewCompoundTag(ComputerTag, machine.save)
@@ -166,7 +166,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForClient(nbt)
     hasErrored = nbt.getBoolean(HasErroredTag)
     setRunning(nbt.getBoolean(IsRunningTag))
@@ -175,7 +175,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     if (_isRunning) runSound.foreach(sound => Sound.startLoop(this, sound, 0.5f, 1000 + getWorld.rand.nextInt(2000)))
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForClient(nbt)
     nbt.setBoolean(HasErroredTag, machine != null && machine.lastError != null)
     nbt.setBoolean(IsRunningTag, isRunning)
@@ -184,7 +184,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   // ----------------------------------------------------------------------- //
 
-  override def markDirty() {
+  override def markDirty():Unit ={
     super.markDirty()
     if (isServer) {
       machine.onHostChanged()
@@ -198,12 +198,12 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
       case _ => canInteract(player.getName)
     })
 
-  override protected def onRotationChanged() {
+  override protected def onRotationChanged():Unit ={
     super.onRotationChanged()
     checkRedstoneInputChanged()
   }
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs):Unit ={
     super.onRedstoneInputChanged(args)
     val toLocalArgs = RedstoneChangedEventArgs(toLocal(args.side), args.oldValue, args.newValue, args.color)
     machine.node.sendToNeighbors("redstone.changed", toLocalArgs)
@@ -211,5 +211,5 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) = Array(machine.node)
+  override def onAnalyze(player: EntityPlayer, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = Array(machine.node)
 }

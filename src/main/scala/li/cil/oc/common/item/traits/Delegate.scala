@@ -58,9 +58,9 @@ trait Delegate {
 
   def onItemUseFinish(stack: ItemStack, world: World, player: EntityLivingBase): ItemStack = stack
 
-  def onPlayerStoppedUsing(stack: ItemStack, player: EntityLivingBase, duration: Int) {}
+  def onPlayerStoppedUsing(stack: ItemStack, player: EntityLivingBase, duration: Int):Unit = {}
 
-  def update(stack: ItemStack, world: World, player: Entity, slot: Int, selected: Boolean) {}
+  def update(stack: ItemStack, world: World, player: Entity, slot: Int, selected: Boolean):Unit = {}
 
   // ----------------------------------------------------------------------- //
 
@@ -81,18 +81,18 @@ trait Delegate {
   def displayName(stack: ItemStack): Option[String] = None
 
   @SideOnly(Side.CLIENT)
-  def tooltipLines(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  def tooltipLines(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     if (tooltipName.isDefined) {
-      tooltip.addAll(Tooltip.get(tooltipName.get, tooltipData: _*))
+      tooltip.addAll(Tooltip.get(tooltipName.get, tooltipData*))
       tooltipExtended(stack, tooltip)
     }
     tooltipCosts(stack, tooltip)
   }
 
   // For stuff that goes to the normal 'extended' tooltip, before the costs.
-  protected def tooltipExtended(stack: ItemStack, tooltip: java.util.List[String]) {}
+  protected def tooltipExtended(stack: ItemStack, tooltip: java.util.List[String]):Unit = {}
 
-  protected def tooltipCosts(stack: ItemStack, tooltip: java.util.List[String]) {
+  protected def tooltipCosts(stack: ItemStack, tooltip: java.util.List[String]):Unit = {
     if (stack.hasTagCompound && stack.getTagCompound.hasKey(Settings.namespace + "data")) {
       val data = stack.getTagCompound.getCompoundTag(Settings.namespace + "data")
       if (data.hasKey("node") && data.getCompoundTag("node").hasKey("address")) {

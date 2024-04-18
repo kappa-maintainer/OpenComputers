@@ -28,13 +28,13 @@ object TextBufferRenderCache extends Callable[Int] with RemovalListener[TileEnti
     build[TextBufferRenderData, Int]()
 
   // To allow access in cache entry init.
-  private var currentBuffer: TextBufferRenderData = _
+  private var currentBuffer: TextBufferRenderData = scala.compiletime.uninitialized
 
   // ----------------------------------------------------------------------- //
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  def render(buffer: TextBufferRenderData) {
+  def render(buffer: TextBufferRenderData):Unit = {
     currentBuffer = buffer
     compileOrDraw(cache.get(currentBuffer, this))
   }
@@ -91,7 +91,7 @@ object TextBufferRenderCache extends Callable[Int] with RemovalListener[TileEnti
   // Cache
   // ----------------------------------------------------------------------- //
 
-  def call = {
+  def call: Int = {
     RenderState.checkError(getClass.getName + ".call: entering (aka: wasntme)")
 
     val list = GLAllocation.generateDisplayLists(1)
@@ -102,7 +102,7 @@ object TextBufferRenderCache extends Callable[Int] with RemovalListener[TileEnti
     list
   }
 
-  def onRemoval(e: RemovalNotification[TileEntity, Int]) {
+  def onRemoval(e: RemovalNotification[TileEntity, Int]):Unit = {
     RenderState.checkError(getClass.getName + ".onRemoval: entering (aka: wasntme)")
 
     GLAllocation.deleteDisplayLists(e.getValue)
@@ -115,5 +115,5 @@ object TextBufferRenderCache extends Callable[Int] with RemovalListener[TileEnti
   // ----------------------------------------------------------------------- //
 
   @SubscribeEvent
-  def onTick(e: ClientTickEvent) = cache.cleanUp()
+  def onTick(e: ClientTickEvent): Unit = cache.cleanUp()
 }

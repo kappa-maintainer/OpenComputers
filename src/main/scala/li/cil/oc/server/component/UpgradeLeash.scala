@@ -26,8 +26,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagString
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with traits.WorldAware with DeviceInfo {
@@ -45,7 +44,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     DeviceAttribute.Capacity -> MaxLeashedEntities.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   val leashedEntities = mutable.Set.empty[UUID]
 
@@ -53,18 +52,18 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
 
   @Callback(doc = """function(side:number):boolean -- Tries to put an entity on the specified side of the device onto a leash.""")
   def leash(context: Context, args: Arguments): Array[AnyRef] = {
-    if (leashedEntities.size >= MaxLeashedEntities) return result(Unit, "too many leashed entities")
+    if (leashedEntities.size >= MaxLeashedEntities) return result((), "too many leashed entities")
     val side = args.checkSideAny(0)
     val nearBounds = position.bounds
     val farBounds = nearBounds.offset(side.getXOffset * 2.0, side.getYOffset * 2.0, side.getZOffset * 2.0)
     val bounds = nearBounds.union(farBounds)
-    entitiesInBounds[EntityLiving](classOf[EntityLiving], bounds).find(_.canBeLeashedTo(fakePlayer)) match {
+    entitiesInBounds[EntityLiving](classOf[EntityLiving], bounds).asScala.find(_.canBeLeashedTo(fakePlayer)) match {
       case Some(entity) =>
         entity.setLeashHolder(host, true)
         leashedEntities += entity.getUniqueID
         context.pause(0.1)
         result(true)
-      case _ => result(Unit, "no unleashed entity")
+      case _ => result((), "no unleashed entity")
     }
   }
 
@@ -74,15 +73,15 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     null
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       unleashAll()
     }
   }
 
-  private def unleashAll() {
-    entitiesInBounds(classOf[EntityLiving], position.bounds.grow(5, 5, 5)).foreach(entity => {
+  private def unleashAll():Unit = {
+    entitiesInBounds(classOf[EntityLiving], position.bounds.grow(5, 5, 5)).asScala.foreach(entity => {
       if (leashedEntities.contains(entity.getUniqueID) && entity.getLeashHolder == host) {
         entity.clearLeashed(true, false)
       }
@@ -92,7 +91,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
 
   private final val LeashedEntitiesTag = "leashedEntities"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     leashedEntities ++= nbt.getTagList(LeashedEntitiesTag, NBT.TAG_STRING).
       map((s: NBTTagString) => UUID.fromString(s.getString))
@@ -100,7 +99,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     // entities only remember their leashee if it's an EntityLivingBase...
     EventHandler.scheduleServer(() => {
       val foundEntities = mutable.Set.empty[UUID]
-      entitiesInBounds(classOf[EntityLiving], position.bounds.grow(5, 5, 5)).foreach(entity => {
+      entitiesInBounds(classOf[EntityLiving], position.bounds.grow(5, 5, 5)).asScala.foreach(entity => {
         if (leashedEntities.contains(entity.getUniqueID)) {
           entity.setLeashHolder(host, true)
           foundEntities += entity.getUniqueID
@@ -114,7 +113,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     })
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     nbt.setNewTagList(LeashedEntitiesTag, leashedEntities.map(_.toString))
   }

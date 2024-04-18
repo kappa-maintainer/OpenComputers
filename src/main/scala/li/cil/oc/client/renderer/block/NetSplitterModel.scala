@@ -20,7 +20,7 @@ import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.common.property.IExtendedBlockState
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-import scala.collection.convert.WrapAsJava.bufferAsJavaList
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object NetSplitterModel extends SmartBlockModelBase {
@@ -36,7 +36,7 @@ object NetSplitterModel extends SmartBlockModelBase {
             faces ++= BaseModel
             addSideQuads(faces, EnumFacing.values().map(t.isSideOpen))
 
-            bufferAsJavaList(faces)
+            faces.asJava
           case _ => super.getQuads(state, side, rand)
         }
       case _ => super.getQuads(state, side, rand)
@@ -111,7 +111,7 @@ object NetSplitterModel extends SmartBlockModelBase {
       faces ++= BaseModel
       addSideQuads(faces, EnumFacing.values().map(_ => false))
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

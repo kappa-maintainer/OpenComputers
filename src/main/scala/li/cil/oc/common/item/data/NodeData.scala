@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound
 
 // Generic one for items that are used as components; gets the items node info.
 class NodeData extends ItemData(null) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     load(stack)
   }

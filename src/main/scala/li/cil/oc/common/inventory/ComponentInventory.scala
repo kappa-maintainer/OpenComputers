@@ -13,11 +13,12 @@ import li.cil.oc.integration.opencomputers.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
+import scala.collection.immutable
 
 trait ComponentInventory extends Inventory with network.Environment {
-  private var _components: Array[Option[ManagedEnvironment]] = _
+  private var _components: Array[Option[ManagedEnvironment]] = scala.compiletime.uninitialized
   protected var isSizeInventoryReady: Boolean = true
 
   def components: Array[Option[ManagedEnvironment]] = {
@@ -35,7 +36,7 @@ trait ComponentInventory extends Inventory with network.Environment {
 
   // ----------------------------------------------------------------------- //
 
-  def updateComponents() {
+  def updateComponents():Unit = {
     if (updatingComponents.nonEmpty) {
       var i = 0
       // ArrayBuffer.foreach caches the size for performance reasons, but that
@@ -52,7 +53,7 @@ trait ComponentInventory extends Inventory with network.Environment {
 
   // ----------------------------------------------------------------------- //
 
-  def connectComponents() {
+  def connectComponents():Unit = {
     for (slot <- 0 until getSizeInventory if slot >= 0 && slot < components.length) {
       val stack = getStackInSlot(slot)
       if (!stack.isEmpty && components(slot).isEmpty && isComponentSlot(slot, stack)) {
@@ -64,9 +65,9 @@ trait ComponentInventory extends Inventory with network.Environment {
                 try {
                   component.load(dataTag(driver, stack))
                 }
-                catch {
+                catch 
                   case e: Throwable => OpenComputers.log.warn(s"An item component of type '${component.getClass.getName}' (provided by driver '${driver.getClass.getName}') threw an error while loading.", e)
-                }
+                
                 if (component.canUpdate) {
                   assert(!updatingComponents.contains(component))
                   updatingComponents += component
@@ -88,7 +89,7 @@ trait ComponentInventory extends Inventory with network.Environment {
     }
   }
 
-  def disconnectComponents() {
+  def disconnectComponents():Unit = {
     components collect {
       case Some(component) =>
         applyLifecycleState(component, Lifecycle.LifecycleState.Disposing)
@@ -99,12 +100,12 @@ trait ComponentInventory extends Inventory with network.Environment {
 
   // ----------------------------------------------------------------------- //
 
-  override def save(nbt: NBTTagCompound) = {
+  override def save(nbt: NBTTagCompound): Unit = {
     saveComponents()
     super.save(nbt) // Save items after updating their tags.
   }
 
-  def saveComponents() {
+  def saveComponents():Unit = {
     for (slot <- 0 until getSizeInventory) {
       val stack = getStackInSlot(slot)
       if (!stack.isEmpty) {
@@ -138,9 +139,9 @@ trait ComponentInventory extends Inventory with network.Environment {
           applyLifecycleState(component, Lifecycle.LifecycleState.Constructing)
           try {
             component.load(dataTag(driver, stack))
-          } catch {
+          } catch
             case e: Throwable => OpenComputers.log.warn(s"An item component of type '${component.getClass.getName}' (provided by driver '${driver.getClass.getName}') threw an error while loading.", e)
-          }
+          
           if (component.canUpdate) {
             assert(!updatingComponents.contains(component))
             updatingComponents += component
@@ -180,7 +181,7 @@ trait ComponentInventory extends Inventory with network.Environment {
 
   def isComponentSlot(slot: Int, stack: ItemStack) = true
 
-  protected def connectItemNode(node: Node) {
+  protected def connectItemNode(node: Node):Unit = {
     if (this.node != null && node != null) {
       this.node.connect(node)
     }
@@ -194,13 +195,13 @@ trait ComponentInventory extends Inventory with network.Environment {
       val tag = dataTag(driver, stack)
       // Clear the tag compound before saving to get the same behavior as
       // in tile entities (otherwise entries have to be cleared manually).
-      for (key <- tag.getKeySet.map(_.asInstanceOf[String])) {
+      val keys = immutable.Set.from(tag.getKeySet.asScala)
+      for (key <- keys) {
         tag.removeTag(key)
       }
       component.save(tag)
-    } catch {
+    } catch 
       case e: Throwable => OpenComputers.log.warn(s"An item component of type '${component.getClass.getName}' (provided by driver '${driver.getClass.getName}') threw an error while saving.", e)
-    }
   }
 
   protected def applyLifecycleState(component: AnyRef, state: Lifecycle.LifecycleState): Unit = component match {

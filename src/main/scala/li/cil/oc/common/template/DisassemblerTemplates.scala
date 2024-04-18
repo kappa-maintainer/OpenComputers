@@ -28,10 +28,10 @@ object DisassemblerTemplates {
                  val disassembler: Method) {
     def select(stack: ItemStack) = IMC.tryInvokeStatic(selector, stack)(false)
 
-    def disassemble(stack: ItemStack, ingredients: Array[ItemStack]) = IMC.tryInvokeStatic(disassembler, stack, ingredients)(null: Array[_]) match {
+    def disassemble(stack: ItemStack, ingredients: Array[ItemStack]) = IMC.tryInvokeStatic(disassembler, stack, ingredients)(null: Array[?]) match {
       case Array(stacks: Array[ItemStack], drops: Array[ItemStack]) => (Some(stacks), Some(drops))
-      case Array(stack: ItemStack, drops: Array[ItemStack]) => (Some(Array(stack)), Some(drops))
-      case Array(stacks: Array[ItemStack], drop: ItemStack) => (Some(stacks), Some(Array(drop)))
+      case Array(stack: ItemStack, drops: Array[ItemStack]) => (Some(Array[ItemStack](stack)), Some(drops))
+      case Array(stacks: Array[ItemStack], drop: ItemStack) => (Some(stacks), Some(Array[ItemStack](drop)))
       case stacks: Array[ItemStack] => (Some(stacks), None)
       case _ => (None, None)
     }

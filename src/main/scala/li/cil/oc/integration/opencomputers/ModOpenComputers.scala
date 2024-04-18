@@ -52,7 +52,7 @@ import net.minecraftforge.common.MinecraftForge
 object ModOpenComputers extends ModProxy {
   override def getMod = Mods.OpenComputers
 
-  override def initialize() {
+  override def initialize():Unit = {
     ItemBlacklist.apply()
 
     DroneTemplate.register()
@@ -373,7 +373,7 @@ object ModOpenComputers extends ModProxy {
       0
   }
 
-  private def blacklistHost(host: Class[_], itemNames: String*) {
+  private def blacklistHost(host: Class[?], itemNames: String*):Unit = {
     for (itemName <- itemNames) try {
       api.IMC.blacklistHost(itemName, host, api.Items.get(itemName).createItemStack(1))
     } catch {

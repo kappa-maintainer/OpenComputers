@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.opengl.GL11
 
 object RelayRenderer extends TileEntitySpecialRenderer[tileentity.Relay] {
-  override def render(switch: tileentity.Relay, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float) {
+  override def render(switch: tileentity.Relay, x: Double, y: Double, z: Double, f: Float, damage: Int, alpha: Float):Unit = {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - switch.lastMessage) / 1000.0)

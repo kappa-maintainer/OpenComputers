@@ -28,7 +28,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class DiskDrive extends traits.Environment with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo {
   // Used on client side to check whether to render disk activity indicators.
@@ -46,7 +46,7 @@ class DiskDrive extends traits.Environment with traits.ComponentInventory with t
     DeviceAttribute.Product -> "Spinner 520p1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
   // Environment
@@ -80,7 +80,7 @@ class DiskDrive extends traits.Environment with traits.ComponentInventory with t
   @Callback(doc = "function(): string -- Return the internal floppy disk address")
   def media(context: Context, args: Arguments): Array[AnyRef] = {
     if (filesystemNode.isEmpty)
-      result(Unit, "drive is empty")
+      result((), "drive is empty")
     else
       result(filesystemNode.head.address)
   }
@@ -103,7 +103,7 @@ class DiskDrive extends traits.Environment with traits.ComponentInventory with t
   // ----------------------------------------------------------------------- //
   // ComponentInventory
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack):Unit = {
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
@@ -117,7 +117,7 @@ class DiskDrive extends traits.Environment with traits.ComponentInventory with t
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack):Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) {
       ServerPacketSender.sendFloppyChange(this)
@@ -131,14 +131,14 @@ class DiskDrive extends traits.Environment with traits.ComponentInventory with t
   private final val DiskTag = Settings.namespace + "disk"
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     if (nbt.hasKey(DiskTag)) {
       setInventorySlotContents(0, new ItemStack(nbt.getCompoundTag(DiskTag)))
     }
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     if (!items(0).isEmpty) nbt.setNewCompoundTag(DiskTag, items(0).writeToNBT)
   }

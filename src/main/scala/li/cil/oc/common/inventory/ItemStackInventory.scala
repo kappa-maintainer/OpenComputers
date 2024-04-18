@@ -20,7 +20,7 @@ trait ItemStackInventory extends Inventory {
   }
 
   // Load items from tag.
-  def reinitialize() {
+  def reinitialize():Unit = {
     for (i <- items.indices) {
       updateItems(i, ItemStack.EMPTY)
     }
@@ -31,7 +31,7 @@ trait ItemStackInventory extends Inventory {
   }
 
   // Write items back to tag.
-  override def markDirty() {
+  override def markDirty():Unit = {
     if (!container.hasTagCompound) {
       container.setTagCompound(new NBTTagCompound())
     }

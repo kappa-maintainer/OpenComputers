@@ -15,7 +15,7 @@ object WirelessNetworkDebugRenderer {
   val colors = Array(0xFF0000, 0x00FFFF, 0x00FF00, 0x0000FF, 0xFF00FF, 0xFFFF00, 0xFFFFFF, 0x000000)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
+  def onRenderWorldLastEvent(e: RenderWorldLastEvent):Unit = {
     if (Settings.rTreeDebugRenderer) {
       RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
 
@@ -37,7 +37,7 @@ object WirelessNetworkDebugRenderer {
           GL11.glDisable(GL11.GL_DEPTH_TEST)
           GL11.glDisable(GL11.GL_CULL_FACE)
 
-          def drawBox(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double) {
+          def drawBox(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double):Unit = {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glVertex3d(minX, minY, minZ)
             GL11.glVertex3d(minX, minY, maxZ)

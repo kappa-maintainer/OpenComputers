@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -9,22 +8,22 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.network.{Connector, EnvironmentHost, Visibility}
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.api.network.ComponentConnector
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.language.existentials
 
 object Transposer {
 
   abstract class Common extends AbstractManagedEnvironment with traits.WorldInventoryAnalytics with traits.WorldTankAnalytics with traits.InventoryTransfer with DeviceInfo {
-    override val node = api.Network.newNode(this, Visibility.Network).
+    override val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
       withComponent("transposer").
       withConnector().
       create()
@@ -36,7 +35,7 @@ object Transposer {
       DeviceAttribute.Product -> "TP4k-iX"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
     override protected def checkSideForAction(args: Arguments, n: Int) =
       args.checkSideAny(n)

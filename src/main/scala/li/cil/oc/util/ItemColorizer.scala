@@ -24,7 +24,7 @@ object ItemColorizer {
     else -1
   }
 
-  def removeColor(stack: ItemStack) {
+  def removeColor(stack: ItemStack):Unit = {
     val tag = stack.getTagCompound
     if (tag != null) {
       val displayTag = tag.getCompoundTag("display")
@@ -32,7 +32,7 @@ object ItemColorizer {
     }
   }
 
-  def setColor(stack: ItemStack, color: Int) {
+  def setColor(stack: ItemStack, color: Int):Unit = {
     var tag = stack.getTagCompound
     if (tag == null) {
       tag = new NBTTagCompound

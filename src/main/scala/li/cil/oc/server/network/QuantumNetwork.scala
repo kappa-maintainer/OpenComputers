@@ -8,11 +8,11 @@ import scala.collection.mutable
 object QuantumNetwork {
   val tunnels = mutable.Map.empty[String, mutable.WeakHashMap[QuantumNode, Unit]]
 
-  def add(card: QuantumNode) {
-    tunnels.getOrElseUpdate(card.tunnel, mutable.WeakHashMap.empty).put(card, Unit)
+  def add(card: QuantumNode):Unit = {
+    tunnels.getOrElseUpdate(card.tunnel, mutable.WeakHashMap.empty).put(card, ())
   }
 
-  def remove(card: QuantumNode) {
+  def remove(card: QuantumNode):Unit = {
     tunnels.get(card.tunnel).foreach(_.remove(card))
   }
 

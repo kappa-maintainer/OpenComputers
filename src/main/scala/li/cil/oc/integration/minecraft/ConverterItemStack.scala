@@ -15,7 +15,7 @@ import net.minecraft.nbt.{NBTTagCompound, NBTTagList, NBTTagString}
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.oredict.OreDictionary
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object ConverterItemStack extends api.driver.Converter {
@@ -49,16 +49,16 @@ object ConverterItemStack extends api.driver.Converter {
     value match {
       case stack: item.ItemStack =>
         if (Settings.get.insertIdsInConverters) {
-          output += "id" -> Int.box(Item.getIdFromItem(stack.getItem))
-          output += "oreNames" -> OreDictionary.getOreIDs(stack).map(OreDictionary.getOreName)
+          output.asScala += "id" -> Int.box(Item.getIdFromItem(stack.getItem))
+          output.asScala += "oreNames" -> OreDictionary.getOreIDs(stack).map(OreDictionary.getOreName)
         }
-        output += "damage" -> Int.box(stack.getItemDamage)
-        output += "maxDamage" -> Int.box(stack.getMaxDamage)
-        output += "size" -> Int.box(stack.getCount)
-        output += "maxSize" -> Int.box(stack.getMaxStackSize)
-        output += "hasTag" -> Boolean.box(stack.hasTagCompound)
-        output += "name" -> Item.REGISTRY.getNameForObject(stack.getItem)
-        output += "label" -> stack.getDisplayName
+        output.asScala += "damage" -> Int.box(stack.getItemDamage)
+        output.asScala += "maxDamage" -> Int.box(stack.getMaxDamage)
+        output.asScala += "size" -> Int.box(stack.getCount)
+        output.asScala += "maxSize" -> Int.box(stack.getMaxStackSize)
+        output.asScala += "hasTag" -> Boolean.box(stack.hasTagCompound)
+        output.asScala += "name" -> Item.REGISTRY.getNameForObject(stack.getItem)
+        output.asScala += "label" -> stack.getDisplayName
 
         // custom mod tags
         if (stack.hasTagCompound) {
@@ -66,36 +66,36 @@ object ConverterItemStack extends api.driver.Converter {
 
           //Lore tags
           withCompound(tags, "display", withList(_, "Lore", {
-              output += "lore" -> _.map((tag: NBTTagString) => tag.getString).mkString("\n")
+              output.asScala += "lore" -> _.map((tag: NBTTagString) => tag.getString).mkString("\n")
             })
           )
 
           // IC2 reactor items custom damage
-          withTag(tags, "advDmg", NBT.TAG_INT, dmg => output += "customDamage" -> dmg)
+          withTag(tags, "advDmg", NBT.TAG_INT, dmg => output.asScala += "customDamage" -> dmg)
 
           // draconic upgrades
           if (Mods.DraconicEvolution.isModAvailable) {
             withCompound(tags, "DEUpgrades", de => {
-              output += "DEUpgrades" -> de
+              output.asScala += "DEUpgrades" -> de
             })
             (0 until 15).foreach(n => {
               val profileName: String = s"Profile_$n"
               Option(getTagValue(tags, profileName)) match {
-                case Some(profile: NBTTagCompound) => output += profileName -> profile
+                case Some(profile: NBTTagCompound) => output.asScala += profileName -> profile
                 case _ =>
               }
             })
           }
 
-          withTag(tags, "Energy", NBT.TAG_INT, value => output += "Energy" -> value)
+          withTag(tags, "Energy", NBT.TAG_INT, value => output.asScala += "Energy" -> value)
 
           if (Settings.get.allowItemStackNBTTags) {
-            output += "tag" -> ItemUtils.saveTag(stack.getTagCompound)
+            output.asScala += "tag" -> ItemUtils.saveTag(stack.getTagCompound)
           }
         }
 
         val enchantments = mutable.ArrayBuffer.empty[mutable.Map[String, Any]]
-        EnchantmentHelper.getEnchantments(stack).collect {
+        EnchantmentHelper.getEnchantments(stack).asScala.collect {
           case (enchantment, level) =>
             val map = mutable.Map[String, Any](
               "name" -> enchantment.getName,
@@ -105,7 +105,7 @@ object ConverterItemStack extends api.driver.Converter {
             enchantments += map
         }
         if (enchantments.nonEmpty) {
-          output += "enchantments" -> enchantments
+          output.asScala += "enchantments" -> enchantments
         }
       case _ =>
     }

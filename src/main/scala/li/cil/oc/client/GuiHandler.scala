@@ -73,7 +73,7 @@ object GuiHandler extends CommonGuiHandler {
             new gui.Drone(player.inventory, drone)
           case _ => null
         }
-      case Some(GuiType.Category.Item) => {
+      case Some(GuiType.Category.Item) =>
         val itemStackInUse = getItemStackInUse(id, player)
         Delegator.subItem(itemStackInUse) match {
           case Some(drive: item.traits.FileSystemLike) if id == GuiType.Drive.id =>
@@ -120,23 +120,28 @@ object GuiHandler extends CommonGuiHandler {
               if (!Strings.isNullOrEmpty(key) && !Strings.isNullOrEmpty(address)) {
                 component.TerminalServer.loaded.find(address) match {
                   case Some(term) if term != null && term.rack != null => term.rack match {
-                    case rack: TileEntity with api.internal.Rack =>
+                    case rack: (TileEntity & api.internal.Rack) =>
                       def inRange = player.isEntityAlive && !rack.isInvalid && rack.getDistanceSq(player.posX, player.posY, player.posZ) < term.range * term.range
-                    if (inRange) {
-                        if (term.sidedKeys.contains(key)) return new gui.Screen(term.buffer, true, () => true, () => {
-                        // Check if someone else bound a term to our server.
-                        if (stack.getTagCompound.getString(Settings.namespace + "key") != key) {
-                          Minecraft.getMinecraft.displayGuiScreen(null)
-                        }
-                        // Check whether we're still in range.
-                        if (!inRange) {
-                          Minecraft.getMinecraft.displayGuiScreen(null)
-                        }
-                        true
-                      })
-                      else player.sendMessage(Localization.Terminal.InvalidKey)
-                    }
-                    else player.sendMessage(Localization.Terminal.OutOfRange)
+                      if (inRange) {
+                        if (term.sidedKeys.contains(key)) 
+                          return new gui.Screen(
+                            term.buffer, 
+                            true, 
+                            () => true, 
+                            () => {
+                              // Check if someone else bound a term to our server.
+                              if (stack.getTagCompound.getString(Settings.namespace + "key") != key) {
+                                Minecraft.getMinecraft.displayGuiScreen(null)
+                              }
+                              // Check whether we're still in range.
+                              if (!inRange) {
+                                Minecraft.getMinecraft.displayGuiScreen(null)
+                              }
+                              true
+                        })
+                        else player.sendMessage(Localization.Terminal.InvalidKey)
+                      }
+                      else player.sendMessage(Localization.Terminal.OutOfRange)
                     case _ => // Eh?
                   }
                   case _ => player.sendMessage(Localization.Terminal.OutOfRange)
@@ -146,7 +151,6 @@ object GuiHandler extends CommonGuiHandler {
             null
           case _ => null
         }
-      }
       case Some(GuiType.Category.None) =>
         if (id == GuiType.Manual.id) new gui.Manual()
         else null

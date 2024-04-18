@@ -22,7 +22,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
 
   private var mx, my = -1
 
-  override def handleMouseInput() {
+  override def handleMouseInput() : Unit = {
     super.handleMouseInput()
     if (hasMouse && Mouse.hasWheel && Mouse.getEventDWheel != 0) {
       val mouseX = Mouse.getEventX * width / mc.displayWidth
@@ -36,7 +36,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     }
   }
 
-  override protected def mouseClicked(mouseX: Int, mouseY: Int, button: Int) {
+  override protected def mouseClicked(mouseX: Int, mouseY: Int, button: Int) : Unit = {
     super.mouseClicked(mouseX, mouseY, button)
     if (hasMouse) {
       if (button == 0 || button == 1) {
@@ -45,7 +45,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     }
   }
 
-  protected override def mouseClickMove(mouseX: Int, mouseY: Int, button: Int, timeSinceLast: Long) {
+  protected override def mouseClickMove(mouseX: Int, mouseY: Int, button: Int, timeSinceLast: Long) : Unit = {
     super.mouseClickMove(mouseX, mouseY, button, timeSinceLast)
     if (hasMouse && timeSinceLast > 10) {
       if (button == 0 || button == 1) {
@@ -54,7 +54,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     }
   }
 
-  override protected def mouseReleased(mouseX: Int, mouseY: Int, button: Int) {
+  override protected def mouseReleased(mouseX: Int, mouseY: Int, button: Int) : Unit = {
     super.mouseReleased(mouseX, mouseY, button)
     if (hasMouse && button >= 0) {
       if (didClick) {
@@ -69,7 +69,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     }
   }
 
-  private def clickOrDrag(mouseX: Int, mouseY: Int, button: Int) {
+  private def clickOrDrag(mouseX: Int, mouseY: Int, button: Int) : Unit = {
     toBufferCoordinates(mouseX, mouseY) match {
       case Some((bx, by)) if bx.toInt != mx || (by*2).toInt != my =>
         if (mx >= 0 && my >= 0) buffer.mouseDrag(bx, by, button, null)
@@ -95,11 +95,11 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     drawBufferLayer()
   }
 
-  override def drawBuffer() {
-    GlStateManager.translate(x, y, 0)
+  override def drawBuffer() : Unit = {
+    GlStateManager.translate(x.toFloat, y.toFloat, 0)
     BufferRenderer.drawBackground()
     if (hasPower()) {
-      GlStateManager.translate(bufferMargin, bufferMargin, 0)
+      GlStateManager.translate(bufferMargin.toFloat, bufferMargin.toFloat, 0)
       GlStateManager.scale(scale, scale, 1)
       RenderState.makeItBlend()
       BufferRenderer.drawText(buffer)

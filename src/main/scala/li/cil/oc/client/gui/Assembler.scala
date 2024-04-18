@@ -15,19 +15,19 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.Slot
 import net.minecraft.util.text.ITextComponent
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
+
 
 class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Assembler) extends DynamicGuiContainer(new container.Assembler(playerInventory, assembler)) {
   xSize = 176
   ySize = 192
 
-  for (slot <- inventorySlots.inventorySlots) slot match {
+  for (slot <- inventorySlots.inventorySlots.asScala) slot match {
     case component: ComponentSlot => component.changeListener = Option(onSlotChanged)
     case _ =>
   }
 
-  private def onSlotChanged(slot: Slot) {
+  private def onSlotChanged(slot: Slot):Unit =  {
     runButton.enabled = canBuild
     runButton.toggled = !runButton.enabled
     info = validate
@@ -35,7 +35,7 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
 
   var info: Option[(Boolean, ITextComponent, Array[ITextComponent])] = None
 
-  protected var runButton: ImageButton = _
+  protected var runButton: ImageButton = scala.compiletime.uninitialized
 
   private val progress = addWidget(new ProgressBar(28, 92))
 
@@ -43,13 +43,13 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
 
   private def canBuild = !inventoryContainer.isAssembling && validate.exists(_._1)
 
-  protected override def actionPerformed(button: GuiButton) {
+  protected override def actionPerformed(button: GuiButton):Unit = {
     if (button.id == 0 && canBuild) {
       ClientPacketSender.sendRobotAssemblerStart(assembler)
     }
   }
 
-  override def initGui() {
+  override def initGui():Unit = {
     super.initGui()
     runButton = new ImageButton(0, guiLeft + 7, guiTop + 89, 18, 18, Textures.GUI.ButtonRun, canToggle = true)
     add(buttonList, runButton)
@@ -73,7 +73,7 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
         tooltip.add(Localization.Assembler.Run)
         info.foreach {
           case (valid, _, warnings) => if (valid && warnings.length > 0) {
-            tooltip.addAll(warnings.map(_.getUnformattedText).toList)
+            tooltip.addAll(warnings.map(_.getUnformattedText).toList.asJavaCollection)
           }
         }
         copiedDrawHoveringText(tooltip, mouseX - guiLeft, mouseY - guiTop, fontRenderer)
@@ -94,7 +94,7 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
     else f"${seconds / 60}:${seconds % 60}%02d"
   }
 
-  override def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int) {
+  override def drawGuiContainerBackgroundLayer(dt: Float, mouseX: Int, mouseY: Int):Unit = {
     GlStateManager.color(1, 1, 1) // Required under Linux.
     Textures.bind(Textures.GUI.RobotAssembler)
     drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
@@ -104,5 +104,5 @@ class Assembler(playerInventory: InventoryPlayer, val assembler: tileentity.Asse
     drawInventorySlots()
   }
 
-  override protected def drawDisabledSlot(slot: ComponentSlot) {}
+  override protected def drawDisabledSlot(slot: ComponentSlot):Unit = {}
 }

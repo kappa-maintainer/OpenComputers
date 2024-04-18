@@ -31,7 +31,7 @@ trait SimpleItem extends Item {
   }
 
   @SideOnly(Side.CLIENT)
-  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  override def addInformation(stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     tooltip.addAll(Tooltip.get(getClass.getSimpleName.toLowerCase))
 
     if (stack.hasTagCompound && stack.getTagCompound.hasKey(Settings.namespace + "data")) {

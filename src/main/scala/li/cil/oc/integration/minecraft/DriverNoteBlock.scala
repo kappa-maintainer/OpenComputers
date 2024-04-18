@@ -19,7 +19,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object DriverNoteBlock extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[TileEntityNote]
+  override def getTileEntityClass: Class[?] = classOf[TileEntityNote]
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileEntityNote])
@@ -63,7 +63,7 @@ object DriverNoteBlock extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] = {
+    override def getEnvironment(stack: ItemStack): Class[?] = {
       if (!stack.isEmpty && Block.getBlockFromItem(stack.getItem) == Blocks.NOTEBLOCK)
         classOf[Environment]
       else null

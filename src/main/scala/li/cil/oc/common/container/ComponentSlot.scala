@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 abstract class ComponentSlot(inventory: IInventory, index: Int, x: Int, y: Int) extends Slot(inventory, index, x, y) {
   def container: Player
@@ -32,7 +32,7 @@ abstract class ComponentSlot(inventory: IInventory, index: Int, x: Int, y: Int) 
   override def isItemValid(stack: ItemStack) = inventory.isItemValidForSlot(getSlotIndex, stack)
 
   override def onTake(player: EntityPlayer, stack: ItemStack) = {
-    for (slot <- container.inventorySlots) slot match {
+    for (slot <- container.inventorySlots.asScala) slot match {
       case dynamic: ComponentSlot => dynamic.clearIfInvalid(player)
       case _ =>
     }
@@ -48,14 +48,14 @@ abstract class ComponentSlot(inventory: IInventory, index: Int, x: Int, y: Int) 
     }
   }
 
-  override def onSlotChanged() {
+  override def onSlotChanged():Unit = {
     super.onSlotChanged()
-    for (slot <- container.inventorySlots) slot match {
+    for (slot <- container.inventorySlots.asScala) slot match {
       case dynamic: ComponentSlot => dynamic.clearIfInvalid(container.playerInventory.player)
       case _ =>
     }
     changeListener.foreach(_(this))
   }
 
-  protected def clearIfInvalid(player: EntityPlayer) {}
+  protected def clearIfInvalid(player: EntityPlayer):Unit = {}
 }

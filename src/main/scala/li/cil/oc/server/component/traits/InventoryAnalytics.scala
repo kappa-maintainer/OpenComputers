@@ -18,7 +18,7 @@ trait InventoryAnalytics extends InventoryAware with NetworkAware {
     val slot = optSlot(args, 0)
     result(inventory.getStackInSlot(slot))
   }
-  else result(Unit, "not enabled in config")
+  else result((), "not enabled in config")
 
   @Callback(doc = """function(otherSlot:number):boolean -- Get whether the stack in the selected slot is equivalent to the item in the specified slot (have shared OreDictionary IDs).""")
   def isEquivalentTo(context: Context, args: Arguments): Array[AnyRef] = {

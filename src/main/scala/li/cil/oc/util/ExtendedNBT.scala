@@ -6,7 +6,7 @@ import net.minecraft.nbt._
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.language.reflectiveCalls
@@ -50,7 +50,7 @@ object ExtendedNBT {
     nbt
   }
 
-  implicit def toNbt(value: Map[String, _]): NBTTagCompound = {
+  implicit def toNbt(value: Map[String, ?]): NBTTagCompound = {
     val nbt = new NBTTagCompound()
     for ((key, value) <- value) value match {
       case value: Boolean => nbt.setTag(key, value)
@@ -69,23 +69,23 @@ object ExtendedNBT {
     nbt
   }
 
-  def typedMapToNbt(map: Map[_, _]): NBTBase = {
-    def mapToList(value: Array[(_, _)]) = value.collect {
+  def typedMapToNbt(map: Map[?, ?]): NBTBase = {
+    def mapToList(value: Array[(?, ?)]) = value.collect {
       // Ignore, can be stuff like the 'n' introduced by Lua's `pack`.
       case (k: Number, v) => k -> v
     }.sortBy(_._1.intValue()).map(_._2)
-    def asList(value: Option[Any]): IndexedSeq[_] = value match {
+    def asList(value: Option[Any]): IndexedSeq[?] = value match {
       case Some(v: Array[_]) => v
       case Some(v: Map[_, _]) => mapToList(v.toArray)
       case Some(v: mutable.Map[_, _]) => mapToList(v.toArray)
-      case Some(v: java.util.Map[_, _]) => mapToList(mapAsScalaMap(v).toArray)
+      case Some(v: java.util.Map[_, _]) => mapToList(v.asScala.toArray)
       case Some(v: String) => v.getBytes(Charsets.UTF_8)
       case _ => throw new IllegalArgumentException("Illegal or missing value.")
     }
-    def asMap[K](value: Option[Any]): Map[K, _] = value match {
+    def asMap[K](value: Option[Any]): Map[K, ?] = value match {
       case Some(v: Map[K, _]@unchecked) => v
       case Some(v: mutable.Map[K, _]@unchecked) => v.toMap
-      case Some(v: java.util.Map[K, _]@unchecked) => mapAsScalaMap(v).toMap
+      case Some(v: java.util.Map[K, _]@unchecked) => v.asScala.toMap
       case _ => throw new IllegalArgumentException("Illegal value.")
     }
     val typeAndValue = asMap[String](Option(map))
@@ -193,7 +193,7 @@ object ExtendedNBT {
   implicit def extendNBTTagList(nbt: NBTTagList): ExtendedNBTTagList = new ExtendedNBTTagList(nbt)
 
   class ExtendedNBTBase(val nbt: NBTBase) {
-    def toTypedMap: Map[String, _] = Map("type" -> nbt.getId, "value" -> (nbt match {
+    def toTypedMap: Map[String, ?] = Map("type" -> nbt.getId, "value" -> (nbt match {
       case tag: NBTTagByte => tag.getByte
       case tag: NBTTagShort => tag.getShort
       case tag: NBTTagInt => tag.getInt
@@ -203,7 +203,7 @@ object ExtendedNBT {
       case tag: NBTTagByteArray => tag.getByteArray
       case tag: NBTTagString => tag.getString
       case tag: NBTTagList => tag.map((entry: NBTBase) => entry.toTypedMap)
-      case tag: NBTTagCompound => tag.getKeySet.collect {
+      case tag: NBTTagCompound => tag.getKeySet.asScala.collect {
         case key: String => key -> tag.getTag(key).toTypedMap
       }.toMap
       case tag: NBTTagIntArray => tag.getIntArray
@@ -248,13 +248,13 @@ object ExtendedNBT {
   }
 
   class ExtendedNBTTagList(val nbt: NBTTagList) {
-    def appendNewCompoundTag(f: (NBTTagCompound) => Unit) {
+    def appendNewCompoundTag(f: (NBTTagCompound) => Unit): Unit = {
       val t = new NBTTagCompound()
       f(t)
       nbt.appendTag(t)
     }
 
-    def append(values: Iterable[NBTBase]) {
+    def append(values: Iterable[NBTBase]): Unit = {
       for (value <- values) {
         nbt.appendTag(value)
       }
@@ -262,7 +262,7 @@ object ExtendedNBT {
 
     def append(values: NBTBase*): Unit = append(values)
 
-    def foreach[Tag <: NBTBase](f: Tag => Unit) {
+    def foreach[Tag <: NBTBase](f: Tag => Unit):Unit = {
       val iterable = nbt.copy(): NBTTagList
       while (iterable.tagCount > 0) {
         f(iterable.removeTag(0).asInstanceOf[Tag])
@@ -275,7 +275,7 @@ object ExtendedNBT {
       while (iterable.tagCount > 0) {
         buffer += f(iterable.removeTag(0).asInstanceOf[Tag])
       }
-      buffer
+      buffer.toIndexedSeq
     }
 
     def toArray[Tag: ClassTag] = map((t: Tag) => t).toArray

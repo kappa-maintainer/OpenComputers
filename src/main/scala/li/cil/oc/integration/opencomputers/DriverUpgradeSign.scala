@@ -20,15 +20,15 @@ object DriverUpgradeSign extends Item with HostAware {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (host.world != null && host.world.isRemote) null
     else host match {
-      case rotatable: EnvironmentHost with Rotatable => new UpgradeSignInRotatable(rotatable)
-      case adapter: EnvironmentHost with Adapter => new UpgradeSignInAdapter(adapter)
+      case rotatable: (EnvironmentHost & Rotatable) => new UpgradeSignInRotatable(rotatable)
+      case adapter: (EnvironmentHost & Adapter) => new UpgradeSignInAdapter(adapter)
       case _ => null
     }
 
   override def slot(stack: ItemStack) = Slot.Upgrade
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] =
+    override def getEnvironment(stack: ItemStack): Class[?] =
       if (worksWith(stack))
         classOf[component.UpgradeSign]
       else null

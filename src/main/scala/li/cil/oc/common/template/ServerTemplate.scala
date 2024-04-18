@@ -21,7 +21,7 @@ object ServerTemplate {
     Array(ingredients, (0 until info.getSizeInventory).map(info.getStackInSlot).filter(null !=).toArray)
   }
 
-  def register() {
+  def register():Unit = {
     // Disassembler
     api.IMC.registerDisassemblerTemplate("Server",
       "li.cil.oc.common.template.ServerTemplate.selectDisassembler",

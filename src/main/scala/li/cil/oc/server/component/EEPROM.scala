@@ -17,7 +17,7 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import net.minecraft.nbt.NBTTagCompound
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Neighbors).
@@ -46,7 +46,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
     DeviceAttribute.Size -> Settings.get.eepromSize.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -56,10 +56,10 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   @Callback(doc = """function(data:string) -- Overwrite the currently stored byte array.""")
   def set(context: Context, args: Arguments): Array[AnyRef] = {
     if (readonly) {
-      return result(Unit, "storage is readonly")
+      return result((), "storage is readonly")
     }
     if (!node.tryChangeBuffer(-Settings.get.eepromWriteCost)) {
-      return result(Unit, "not enough energy")
+      return result((), "not enough energy")
     }
     val newData = args.optByteArray(0, Array.empty[Byte])
     if (newData.length > Settings.get.eepromSize) throw new IllegalArgumentException("not enough space")
@@ -74,7 +74,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   @Callback(doc = """function(data:string):string -- Set the label of the EEPROM.""")
   def setLabel(context: Context, args: Arguments): Array[AnyRef] = {
     if (readonly) {
-      return result(Unit, "storage is readonly")
+      return result((), "storage is readonly")
     }
     label = args.optString(0, "EEPROM").trim.take(24)
     if (label.length == 0) label = "EEPROM"
@@ -93,7 +93,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
       readonly = true
       result(true)
     }
-    else result(Unit, "incorrect checksum")
+    else result((), "incorrect checksum")
   }
 
   @Callback(direct = true, doc = """function():number -- Get the storage capacity of this EEPROM.""")
@@ -105,7 +105,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   @Callback(doc = """function(data:string) -- Overwrite the currently stored byte array.""")
   def setData(context: Context, args: Arguments): Array[AnyRef] = {
     if (!node.tryChangeBuffer(-Settings.get.eepromWriteCost)) {
-      return result(Unit, "not enough energy")
+      return result((), "not enough energy")
     }
     val newData = args.optByteArray(0, Array.empty[Byte])
     if (newData.length > Settings.get.eepromDataSize) throw new IllegalArgumentException("not enough space")
@@ -121,7 +121,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
   private final val ReadonlyTag = Settings.namespace + "readonly"
   private final val UserdataTag = Settings.namespace + "userdata"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     codeData = nbt.getByteArray(EEPROMTag)
     if (nbt.hasKey(LabelTag)) {
@@ -131,7 +131,7 @@ class EEPROM extends AbstractManagedEnvironment with DeviceInfo {
     volatileData = nbt.getByteArray(UserdataTag)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     nbt.setByteArray(EEPROMTag, codeData)
     nbt.setString(LabelTag, label)

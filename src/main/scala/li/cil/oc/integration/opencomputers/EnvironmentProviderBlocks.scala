@@ -20,7 +20,7 @@ import net.minecraft.item.ItemStack
  * and therefore have item drivers.
  */
 object EnvironmentProviderBlocks extends EnvironmentProvider {
-  override def getEnvironment(stack: ItemStack): Class[_] = stack.getItem match {
+  override def getEnvironment(stack: ItemStack): Class[?] = stack.getItem match {
     case block: ItemBlock if block.getBlock != null =>
       if (isOneOf(block.getBlock, Constants.BlockName.Assembler)) classOf[tileentity.Assembler]
       else if (isOneOf(block.getBlock, Constants.BlockName.CaseTier1, Constants.BlockName.CaseTier2, Constants.BlockName.CaseTier3, Constants.BlockName.CaseCreative, Constants.BlockName.Microcontroller)) classOf[Machine]
@@ -28,13 +28,13 @@ object EnvironmentProviderBlocks extends EnvironmentProvider {
       else if (isOneOf(block.getBlock, Constants.BlockName.Printer)) classOf[tileentity.Printer]
       else if (isOneOf(block.getBlock, Constants.BlockName.Relay)) classOf[tileentity.Relay]
       else if (isOneOf(block.getBlock, Constants.BlockName.Redstone)) if (BundledRedstone.isAvailable) classOf[component.Redstone.Bundled] else classOf[component.Redstone.Vanilla]
-      else if (isOneOf(block.getBlock, Constants.BlockName.ScreenTier1)) classOf[common.component.TextBuffer]: Class[_ <: Environment]
+      else if (isOneOf(block.getBlock, Constants.BlockName.ScreenTier1)) classOf[common.component.TextBuffer]: Class[? <: Environment]
       else if (isOneOf(block.getBlock, Constants.BlockName.ScreenTier2, Constants.BlockName.ScreenTier3)) classOf[common.component.Screen]
-      else if (isOneOf(block.getBlock, Constants.BlockName.Robot)) classOf[component.Robot]: Class[_ <: Environment]
-      else if (isOneOf(block.getBlock, Constants.BlockName.Waypoint)) classOf[tileentity.Waypoint]: Class[_ <: Environment]
+      else if (isOneOf(block.getBlock, Constants.BlockName.Robot)) classOf[component.Robot]: Class[? <: Environment]
+      else if (isOneOf(block.getBlock, Constants.BlockName.Waypoint)) classOf[tileentity.Waypoint]: Class[? <: Environment]
       else null
     case _ =>
-      if (api.Items.get(stack) == api.Items.get(Constants.ItemName.Drone)) classOf[component.Drone]: Class[_ <: Environment]
+      if (api.Items.get(stack) == api.Items.get(Constants.ItemName.Drone)) classOf[component.Drone]: Class[? <: Environment]
       else null
   }
 

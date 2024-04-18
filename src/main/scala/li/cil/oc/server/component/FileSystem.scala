@@ -29,7 +29,7 @@ import net.minecraft.nbt.NBTTagIntArray
 import net.minecraft.nbt.NBTTagList
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option[EnvironmentHost], val sound: Option[String], val speed: Int) extends AbstractManagedEnvironment with DeviceInfo {
@@ -56,7 +56,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     DeviceAttribute.Clock -> (((2000 / readCosts(speed)).toInt / 100).toString + "/" + ((2000 / seekCosts(speed)).toInt / 100).toString + "/" + ((2000 / writeCosts(speed)).toInt / 100).toString)
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -197,7 +197,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
           result(bytes)
         }
         else {
-          result(Unit)
+          result(())
         }
       case _ => throw new IOException("bad file descriptor")
     }
@@ -303,13 +303,13 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
 
   // ----------------------------------------------------------------------- //
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
 
     nbt.getTagList("owners", NBT.TAG_COMPOUND).foreach((ownerNbt: NBTTagCompound) => {
       val address = ownerNbt.getString("address")
       if (address != "") {
-        owners += address -> ownerNbt.getIntArray("handles").to[mutable.Set]
+        owners += address -> mutable.Set.from(ownerNbt.getIntArray("handles"))
       }
     })
 
@@ -319,7 +319,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     fileSystem.load(nbt.getCompoundTag("fs"))
   }
 
-  override def save(nbt: NBTTagCompound) = fileSystem.synchronized {
+  override def save(nbt: NBTTagCompound):Unit = fileSystem.synchronized {
     super.save(nbt)
 
     if (label != null) {
@@ -360,7 +360,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     if (!owners.contains(owner) || !owners(owner).contains(handle))
       throw new IOException("bad file descriptor")
 
-  private def diskActivity() {
+  private def diskActivity():Unit = {
     (sound, host) match {
       case (Some(s), Some(h)) => ServerPacketSender.sendFileSystemActivity(node, h, s)
       case _ =>

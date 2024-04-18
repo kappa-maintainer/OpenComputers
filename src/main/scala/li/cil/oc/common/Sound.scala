@@ -11,7 +11,7 @@ import scala.collection.mutable
 object Sound {
   val globalTimeouts = mutable.WeakHashMap.empty[EnvironmentHost, mutable.Map[String, Long]]
 
-  def play(host: EnvironmentHost, name: String) = this.synchronized {
+  def play(host: EnvironmentHost, name: String): Unit = this.synchronized {
     globalTimeouts.get(host) match {
       case Some(hostTimeouts) if hostTimeouts.getOrElse(name, 0L) > System.currentTimeMillis() => // Cooldown.
       case _ =>
@@ -20,11 +20,11 @@ object Sound {
     }
   }
 
-  def playDiskInsert(host: EnvironmentHost) {
+  def playDiskInsert(host: EnvironmentHost):Unit = {
     play(host, "floppy_insert")
   }
 
-  def playDiskEject(host: EnvironmentHost) {
+  def playDiskEject(host: EnvironmentHost):Unit = {
     play(host, "floppy_eject")
   }
 }

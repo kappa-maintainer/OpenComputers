@@ -9,23 +9,23 @@ import li.cil.oc.common.tileentity.traits.BundledRedstoneAware
 import li.cil.oc.common.tileentity.traits.RedstoneAware
 import li.cil.oc.server.component
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 object Redstone {
 
-  class Vanilla(val redstone: EnvironmentHost with RedstoneAware)
+  class Vanilla(val redstone: EnvironmentHost & RedstoneAware)
     extends component.RedstoneVanilla
 
-  class Bundled(val redstone: EnvironmentHost with BundledRedstoneAware)
+  class Bundled(val redstone: EnvironmentHost & BundledRedstoneAware)
     extends component.RedstoneVanilla with component.RedstoneBundled
 
   class Wireless(val redstone: EnvironmentHost)
     extends component.RedstoneWireless
 
-  class VanillaWireless(val redstone: EnvironmentHost with RedstoneAware)
+  class VanillaWireless(val redstone: EnvironmentHost & RedstoneAware)
     extends component.RedstoneVanilla with component.RedstoneWireless
 
-  class BundledWireless(val redstone: EnvironmentHost with BundledRedstoneAware)
+  class BundledWireless(val redstone: EnvironmentHost & BundledRedstoneAware)
     extends component.RedstoneVanilla with component.RedstoneBundled with component.RedstoneWireless {
     private final lazy val deviceInfo = Map(
       DeviceAttribute.Class -> DeviceClass.Communication,
@@ -36,6 +36,6 @@ object Redstone {
       DeviceAttribute.Width -> "16"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
   }
 }

@@ -32,7 +32,7 @@ object RotationHelper {
       val t = translationFor(pitch, yaw)
       t.indices.
         map(EnumFacing.byIndex).
-        map(t.indexOf).
+        map(t.indexOf(_)).
         map(EnumFacing.byIndex).
         toArray
     }))

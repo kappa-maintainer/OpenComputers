@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.math.Vec3d
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object MagnetProvider extends ScalaProvider("9324d5ec-71f1-41c2-b51c-406e527668fc") {
   override def createScalaBehaviors(player: EntityPlayer) = Iterable(new MagnetBehavior(player))
@@ -23,8 +23,8 @@ object MagnetProvider extends ScalaProvider("9324d5ec-71f1-41c2-b51c-406e527668f
       if (!world.isRemote) {
         val actualRange = Settings.get.nanomachineMagnetRange * api.Nanomachines.getController(player).getInputCount(this)
         val items = world.getEntitiesWithinAABB(classOf[EntityItem], player.getEntityBoundingBox.grow(actualRange, actualRange, actualRange))
-        items.collect {
-          case item: EntityItem if !item.cannotPickup && !item.getItem.isEmpty && player.inventory.mainInventory.exists(stack => stack.isEmpty || stack.getCount < stack.getMaxStackSize && stack.isItemEqual(item.getItem)) =>
+        items.asScala.collect {
+          case item: EntityItem if !item.cannotPickup && !item.getItem.isEmpty && player.inventory.mainInventory.asScala.exists(stack => stack.isEmpty || stack.getCount < stack.getMaxStackSize && stack.isItemEqual(item.getItem)) =>
             val dx = player.posX - item.posX
             val dy = player.posY - item.posY
             val dz = player.posZ - item.posZ

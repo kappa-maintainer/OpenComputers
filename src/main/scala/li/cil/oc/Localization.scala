@@ -14,17 +14,17 @@ import scala.util.matching.Regex
 object Localization {
   private val nl = Regex.quote("[nl]")
 
-  private def resolveKey(key: String) = if (canLocalize(Settings.namespace + key)) Option(Settings.namespace + key) else Option.empty
+  private def resolveKey(key: String) = if (canLocalize(Settings.namespace + key)) Option(Settings.namespace + key) else Option(key)
 
   def canLocalize(key: String): Boolean = I18n.canTranslate(key)
 
-  def localizeLater(formatKey: String, values: AnyRef*) = new TextComponentTranslation(resolveKey(formatKey).getOrElse(formatKey), values: _*)
+  def localizeLater(formatKey: String, values: AnyRef*) = new TextComponentTranslation(resolveKey(formatKey).getOrElse(formatKey), values*)
 
   def localizeLater(key: String) = resolveKey(key).map(k => new TextComponentTranslation(k)).getOrElse(new TextComponentString(key))
 
-  def localizeImmediately(formatKey: String, values: AnyRef*) = I18n.translateToLocalFormatted(resolveKey(formatKey).getOrElse(formatKey), values: _*).split(nl).map(_.trim).mkString("\n")
+  def localizeImmediately(formatKey: String, values: AnyRef*) = I18n.translateToLocalFormatted(resolveKey(formatKey).getOrElse(formatKey), values*).split(nl).map(_.trim).mkString("\n")
 
-  def localizeImmediately(key: String) = resolveKey(key).map(k => I18n.translateToLocal(k)).getOrElse(key).split(nl).map(_.trim).mkString("\n")
+  def localizeImmediately(key: String) = resolveKey(key).map(k => I18n.translateToLocal(k)).get.split(nl).map(_.trim).mkString("\n")
 
   object Analyzer {
     def Address(value: String): TextComponentTranslation = {
@@ -36,11 +36,11 @@ object Localization {
 
     def AddressCopied: TextComponentTranslation = localizeLater("gui.Analyzer.AddressCopied")
 
-    def ChargerSpeed(value: Double): TextComponentTranslation = localizeLater("gui.Analyzer.ChargerSpeed", (value * 100).toInt + "%")
+    def ChargerSpeed(value: Double): TextComponentTranslation = localizeLater("gui.Analyzer.ChargerSpeed", s"${(value * 100).toInt}%")
 
     def ComponentName(value: String): TextComponentTranslation = localizeLater("gui.Analyzer.ComponentName", value)
 
-    def Components(count: Int, maxCount: Int): TextComponentTranslation = localizeLater("gui.Analyzer.Components", count + "/" + maxCount)
+    def Components(count: Int, maxCount: Int): TextComponentTranslation = localizeLater("gui.Analyzer.Components", s"$count/$maxCount")
 
     def LastError(value: String): TextComponentTranslation = localizeLater("gui.Analyzer.LastError", localizeLater(value))
 

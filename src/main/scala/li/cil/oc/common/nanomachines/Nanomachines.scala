@@ -8,7 +8,7 @@ import li.cil.oc.server.PacketSender
 import li.cil.oc.util.PlayerUtils
 import net.minecraft.entity.player.EntityPlayer
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object Nanomachines extends api.detail.NanomachinesAPI {
@@ -21,7 +21,7 @@ object Nanomachines extends api.detail.NanomachinesAPI {
 
   override def addProvider(provider: BehaviorProvider): Unit = providers += provider
 
-  override def getProviders: java.lang.Iterable[BehaviorProvider] = providers
+  override def getProviders: java.lang.Iterable[BehaviorProvider] = providers.asJava
 
   def getController(player: EntityPlayer): Controller = {
     if (hasController(player)) controllers(player).getOrElseUpdate(player, new ControllerImpl(player))

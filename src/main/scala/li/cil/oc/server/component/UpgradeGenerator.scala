@@ -23,9 +23,9 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntityFurnace
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
-class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with DeviceInfo {
+class UpgradeGenerator(val host: EnvironmentHost & internal.Agent) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
     withComponent("generator", Visibility.Neighbors).
     withConnector().
@@ -43,7 +43,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     DeviceAttribute.Capacity -> "1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -51,22 +51,22 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
   def insert(context: Context, args: Arguments): Array[AnyRef] = {
     val count = args.optInteger(0, 64)
     val stack = host.mainInventory.getStackInSlot(host.selectedSlot)
-    if (stack.isEmpty) return result(Unit, "selected slot is empty")
+    if (stack.isEmpty) return result((), "selected slot is empty")
     if (!TileEntityFurnace.isItemFuel(stack)) {
-      return result(Unit, "selected slot does not contain fuel")
+      return result((), "selected slot does not contain fuel")
     }
     val container: ItemStack = stack.getItem.getContainerItem(stack)
     val inQueue: ItemStack = inventory match {
       case SomeStack(q) if q != null && q.getCount > 0 =>
         if (!q.isItemEqual(stack) || !ItemStack.areItemStackTagsEqual(q, stack)) {
-          return result(Unit, "different fuel type already queued")
+          return result((), "different fuel type already queued")
         }
         q
       case _ => ItemStack.EMPTY
     }
     val space = if (inQueue.isEmpty) stack.getMaxStackSize else inQueue.getMaxStackSize - inQueue.getCount
     if (space == 0) {
-      return result(Unit, "queue is full")
+      return result((), "queue is full")
     }
     val previousSelectedFuel: ItemStack = stack.copy
     val insertLimit: Int = math.min(stack.getCount, math.min(space, count))
@@ -162,7 +162,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
 
   override val canUpdate = true
 
-  override def update() {
+  override def update():Unit = {
     super.update()
     if (remainingTicks <= 0 && inventory.isDefined) {
       val stack = inventory.get
@@ -192,7 +192,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
 
   // ----------------------------------------------------------------------- //
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       inventory match {
@@ -212,7 +212,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
   private final val InventoryTag = "inventory"
   private final val RemainingTicksTag = "remainingTicks"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
       inventory = StackOption(new ItemStack(nbt.getCompoundTag("inventory")))
     if (nbt.hasKey(InventoryTag)) {
@@ -221,7 +221,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     remainingTicks = nbt.getInteger(RemainingTicksTag)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     inventory match {
       case SomeStack(stack) => nbt.setNewCompoundTag(InventoryTag, stack.writeToNBT)

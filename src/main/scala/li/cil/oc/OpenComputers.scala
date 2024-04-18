@@ -32,10 +32,10 @@ object OpenComputers {
   @SidedProxy(clientSide = "li.cil.oc.client.Proxy", serverSide = "li.cil.oc.server.Proxy")
   var proxy: Proxy = null
 
-  var channel: FMLEventChannel = _
+  var channel: FMLEventChannel = scala.compiletime.uninitialized
 
   @EventHandler
-  def preInit(e: FMLPreInitializationEvent) {
+  def preInit(e: FMLPreInitializationEvent): Unit = {
     logger = Option(e.getModLog)
     proxy.preInit(e)
     OpenComputers.log.info("Done with pre init phase.")

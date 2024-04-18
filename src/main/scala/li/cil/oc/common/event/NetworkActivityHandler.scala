@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 object NetworkActivityHandler {
   @SubscribeEvent
-  def onNetworkActivity(e: NetworkActivityEvent.Server) {
+  def onNetworkActivity(e: NetworkActivityEvent.Server):Unit = {
     e.getTileEntity match {
       case t: Rack =>
         for (slot <- 0 until t.getSizeInventory) {
@@ -27,7 +27,7 @@ object NetworkActivityHandler {
   }
 
   @SubscribeEvent
-  def onNetworkActivity(e: NetworkActivityEvent.Client) {
+  def onNetworkActivity(e: NetworkActivityEvent.Client):Unit = {
     e.getTileEntity match {
       case t: Case => t.lastNetworkActivity = System.currentTimeMillis();
       case _ =>

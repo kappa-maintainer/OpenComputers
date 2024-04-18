@@ -49,7 +49,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
     case _ => false
   }
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack):Unit ={
     super.onItemAdded(slot, stack)
     if (isServer) this.synchronized {
       ServerPacketSender.sendRaidChange(this)
@@ -57,13 +57,13 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
     }
   }
 
-  override def markDirty() {
+  override def markDirty():Unit ={
     super.markDirty()
     // Makes the implementation of the comparator output easier.
     items.map(!_.isEmpty).copyToArray(presence)
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack):Unit ={
     super.onItemRemoved(slot, stack)
     if (isServer) this.synchronized {
       ServerPacketSender.sendRaidChange(this)
@@ -77,7 +77,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
     }
   }
 
-  def tryCreateRaid(id: String) {
+  def tryCreateRaid(id: String):Unit ={
     if (items.count(!_.isEmpty) == items.length && filesystem.fold(true)(fs => fs.node == null || fs.node.address != id)) {
       filesystem.foreach(fs => if (fs.node != null) fs.node.remove())
       items.foreach(fsStack => {
@@ -110,7 +110,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
           fs.fileSystem.close()
           fs.fileSystem.list("/").foreach(fs.fileSystem.delete)
           fs.save(nbt)
-          fs.fileSystem.spaceTotal.toInt
+          fs.fileSystem.spaceTotal
         case _ => 0L // Ignore.
       }
       case _ => 0L
@@ -124,7 +124,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
   private final val PresenceTag = Settings.namespace + "presence"
   private final val LabelTag = Settings.namespace + "label"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     if (nbt.hasKey(FileSystemTag)) {
       val tag = nbt.getCompoundTag(FileSystemTag)
@@ -134,14 +134,14 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
     label.load(nbt)
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForServer(nbt)
     filesystem.foreach(fs => nbt.setNewCompoundTag(FileSystemTag, fs.save))
     label.save(nbt)
   }
 
   @SideOnly(Side.CLIENT) override
-  def readFromNBTForClient(nbt: NBTTagCompound) {
+  def readFromNBTForClient(nbt: NBTTagCompound):Unit ={
     super.readFromNBTForClient(nbt)
     nbt.getByteArray(PresenceTag).
       map(_ != 0).
@@ -149,7 +149,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
     label.setLabel(nbt.getString(LabelTag))
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit ={
     super.writeToNBTForClient(nbt)
     nbt.setTag(PresenceTag, items.map(!_.isEmpty))
     if (label.getLabel != null)
@@ -165,13 +165,13 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
 
     override def setLabel(value: String) = label = Option(value).map(_.take(16)).orNull
 
-    override def load(nbt: NBTTagCompound) {
+    override def load(nbt: NBTTagCompound):Unit ={
       if (nbt.hasKey(Settings.namespace + "label")) {
         label = nbt.getString(Settings.namespace + "label")
       }
     }
 
-    override def save(nbt: NBTTagCompound) {
+    override def save(nbt: NBTTagCompound):Unit ={
       nbt.setString(Settings.namespace + "label", label)
     }
   }

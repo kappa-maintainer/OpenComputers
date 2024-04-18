@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object DriverBrewingStand extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[TileEntityBrewingStand]
+  override def getTileEntityClass: Class[?] = classOf[TileEntityBrewingStand]
 
   override def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileEntityBrewingStand])
@@ -34,7 +34,7 @@ object DriverBrewingStand extends DriverSidedTileEntity {
   }
 
   object Provider extends EnvironmentProvider {
-    override def getEnvironment(stack: ItemStack): Class[_] = {
+    override def getEnvironment(stack: ItemStack): Class[?] = {
       if (!stack.isEmpty && stack.getItem == Items.BREWING_STAND)
         classOf[Environment]
       else null

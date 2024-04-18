@@ -17,7 +17,7 @@ trait Common extends TileEntity {
 
   def energyThroughput: Double
 
-  protected def tryAllSides(provider: (Double, EnumFacing) => Double, fromOther: Double => Double, toOther: Double => Double) {
+  protected def tryAllSides(provider: (Double, EnumFacing) => Double, fromOther: Double => Double, toOther: Double => Double):Unit = {
     // We make sure to only call this every `Settings.get.tickFrequency` ticks,
     // but our throughput is per tick, so multiply this up for actual budget.
     var budget = energyThroughput * Settings.get.tickFrequency

@@ -16,10 +16,10 @@ import org.apache.commons.lang3.tuple
 import scala.collection.mutable
 
 abstract class Template {
-  protected val suggestedComponents = Array(
-    "BIOS" -> hasComponent(Constants.ItemName.EEPROM) _,
-    "Screen" -> hasComponent(Constants.BlockName.ScreenTier1) _,
-    "Keyboard" -> hasComponent(Constants.BlockName.Keyboard) _,
+  protected val suggestedComponents:Array[(String, IInventory=>Boolean)] = Array(
+    "BIOS" -> hasComponent(Constants.ItemName.EEPROM),
+    "Screen" -> hasComponent(Constants.BlockName.ScreenTier1),
+    "Keyboard" -> hasComponent(Constants.BlockName.Keyboard),
     "GraphicsCard" -> ((inventory: IInventory) => Array(
       Constants.ItemName.APUCreative,
       Constants.ItemName.APUTier1,
@@ -28,8 +28,8 @@ abstract class Template {
       Constants.ItemName.GraphicsCardTier2,
       Constants.ItemName.GraphicsCardTier3).
       exists(name => hasComponent(name)(inventory))),
-    "Inventory" -> hasInventory _,
-    "OS" -> hasFileSystem _)
+    "Inventory" -> hasInventory,
+    "OS" -> hasFileSystem)
 
   protected def hostClass: Class[_ <: api.network.EnvironmentHost]
 
@@ -50,7 +50,7 @@ abstract class Template {
 
     val warnings = mutable.ArrayBuffer.empty[ITextComponent]
     for ((name, check) <- suggestedComponents) {
-      if (!check(inventory)) {
+      if (!check.apply(inventory)) {
         warnings += Localization.Assembler.Warning(name)
       }
     }

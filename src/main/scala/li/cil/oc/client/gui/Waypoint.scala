@@ -16,7 +16,7 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends GuiScreen {
   var xSize = 0
   var ySize = 0
 
-  var textField: GuiTextField = _
+  var textField: GuiTextField = scala.compiletime.uninitialized
 
   override def updateScreen(): Unit = {
     super.updateScreen()

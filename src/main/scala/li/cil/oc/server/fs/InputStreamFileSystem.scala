@@ -58,7 +58,7 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
   private final val PathTag = "path"
   private final val PositionTag = "position"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     val handlesNbt = nbt.getTagList(InputTag, NBT.TAG_COMPOUND)
     (0 until handlesNbt.tagCount).map(handlesNbt.getCompoundTagAt).foreach(handleNbt => {
       val handle = handleNbt.getInteger(HandleTag)
@@ -74,7 +74,7 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
     })
   }
 
-  override def save(nbt: NBTTagCompound) = this.synchronized {
+  override def save(nbt: NBTTagCompound): Unit = this.synchronized {
     val handlesNbt = new NBTTagList()
     for (file <- handles.values) {
       assert(file.channel.isOpen)

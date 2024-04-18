@@ -26,23 +26,23 @@ object AEUtil {
 
   // ----------------------------------------------------------------------- //
 
-  def controllerClass: Class[_] = {
+  def controllerClass: Class[?] = {
     if (AEApi.instance != null) {
       val maybe = AEApi.instance.definitions.blocks.controller.maybeEntity
       if (maybe.isPresent)
         maybe.get()
       else
-        null: Class[_]
+        null: Class[?]
     }
-    else null: Class[_]
+    else null: Class[?]
   }
 
   // ----------------------------------------------------------------------- //
 
-  def interfaceClass: Class[_] =
+  def interfaceClass: Class[?] =
     if (AEApi.instance != null)
       AEApi.instance.definitions.blocks.iface.maybeEntity.get()
-    else null: Class[_]
+    else null: Class[?]
 
   // ----------------------------------------------------------------------- //
 

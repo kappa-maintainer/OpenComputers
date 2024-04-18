@@ -61,7 +61,7 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit ={
     super.updateEntity()
     if (relayCooldown > 0) {
       relayCooldown -= 1
@@ -96,7 +96,7 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
     else false
   }
 
-  protected def relayPacket(sourceSide: Option[EnumFacing], packet: Packet) {
+  protected def relayPacket(sourceSide: Option[EnumFacing], packet: Packet):Unit = {
     for (side <- EnumFacing.values) {
       if (sourceSide.isEmpty || sourceSide.get != side) {
         val node = sidedNode(side)
@@ -114,7 +114,7 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
   private final val SideTag = "side"
   private final val RelayCooldownTag = Settings.namespace + "relayCooldown"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     nbt.getTagList(PlugsTag, NBT.TAG_COMPOUND).toArray[NBTTagCompound].
       zipWithIndex.foreach {
@@ -161,7 +161,7 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
   protected class Plug(val side: EnumFacing) extends api.network.Environment {
     val node = createNode(this)
 
-    override def onMessage(message: Message) {
+    override def onMessage(message: Message):Unit ={
       if (isPrimary) {
         onPlugMessage(this, message)
       }
@@ -176,11 +176,11 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
     def plugsInOtherNetworks = plugs.filter(_.node.network != node.network)
   }
 
-  protected def onPlugConnect(plug: Plug, node: Node) {}
+  protected def onPlugConnect(plug: Plug, node: Node):Unit ={}
 
-  protected def onPlugDisconnect(plug: Plug, node: Node) {}
+  protected def onPlugDisconnect(plug: Plug, node: Node):Unit ={}
 
-  protected def onPlugMessage(plug: Plug, message: Message) {
+  protected def onPlugMessage(plug: Plug, message: Message):Unit ={
     if (message.name == "network.message" && !plugs.exists(_.node == message.source)) message.data match {
       case Array(packet: Packet) => tryEnqueuePacket(Option(plug.side), packet)
       case _ =>

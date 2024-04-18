@@ -63,7 +63,7 @@ import scala.collection.mutable
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
 class Robot extends traits.Computer with traits.PowerInformation with traits.RotatableTile with IFluidHandler with internal.Robot with InventorySelection with TankSelection {
-  var proxy: RobotProxy = _
+  var proxy: RobotProxy = scala.compiletime.uninitialized
 
   val info = new RobotData()
 
@@ -120,7 +120,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
   val tank = new internal.MultiTank {
     override def tankCount: Int = Robot.this.tankCount
 
-    override def getFluidTank(index: Int): ManagedEnvironment with IFluidTank = Robot.this.getFluidTank(index)
+    override def getFluidTank(index: Int): ManagedEnvironment & IFluidTank = Robot.this.getFluidTank(index)
   }
 
   var selectedTank = 0
@@ -300,25 +300,25 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     ServerPacketSender.sendRobotAnimateTurn(this)
   }
 
-  def setAnimateMove(fromPosition: BlockPos, ticks: Int) {
+  def setAnimateMove(fromPosition: BlockPos, ticks: Int):Unit = {
     animationTicksTotal = ticks + 2
     prepareForAnimation()
     moveFrom = Some(fromPosition)
   }
 
-  def setAnimateSwing(ticks: Int) {
+  def setAnimateSwing(ticks: Int):Unit = {
     animationTicksTotal = math.max(ticks, 5)
     prepareForAnimation()
     swingingTool = true
   }
 
-  def setAnimateTurn(axis: Int, ticks: Int) {
+  def setAnimateTurn(axis: Int, ticks: Int):Unit = {
     animationTicksTotal = ticks
     prepareForAnimation()
     turnAxis = axis
   }
 
-  private def prepareForAnimation() {
+  private def prepareForAnimation():Unit = {
     animationTicksLeft = animationTicksTotal
     moveFrom = None
     swingingTool = false
@@ -337,7 +337,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     if (animationTicksLeft > 0) {
       animationTicksLeft -= 1
       if (animationTicksLeft == 0) {
@@ -390,7 +390,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     else EventHandler.onRobotStopped(this)
   }
 
-  override protected def initialize() {
+  override protected def initialize():Unit = {
     if (isServer) {
       // Ensure we have a node address, because the proxy needs this to initialize
       // its own node to the same address ours has.
@@ -398,7 +398,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     }
   }
 
-  override def dispose() {
+  override def dispose():Unit = {
     super.dispose()
     if (isClient) {
       Minecraft.getMinecraft.currentScreen match {
@@ -425,7 +425,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
   private final val SwingingToolTag = Settings.namespace + "swingingTool"
   private final val TurnAxisTag = Settings.namespace + "turnAxis"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     updateInventorySize()
     machine.onHostChanged()
 
@@ -486,7 +486,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     load(nbt)
     info.load(nbt)
@@ -532,7 +532,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
 
   // ----------------------------------------------------------------------- //
 
-  override def onMachineConnect(node: Node) {
+  override def onMachineConnect(node: Node):Unit = {
     super.onConnect(node)
     if (node == this.node) {
       node.connect(bot.node)
@@ -540,7 +540,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     }
   }
 
-  override def onMachineDisconnect(node: Node) {
+  override def onMachineDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       node.remove()
@@ -553,7 +553,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack):Unit = {
     if (isServer) {
       if (isToolSlot(slot)) {
         player_.getAttributeMap.applyAttributeModifiers(stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND))
@@ -576,7 +576,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     else super.onItemAdded(slot, stack)
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack):Unit = {
     super.onItemRemoved(slot, stack)
     if (isServer) {
       if (isToolSlot(slot)) {
@@ -598,7 +598,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     }
   }
 
-  override def markDirty() {
+  override def markDirty():Unit = {
     super.markDirty()
     // Avoid getting into a bad state on the client when updating before we
     // got the descriptor packet from the server. If we manage to open the
@@ -617,7 +617,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     renderingErrored = false
   }
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node):Unit = {
     super.connectItemNode(node)
     if (node != null) node.host match {
       case buffer: api.internal.TextBuffer =>
@@ -737,7 +737,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     else super.getStackInSlot(slot)
   }
 
-  override def setInventorySlotContents(slot: Int, stack: ItemStack) {
+  override def setInventorySlotContents(slot: Int, stack: ItemStack):Unit = {
     if (slot < getSizeInventory - componentCount && (isItemValidForSlot(slot, stack) || stack.isEmpty)) {
       if (!stack.isEmpty && stack.getCount > 1 && isComponentSlot(slot, stack)) {
         super.setInventorySlotContents(slot, stack.splitStack(1))
@@ -803,7 +803,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
 
   // ----------------------------------------------------------------------- //
 
-  def tryGetTank(tank: Int): Option[ManagedEnvironment with IFluidTank] = {
+  def tryGetTank(tank: Int): Option[ManagedEnvironment & IFluidTank] = {
     val tanks = components.collect {
       case Some(tank: IFluidTank) => tank
     }
@@ -816,7 +816,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
     case _ => false
   }
 
-  def getFluidTank(tank: Int): ManagedEnvironment with IFluidTank = tryGetTank(tank).orNull
+  def getFluidTank(tank: Int): ManagedEnvironment & IFluidTank = tryGetTank(tank).orNull
 
   // ----------------------------------------------------------------------- //
 

@@ -33,8 +33,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.MinecraftForge
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.language.existentials
 
 class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldControl with DeviceInfo {
@@ -51,7 +50,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     DeviceAttribute.Capacity -> Settings.get.geolyzerRange.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -99,7 +98,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     val (minX, minY, minZ, maxX, maxY, maxZ, optIndex) = getScanArgs(args)
     val volume = (maxX - minX + 1) * (maxZ - minZ + 1) * (maxY - minY + 1)
     if (volume > 64) throw new IllegalArgumentException("volume too large (maximum is 64)")
-    val options = if (args.isBoolean(optIndex)) mapAsJavaMap(Map("includeReplaceable" -> !args.checkBoolean(optIndex))) else args.optTable(optIndex, Map.empty[AnyRef, AnyRef])
+    val options = if (args.isBoolean(optIndex)) Map("includeReplaceable" -> !args.checkBoolean(optIndex)).asJava else args.optTable(optIndex, Map.empty[AnyRef, AnyRef].asJava)
     if (math.abs(minX) > Settings.get.geolyzerRange || math.abs(maxX) > Settings.get.geolyzerRange ||
       math.abs(minY) > Settings.get.geolyzerRange || math.abs(maxY) > Settings.get.geolyzerRange ||
       math.abs(minZ) > Settings.get.geolyzerRange || math.abs(maxZ) > Settings.get.geolyzerRange) {
@@ -107,11 +106,11 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     }
 
     if (!node.tryChangeBuffer(-Settings.get.geolyzerScanCost))
-      return result(Unit, "not enough energy")
+      return result((), "not enough energy")
 
     val event = new GeolyzerEvent.Scan(host, options, minX, minY, minZ, maxX, maxY, maxZ)
     MinecraftForge.EVENT_BUS.post(event)
-    if (event.isCanceled) result(Unit, "scan was canceled")
+    if (event.isCanceled) result((), "scan was canceled")
     else result(event.data)
   }
 
@@ -143,18 +142,18 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
       case rotatable: internal.Rotatable => rotatable.toGlobal(side)
       case _ => side
     }
-    val options = args.optTable(1, Map.empty[AnyRef, AnyRef])
+    val options = args.optTable(1, Map.empty[AnyRef, AnyRef].asJava)
 
     if (!node.tryChangeBuffer(-Settings.get.geolyzerScanCost))
-      return result(Unit, "not enough energy")
+      return result((), "not enough energy")
 
     val globalPos = BlockPosition(host).offset(globalSide)
     val event = new Analyze(host, options, globalPos.toBlockPos)
     MinecraftForge.EVENT_BUS.post(event)
-    if (event.isCanceled) result(Unit, "scan was canceled")
+    if (event.isCanceled) result((), "scan was canceled")
     else result(event.data)
   }
-  else result(Unit, "not enabled in config")
+  else result((), "not enabled in config")
 
   @Callback(doc = """function(side:number, dbAddress:string, dbSlot:number):boolean -- Store an item stack representation of the block on the specified side in a database component.""")
   def store(computer: Context, args: Arguments): Array[AnyRef] = {
@@ -165,12 +164,12 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     }
 
     if (!node.tryChangeBuffer(-Settings.get.geolyzerScanCost))
-      return result(Unit, "not enough energy")
+      return result((), "not enough energy")
 
     val blockPos = BlockPosition(host).offset(globalSide)
     val block = host.world.getBlock(blockPos)
     val item = Item.getItemFromBlock(block)
-    if (item == null) result(Unit, "block has no registered item representation")
+    if (item == null) result((), "block has no registered item representation")
     else {
       val metadata = host.world.getBlockMetadata(blockPos)
       val damage = block.damageDropped(metadata)
@@ -190,10 +189,10 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
       case machine: api.machine.Machine => (machine.host, message.data) match {
         case (tablet: internal.Tablet, Array(nbt: NBTTagCompound, stack: ItemStack, player: EntityPlayer, blockPos: BlockPosition, side: EnumFacing, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           if (node.tryChangeBuffer(-Settings.get.geolyzerScanCost)) {
-            val event = new Analyze(host, Map.empty[AnyRef, AnyRef], blockPos.toBlockPos)
+            val event = new Analyze(host, Map.empty[AnyRef, AnyRef].asJava, blockPos.toBlockPos)
             MinecraftForge.EVENT_BUS.post(event)
             if (!event.isCanceled) {
-              for ((key, value) <- event.data) value match {
+              for ((key, value) <- event.data.asScala) value match {
                 case number: java.lang.Number => nbt.setDouble(key, number.doubleValue())
                 case string: String if !string.isEmpty => nbt.setString(key, string)
                 case _ => // Unsupported, ignore.

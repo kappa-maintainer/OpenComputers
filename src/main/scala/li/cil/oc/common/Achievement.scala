@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack
 //placeholder
 
 object Achievement {
-  def init() {
+  def init():Unit = {
   }
 
   def onAssemble(stack: ItemStack, player: EntityPlayer): Unit = {

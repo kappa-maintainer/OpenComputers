@@ -19,7 +19,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.property.ExtendedBlockState
 import net.minecraftforge.common.property.IExtendedBlockState
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
 class Cable(protected implicit val tileTag: ClassTag[tileentity.Cable]) extends SimpleBlock with traits.CustomDrops[tileentity.Cable] {
@@ -76,7 +76,7 @@ class Cable(protected implicit val tileTag: ClassTag[tileentity.Cable]) extends 
 
     val boxes = new util.ArrayList[AxisAlignedBB]
     Cable.parts(world, pos, Block.FULL_BLOCK_AABB.offset(pos), boxes)
-    for (part: AxisAlignedBB <- boxes) {
+    for (part: AxisAlignedBB <- boxes.asScala) {
       val hit = part.calculateIntercept(start, end)
       if (hit != null) {
         val hitDistance = hit.hitVec.squareDistanceTo(start)
@@ -97,7 +97,7 @@ class Cable(protected implicit val tileTag: ClassTag[tileentity.Cable]) extends 
 
   // ----------------------------------------------------------------------- //
 
-  override def neighborChanged(state: IBlockState, world: World, pos: BlockPos, neighborBlock: Block, sourcePos: BlockPos) {
+  override def neighborChanged(state: IBlockState, world: World, pos: BlockPos, neighborBlock: Block, sourcePos: BlockPos):Unit = {
     world.notifyBlockUpdate(pos, state, state, 3)
     super.neighborChanged(state, world, pos, neighborBlock, sourcePos)
   }

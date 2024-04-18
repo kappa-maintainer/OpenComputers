@@ -51,7 +51,7 @@ class Microcontroller(protected implicit val tileTag: ClassTag[tileentity.Microc
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag):Unit = {
     super.tooltipTail(metadata, stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)

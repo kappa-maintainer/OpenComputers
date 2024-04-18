@@ -19,7 +19,7 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.util.EnumFacing
 import net.minecraft.world.WorldServer
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -34,7 +34,7 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
     DeviceAttribute.Product -> "Readerizer Deluxe"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   override def onMessage(message: Message): Unit = {
     super.onMessage(message)
@@ -50,7 +50,7 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
               processNodes(Array(host.node), nbt)
             case _ => // Ignore
           }
-          case _ => // Ignore
+        case _ => // Ignore
       }
       case _ => // Ignore
     }

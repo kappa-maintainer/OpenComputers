@@ -8,21 +8,21 @@ import net.minecraftforge.event.world.ChunkEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object Waypoints {
   val dimensions = mutable.Map.empty[Int, RTree[Waypoint]]
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload) {
+  def onWorldUnload(e: WorldEvent.Unload):Unit = {
     if (!e.getWorld.isRemote) {
       dimensions.remove(e.getWorld.provider.getDimension)
     }
   }
 
   @SubscribeEvent
-  def onWorldLoad(e: WorldEvent.Load) {
+  def onWorldLoad(e: WorldEvent.Load):Unit = {
     if (!e.getWorld.isRemote) {
       dimensions.remove(e.getWorld.provider.getDimension)
     }
@@ -30,8 +30,8 @@ object Waypoints {
 
   // Safety clean up, in case some tile entities didn't properly leave the net.
   @SubscribeEvent
-  def onChunkUnload(e: ChunkEvent.Unload) {
-    e.getChunk.getTileEntityMap.values.foreach {
+  def onChunkUnload(e: ChunkEvent.Unload):Unit = {
+    e.getChunk.getTileEntityMap.values.asScala.foreach {
       case waypoint: Waypoint => remove(waypoint)
       case _ =>
     }

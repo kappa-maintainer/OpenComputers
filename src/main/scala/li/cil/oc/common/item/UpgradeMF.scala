@@ -24,7 +24,7 @@ class UpgradeMF(val parent: Delegator) extends traits.Delegate with traits.ItemT
     super.onItemUseFirst(stack, player, position, side, hitX, hitY, hitZ)
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[String]):Unit = {
     tooltip.add(Localization.Tooltip.MFULinked(stack.getTagCompound match {
       case data: NBTTagCompound => data.hasKey(Settings.namespace + "coord")
       case _ => false

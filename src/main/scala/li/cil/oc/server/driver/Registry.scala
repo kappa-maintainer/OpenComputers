@@ -22,8 +22,7 @@ import net.minecraft.world.World
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.math.ScalaNumber
@@ -53,12 +52,12 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   val inventoryProviders: ArrayBuffer[InventoryProvider] = mutable.ArrayBuffer.empty[api.driver.InventoryProvider]
 
-  val blacklist: ArrayBuffer[(ItemStack, mutable.Set[Class[_]])] = mutable.ArrayBuffer.empty[(ItemStack, mutable.Set[Class[_]])]
+  val blacklist: ArrayBuffer[(ItemStack, mutable.Set[Class[?]])] = mutable.ArrayBuffer.empty[(ItemStack, mutable.Set[Class[?]])]
 
   /** Used to keep track of whether we're past the init phase. */
   var locked = false
 
-  override def add(driver: DriverBlock) {
+  override def add(driver: DriverBlock):Unit = {
     if (locked) throw new IllegalStateException("Please register all drivers in the init phase.")
     if (!sidedBlocks.contains(driver)) {
       OpenComputers.log.debug(s"Registering block driver ${driver.getClass.getName}.")
@@ -66,7 +65,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def add(driver: DriverItem) {
+  override def add(driver: DriverItem):Unit = {
     if (locked) throw new IllegalStateException("Please register all drivers in the init phase.")
     if (!items.contains(driver)) {
       OpenComputers.log.debug(s"Registering item driver ${driver.getClass.getName}.")
@@ -74,7 +73,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def add(converter: Converter) {
+  override def add(converter: Converter):Unit = {
     if (locked) throw new IllegalStateException("Please register all converters in the init phase.")
     if (!converters.contains(converter)) {
       OpenComputers.log.debug(s"Registering converter ${converter.getClass.getName}.")
@@ -104,7 +103,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
       case _ => null
     }
 
-  override def driverFor(stack: ItemStack, host: Class[_ <: EnvironmentHost]): DriverItem =
+  override def driverFor(stack: ItemStack, host: Class[? <: EnvironmentHost]): DriverItem =
     if (!stack.isEmpty) {
       val hostAware = items.collect {
         case driver: HostAware if driver.worksWith(stack) => driver
@@ -121,13 +120,13 @@ private[oc] object Registry extends api.detail.DriverAPI {
     else null
 
   @Deprecated
-  override def environmentFor(stack: ItemStack): Class[_] = {
+  override def environmentFor(stack: ItemStack): Class[?] = {
     environmentProviders.map(provider => provider.getEnvironment(stack)).collectFirst {
       case clazz: Class[_] => clazz
     }.orNull
   }
 
-  override def environmentsFor(stack: ItemStack): util.Set[Class[_]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[_]]
+  override def environmentsFor(stack: ItemStack): util.Set[Class[?]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[?]].asJava
 
   override def itemHandlerFor(stack: ItemStack, player: EntityPlayer): IItemHandler = {
     inventoryProviders.find(provider => provider.worksWith(stack, player)).
@@ -139,9 +138,9 @@ private[oc] object Registry extends api.detail.DriverAPI {
       }
   }
 
-  override def itemDrivers: util.List[DriverItem] = items.toSeq
+  override def itemDrivers: util.List[DriverItem] = items.toSeq.asJava
 
-  def blacklistHost(stack: ItemStack, host: Class[_]) {
+  def blacklistHost(stack: ItemStack, host: Class[?]):Unit = {
     blacklist.find(_._1.isItemEqual(stack)) match {
       case Some((_, hosts)) => hosts += host
       case _ => blacklist.append((stack, mutable.Set(host)))
@@ -161,7 +160,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
       memo.get(valueRef)
     }
     else valueRef match {
-      case null | Unit | None => null
+      case null | () | None => null
 
       case arg: java.lang.Boolean => arg
       case arg: java.lang.Byte => arg
@@ -187,24 +186,24 @@ private[oc] object Registry extends api.detail.DriverAPI {
       case arg: Value => arg
 
       case arg: Array[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
-      case arg: Product => convertList(arg, arg.productIterator.zipWithIndex, memo)
+      case arg: Product => convertList(arg.asInstanceOf[AnyRef], arg.productIterator.zipWithIndex, memo)
       case arg: Seq[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
 
       case arg: Map[_, _] => convertMap(arg, arg, memo)
       case arg: mutable.Map[_, _] => convertMap(arg, arg.toMap, memo)
-      case arg: java.util.Map[_, _] => convertMap(arg, arg.toMap, memo)
+      case arg: java.util.Map[_, _] => convertMap(arg, arg.asScala.toMap, memo)
 
       case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.toIterator, memo)
-      case arg: java.lang.Iterable[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
+      case arg: java.lang.Iterable[_] => convertList(arg, arg.asScala.zipWithIndex.iterator, memo)
 
       case arg =>
         val converted = new util.HashMap[AnyRef, AnyRef]()
-        memo += arg -> converted
+        memo.asScala += arg -> converted
         converters.foreach(converter => try converter.convert(arg, converted) catch {
           case t: Throwable => OpenComputers.log.warn("Type converter threw an exception.", t)
         })
         if (converted.isEmpty) {
-          memo += arg -> arg.toString
+          memo.asScala += arg -> arg.toString
           arg.toString
         }
         else {
@@ -216,12 +215,12 @@ private[oc] object Registry extends api.detail.DriverAPI {
           // - convertRecursively(M) encounters A in the memoization map, uses M.
           //   That M is then 'wrong', as in not fully converted. Hence the clear
           //   plus copy action afterwards.
-          memo += converted -> converted // Makes convertMap re-use the map.
+          memo.asScala += converted -> converted // Makes convertMap re-use the map.
           convertRecursively(converted, memo, force = true)
-          memo -= converted
+          memo.asScala -= converted
           if (converted.size == 1 && converted.containsKey("oc:flatten")) {
             val value = converted.get("oc:flatten")
-            memo += arg -> value // Update memoization map.
+            memo.asScala += arg -> value // Update memoization map.
             value
           }
           else {
@@ -233,20 +232,20 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   def convertList(obj: AnyRef, list: Iterator[(Any, Int)], memo: util.IdentityHashMap[AnyRef, AnyRef]): Array[AnyRef] = {
     val converted = mutable.ArrayBuffer.empty[AnyRef]
-    memo += obj -> converted
+    memo.asScala += obj -> converted
     for ((value, index) <- list) {
       converted += convertRecursively(value, memo)
     }
     converted.toArray
   }
 
-  def convertMap(obj: AnyRef, map: Map[_, _], memo: util.IdentityHashMap[AnyRef, AnyRef]): AnyRef = {
-    val converted = memo.getOrElseUpdate(obj, mutable.Map.empty[AnyRef, AnyRef]) match {
+  def convertMap(obj: AnyRef, map: Map[?, ?], memo: util.IdentityHashMap[AnyRef, AnyRef]): AnyRef = {
+    val converted = memo.asScala.getOrElseUpdate(obj, mutable.Map.empty[AnyRef, AnyRef]) match {
       case map: mutable.Map[AnyRef, AnyRef]@unchecked => map
-      case map: java.util.Map[AnyRef, AnyRef]@unchecked => mapAsScalaMap(map)
+      case map: java.util.Map[AnyRef, AnyRef]@unchecked => map.asScala
     }
-    map.collect {
-      case (key: AnyRef, value: AnyRef) => converted += convertRecursively(key, memo) -> convertRecursively(value, memo)
+    map.foreach {
+      case (key: AnyRef, value: AnyRef) => converted += (convertRecursively(key, memo) -> convertRecursively(value, memo))
     }
     memo.get(obj)
   }

@@ -7,7 +7,7 @@ import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.util.Constants.NBT
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object ConverterThaumcraftItems extends Converter {
@@ -23,7 +23,7 @@ object ConverterThaumcraftItems extends Converter {
         if (stack.hasTagCompound &&
           stack.getTagCompound.hasKey("Aspects", NBT.TAG_LIST)) {
           val aspects = mutable.ArrayBuffer.empty[mutable.Map[String, Any]]
-          val nbtAspects = stack.getTagCompound.getTagList("Aspects", NBT.TAG_COMPOUND).map {
+          val nbtAspects = stack.getTagCompound.getTagList("Aspects", NBT.TAG_COMPOUND).asScala.map {
             case tag: NBTTagCompound => tag
           }
           for (nbtAspect <- nbtAspects) {
@@ -35,10 +35,10 @@ object ConverterThaumcraftItems extends Converter {
             )
             aspects += aspect
           }
-          output += "aspects" -> aspects
+          output.asScala += "aspects" -> aspects
         }
         if (stack.hasTagCompound && stack.getTagCompound.hasKey("AspectFilter", NBT.TAG_STRING)) {
-          output += "aspectFilter" -> stack.getTagCompound.getString("AspectFilter")
+          output.asScala += "aspectFilter" -> stack.getTagCompound.getString("AspectFilter")
         }
       }
 

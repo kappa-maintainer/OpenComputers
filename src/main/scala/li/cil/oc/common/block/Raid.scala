@@ -27,7 +27,7 @@ class Raid(protected implicit val tileTag: ClassTag[tileentity.Raid]) extends Si
 
   override def getMetaFromState(state: IBlockState): Int = state.getValue(PropertyRotatable.Facing).getHorizontalIndex
 
-  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag):Unit = {
     super.tooltipTail(metadata, stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val data = new RaidData(stack)

@@ -49,7 +49,7 @@ object Chargeable {
   }
 
   class Provider(stack: ItemStack, item: li.cil.oc.common.item.traits.Chargeable) extends ICapabilityProvider with IEnergyStorage {
-    override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = {
+    override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = {
       capability == CapabilityEnergy.ENERGY
     }
 

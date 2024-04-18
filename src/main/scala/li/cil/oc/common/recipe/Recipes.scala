@@ -32,7 +32,7 @@ import net.minecraftforge.oredict.RecipeSorter.Category
 import net.minecraftforge.registries.{GameData, IForgeRegistryEntry}
 import org.apache.commons.io.FileUtils
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 object Recipes {
@@ -51,14 +51,14 @@ object Recipes {
     register(instance match {
       case simple: SimpleBlock => simple.createItemStack()
       case _ => new ItemStack(instance)
-    }, oreDict: _*)
+    }, oreDict*)
     instance
   }
 
   def addSubItem[T <: Delegate](delegate: T, name: String, oreDict: String*): T = {
     Items.registerItem(delegate, name)
     addRecipe(delegate.createItemStack(), name)
-    register(delegate.createItemStack(), oreDict: _*)
+    register(delegate.createItemStack(), oreDict*)
     delegate
   }
 
@@ -68,7 +68,7 @@ object Recipes {
     register(instance match {
       case simple: SimpleItem => simple.createItemStack()
       case _ => new ItemStack(instance)
-    }, oreDict: _*)
+    }, oreDict*)
     instance
   }
 
@@ -76,7 +76,7 @@ object Recipes {
     Items.registerItem(delegate, name)
     if (registerRecipe) {
       addRecipe(delegate.createItemStack(), name)
-      register(delegate.createItemStack(), oreDict: _*)
+      register(delegate.createItemStack(), oreDict*)
     }
     else {
       ItemBlacklist.hide(delegate)
@@ -87,21 +87,21 @@ object Recipes {
   def addStack(stack: ItemStack, name: String, oreDict: String*): ItemStack = {
     Items.registerStack(stack, name)
     addRecipe(stack, name)
-    register(stack, oreDict: _*)
+    register(stack, oreDict*)
     stack
   }
 
-  def addRecipe(stack: ItemStack, name: String) {
+  def addRecipe(stack: ItemStack, name: String):Unit = {
     list += stack -> name
   }
 
-  private def register(item: ItemStack, names: String*) {
+  private def register(item: ItemStack, names: String*):Unit = {
     for (name <- names if name != null) {
       oreDictEntries += name -> item
     }
   }
 
-  def init() {
+  def init():Unit = {
     RecipeSorter.register(Settings.namespace + "extshaped", classOf[ExtendedShapedOreRecipe], Category.SHAPED, "after:forge:shapedore")
     RecipeSorter.register(Settings.namespace + "extshapeless", classOf[ExtendedShapelessOreRecipe], Category.SHAPELESS, "after:forge:shapelessore")
     RecipeSorter.register(Settings.namespace + "colorizer", classOf[ColorizeRecipe], Category.SHAPELESS, "after:forge:shapelessore")
@@ -117,7 +117,7 @@ object Recipes {
 
     try {
       val recipeSets = Array("default", "hardmode", "gregtech", "peaceful")
-      val recipeDirectory = new File(Loader.instance.getConfigDir + File.separator + "opencomputers")
+      val recipeDirectory = new File(Loader.instance.getConfigDir.getAbsolutePath + File.separator + "opencomputers")
       val userRecipes = new File(recipeDirectory, "user.recipes")
       userRecipes.getParentFile.mkdirs()
       if (!userRecipes.exists()) {
@@ -129,7 +129,7 @@ object Recipes {
       lazy val config: ConfigParseOptions = ConfigParseOptions.defaults.
         setSyntax(ConfigSyntax.CONF).
         setIncluder(new ConfigIncluder with ConfigIncluderFile {
-          var fallback: ConfigIncluder = _
+          var fallback: ConfigIncluder = scala.compiletime.uninitialized
 
           override def withFallback(fallback: ConfigIncluder): ConfigIncluder = {
             this.fallback = fallback
@@ -174,7 +174,7 @@ object Recipes {
       if (recipes.hasPath("lootdisks")) try {
         val lootRecipes = recipes.getConfigList("lootdisks")
         val lootStacks = Loot.globalDisks.map(_._1)
-        for (recipe <- lootRecipes) {
+        for (recipe <- lootRecipes.asScala) {
           val name = recipe.getString("name")
           lootStacks.find(s => s.getTagCompound.getString(Settings.namespace + "lootFactory") == name) match {
             case Some(stack) => addRecipe(stack, recipe, s"loot disk '$name'")
@@ -192,7 +192,7 @@ object Recipes {
 
       if (recipes.hasPath("generic")) try {
         val genericRecipes = recipes.getConfigList("generic")
-        for (recipe <- genericRecipes) {
+        for (recipe <- genericRecipes.asScala) {
           val result = recipe.getValue("result").unwrapped()
           parseIngredient(result) match {
             case stack: ItemStack => addRecipe(stack, recipe, s"'$result'")
@@ -382,13 +382,13 @@ object Recipes {
 
   def parseIngredient(entry: AnyRef): AnyRef = entry match {
     case map: java.util.Map[AnyRef, AnyRef]@unchecked =>
-      if (map.contains("oreDict")) {
+      if (map.containsKey("oreDict")) {
         map.get("oreDict") match {
           case value: String => value
           case other => throw new RecipeException(s"Invalid name in recipe (not a string: $other).")
         }
       }
-      else if (map.contains("item")) {
+      else if (map.containsKey("item")) {
         map.get("item") match {
           case name: String =>
             findItem(name) match {
@@ -399,7 +399,7 @@ object Recipes {
           case other => throw new RecipeException(s"Invalid item name in recipe (not a string: $other).")
         }
       }
-      else if (map.contains("block")) {
+      else if (map.containsKey("block")) {
         map.get("block") match {
           case name: String =>
             findBlock(name) match {
@@ -435,12 +435,12 @@ object Recipes {
     Option(new FluidStack(fluid, amount))
   }
 
-  private def findItem(name: String) = getObjectWithoutFallback(Item.REGISTRY, name).orElse(Item.REGISTRY.find {
+  private def findItem(name: String) = getObjectWithoutFallback(Item.REGISTRY, name).orElse(Item.REGISTRY.asScala.find {
     case item: Item => item.getTranslationKey == name || item.getTranslationKey == "item." + name || Item.REGISTRY.getNameForObject(item).toString == name
     case _ => false
   })
 
-  private def findBlock(name: String) = getObjectWithoutFallback(Block.REGISTRY.asInstanceOf[RegistryNamespaced[ResourceLocation, Block]], name).orElse(Block.REGISTRY.find {
+  private def findBlock(name: String) = getObjectWithoutFallback(Block.REGISTRY.asInstanceOf[RegistryNamespaced[ResourceLocation, Block]], name).orElse(Block.REGISTRY.asScala.find {
     case block: Block => block.getTranslationKey == name || block.getTranslationKey == "tile." + name || Block.REGISTRY.getNameForObject(block).toString == name
     case _ => false
   })
@@ -454,7 +454,7 @@ object Recipes {
   private def tryGetType(recipe: Config) = if (recipe.hasPath("type")) recipe.getString("type") else "shaped"
 
   private def tryGetId(ingredient: java.util.Map[AnyRef, AnyRef]): Int =
-    if (ingredient.contains("subID")) ingredient.get("subID") match {
+    if (ingredient.containsKey("subID")) ingredient.get("subID") match {
       case id: Number => id.intValue
       case "any" => OreDictionary.WILDCARD_VALUE
       case id: String => Integer.valueOf(id)
@@ -475,7 +475,7 @@ object Recipes {
     item
   }
 
-  private def hide(value: ItemStack) {
+  private def hide(value: ItemStack):Unit = {
     Delegator.subItem(value) match {
       case Some(stack) =>
         stack.showInItemList = false

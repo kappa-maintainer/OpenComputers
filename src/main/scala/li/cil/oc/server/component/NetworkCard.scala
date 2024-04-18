@@ -23,8 +23,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt._
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment with RackBusConnectable with DeviceInfo with traits.WakeMessageAware {
@@ -55,7 +54,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
     DeviceAttribute.Width -> Settings.get.maxNetworkPacketParts.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -98,7 +97,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
   def send(context: Context, args: Arguments): Array[AnyRef] = {
     val address = args.checkString(0)
     val port = checkPort(args.checkInteger(1))
-    val packet = api.Network.newPacket(node.address, address, port, args.drop(2).toArray)
+    val packet = api.Network.newPacket(node.address, address, port, args.asScala.drop(2).toArray)
     doSend(packet)
     networkActivity()
     result(true)
@@ -107,7 +106,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
   @Callback(doc = """function(port:number, data...) -- Broadcasts the specified data on the specified port.""")
   def broadcast(context: Context, args: Arguments): Array[AnyRef] = {
     val port = checkPort(args.checkInteger(0))
-    val packet = api.Network.newPacket(node.address, null, port, args.drop(1).toArray)
+    val packet = api.Network.newPacket(node.address, null, port, args.asScala.drop(1).toArray)
     doBroadcast(packet)
     networkActivity()
     result(true)
@@ -127,7 +126,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
 
   // ----------------------------------------------------------------------- //
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       openPorts.clear()
@@ -160,14 +159,14 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
 
   private final val OpenPortsTag = "openPorts"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     assert(openPorts.isEmpty)
     openPorts ++= nbt.getIntArray(OpenPortsTag)
     loadWakeMessage(nbt)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
 
     nbt.setIntArray(OpenPortsTag, openPorts.toArray)
@@ -180,7 +179,7 @@ class NetworkCard(val host: EnvironmentHost) extends AbstractManagedEnvironment 
     if (port < 1 || port > 0xFFFF) throw new IllegalArgumentException("invalid port number")
     else port
 
-  private def networkActivity() {
+  private def networkActivity():Unit = {
     host match {
       case h: EnvironmentHost => ServerPacketSender.sendNetworkActivity(node, h)
       case _ =>

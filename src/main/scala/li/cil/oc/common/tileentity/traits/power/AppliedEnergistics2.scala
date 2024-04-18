@@ -17,7 +17,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
 import net.minecraftforge.fml.common._
 
-import scala.collection.JavaConversions
+import scala.jdk.CollectionConverters.*
 
 trait AppliedEnergistics2 extends Common with IGridHost {
   private def useAppliedEnergistics2Power() = isServer && Mods.AppliedEnergistics2.isModAvailable
@@ -43,7 +43,7 @@ trait AppliedEnergistics2 extends Common with IGridHost {
     }
   }
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     super.updateEntity()
     if (useAppliedEnergistics2Power() && getWorld.getTotalWorldTime % Settings.get.tickFrequency == 0) {
       updateEnergy()
@@ -51,7 +51,7 @@ trait AppliedEnergistics2 extends Common with IGridHost {
   }
 
   @Optional.Method(modid = Mods.IDs.AppliedEnergistics2)
-  private def updateEnergy() {
+  private def updateEnergy():Unit = {
     tryAllSides((demand, _) => {
       val grid = getGridNode(AEPartLocation.INTERNAL).getGrid
       if (grid != null) {
@@ -65,24 +65,24 @@ trait AppliedEnergistics2 extends Common with IGridHost {
     }, Power.fromAE, Power.toAE)
   }
 
-  override def validate() {
+  override def validate():Unit = {
     super.validate()
     if (useAppliedEnergistics2Power()) requestGridNodeStateUpdate()
   }
 
-  override def invalidate() {
+  override def invalidate():Unit = {
     super.invalidate()
     if (useAppliedEnergistics2Power()) securityBreak()
   }
 
-  override def onChunkUnload() {
+  override def onChunkUnload():Unit = {
     super.onChunkUnload()
     if (useAppliedEnergistics2Power()) securityBreak()
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     if (useAppliedEnergistics2Power()) loadNode(nbt)
   }
@@ -96,12 +96,12 @@ trait AppliedEnergistics2 extends Common with IGridHost {
     if (getWorld == worldIn)
       return
     super.setWorld(worldIn)
-    if (worldIn != null && isServer && useAppliedEnergistics2Power) {
+    if (worldIn != null && isServer && useAppliedEnergistics2Power()) {
       requestGridNodeStateUpdate()
     }
   }
 
-  override def writeToNBTForServer(nbt: NBTTagCompound) {
+  override def writeToNBTForServer(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForServer(nbt)
     if (useAppliedEnergistics2Power()) saveNode(nbt)
   }
@@ -127,7 +127,7 @@ trait AppliedEnergistics2 extends Common with IGridHost {
   def getCableConnectionType(side: AEPartLocation): AECableType = AECableType.SMART
 
   @Optional.Method(modid = Mods.IDs.AppliedEnergistics2)
-  def securityBreak() {
+  def securityBreak():Unit = {
     getGridNode(AEPartLocation.INTERNAL).destroy()
   }
 }
@@ -148,9 +148,9 @@ class AppliedEnergistics2GridBlock(val tileEntity: AppliedEnergistics2) extends 
   override def setNetworkStatus(p1: IGrid, p2: Int): Unit = {}
 
   override def getConnectableSides: util.EnumSet[EnumFacing] = {
-    val connectableSides = JavaConversions.asJavaCollection(EnumFacing.values.filter(tileEntity.canConnectPower))
+    val connectableSides = EnumFacing.values.filter(tileEntity.canConnectPower).toSet.asJava
     if (connectableSides.isEmpty) {
-      val s = util.EnumSet.copyOf(JavaConversions.asJavaCollection(EnumFacing.values))
+      val s = util.EnumSet.copyOf(EnumFacing.values.toSet.asJava)
       s.clear()
       s
     }

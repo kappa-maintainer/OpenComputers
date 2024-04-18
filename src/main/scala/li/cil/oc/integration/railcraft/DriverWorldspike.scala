@@ -15,7 +15,7 @@ import net.minecraft.world.World
 import java.util.Objects
 
 object DriverWorldspike extends DriverSidedTileEntity {
-  def getTileEntityClass: Class[_] = classOf[TileWorldspike]
+  def getTileEntityClass: Class[?] = classOf[TileWorldspike]
 
   def createEnvironment(world: World, pos: BlockPos, side: EnumFacing): ManagedEnvironment =
     new Environment(world.getTileEntity(pos).asInstanceOf[TileWorldspike])

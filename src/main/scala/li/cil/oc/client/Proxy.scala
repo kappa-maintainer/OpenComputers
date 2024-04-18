@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry
 import org.lwjgl.opengl.GLContext
 
 private[oc] class Proxy extends CommonProxy {
-  override def preInit(e: FMLPreInitializationEvent) {
+  override def preInit(e: FMLPreInitializationEvent): Unit = {
     super.preInit(e)
 
     api.API.manual = client.Manual
@@ -44,11 +44,11 @@ private[oc] class Proxy extends CommonProxy {
     ModelInitialization.preInit()
 
     RenderingRegistry.registerEntityRenderingHandler(classOf[Drone], new IRenderFactory[Drone] {
-      override def createRenderFor(manager: RenderManager): Render[_ >: Drone] = new DroneRenderer(manager)
+      override def createRenderFor(manager: RenderManager): Render[? >: Drone] = new DroneRenderer(manager)
     })
   }
 
-  override def init(e: FMLInitializationEvent) {
+  override def init(e: FMLInitializationEvent) : Unit = {
     super.init(e)
 
     OpenComputers.channel.register(client.PacketHandler)

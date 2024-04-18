@@ -26,12 +26,13 @@ object RobotData {
       OpenComputers.log.warn("Failed loading robot name list.", t)
       Array.empty[String]
   }
+  
 
   def randomName = if (names.length > 0) names((math.random * names.length).toInt) else "Robot"
 }
 
 class RobotData extends ItemData(Constants.BlockName.Robot) {
-  def this(stack: ItemStack) {
+  def this(stack: ItemStack) = {
     this()
     load(stack)
   }
@@ -59,7 +60,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
   private final val ContainersTag = Settings.namespace + "containers"
   private final val LightColorTag = Settings.namespace + "lightColor"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     name = ItemUtils.getDisplayName(nbt).getOrElse("")
     if (Strings.isNullOrEmpty(name)) {
       name = RobotData.randomName
@@ -76,7 +77,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     }
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     if (!Strings.isNullOrEmpty(name)) {
       ItemUtils.setDisplayName(nbt, name)
     }
@@ -88,7 +89,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     nbt.setInteger(LightColorTag, lightColor)
   }
 
-  def copyItemStack() = {
+  def copyItemStack(): ItemStack = {
     val stack = createItemStack()
     // Forget all node addresses and so on. This is used when 'picking' a
     // robot in creative mode.

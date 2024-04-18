@@ -18,10 +18,10 @@ import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedWorld._
 import net.minecraft.util.EnumFacing
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 trait RedstoneVanilla extends RedstoneSignaller with DeviceInfo {
-  def redstone: EnvironmentHost with RedstoneAware
+  def redstone: EnvironmentHost & RedstoneAware
 
   // ----------------------------------------------------------------------- //
 
@@ -34,7 +34,7 @@ trait RedstoneVanilla extends RedstoneSignaller with DeviceInfo {
     DeviceAttribute.Width -> "1"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   protected val SIDE_RANGE: Array[EnumFacing] = EnumFacing.values
 
@@ -60,7 +60,7 @@ trait RedstoneVanilla extends RedstoneSignaller with DeviceInfo {
     var ret: AnyRef = null
     if (getAssignment(args) match {
       case (side: EnumFacing, value: Int) =>
-        ret = new java.lang.Integer(redstone.getOutput(side))
+        ret = java.lang.Integer.valueOf(redstone.getOutput(side))
         redstone.setOutput(side, value)
       case (value: util.Map[_, _], _) =>
         ret = valuesToMap(redstone.getOutput)

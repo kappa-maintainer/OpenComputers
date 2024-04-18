@@ -28,7 +28,7 @@ import net.minecraft.nbt.NBTTagCompound
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.output.ByteArrayOutputStream
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Neighbors).
@@ -84,7 +84,7 @@ object DataCard {
       DeviceAttribute.Product -> "SC01D H45h3r"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
     // ----------------------------------------------------------------------- //
 
@@ -145,7 +145,7 @@ object DataCard {
       DeviceAttribute.Product -> "SC02D Cryptic"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
     // ----------------------------------------------------------------------- //
 
@@ -219,7 +219,7 @@ object DataCard {
       DeviceAttribute.Product -> "SC03D Signer"
     )
 
-    override def getDeviceInfo: util.Map[String, String] = deviceInfo
+    override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
     // ----------------------------------------------------------------------- //
 

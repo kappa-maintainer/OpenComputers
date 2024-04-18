@@ -20,8 +20,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.potion.Potion
 import net.minecraft.util.math.{AxisAlignedBB, BlockPos, Vec3d}
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvironment with DeviceInfo {
@@ -44,7 +43,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
     DeviceAttribute.Capacity -> radius.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -60,13 +59,14 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   override def canUpdate: Boolean = isServer
 
-  override def update() {
+  override def update():Unit = {
     super.update()
     if (world.getTotalWorldTime % 10 == 0) {
       // Get a list of all living entities we could possibly detect, using a rough
       // bounding box check, then refining it using the actual distance and an
       // actual visibility check.
       val entities = world.getEntitiesWithinAABB(classOf[EntityLivingBase], sensorBounds)
+        .asScala
         .map(_.asInstanceOf[EntityLivingBase])
         .filter(entity => entity.isEntityAlive && isInRange(entity) && isVisible(entity))
         .toSet
@@ -113,7 +113,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
       isClearPath(target) || isClearPath(target.add(0.0D, entity.getEyeHeight, 0.0D))
     }
 
-  private def sendSignal(entity: EntityLivingBase) {
+  private def sendSignal(entity: EntityLivingBase):Unit = {
     if (Settings.get.inputUsername) {
       node.sendToReachable("computer.signal", "motion", Double.box(entity.posX - (x + 0.5)), Double.box(entity.posY - (y + 0.5)), Double.box(entity.posZ - (z + 0.5)), entity.getName)
     }
@@ -138,12 +138,12 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   private final val SensitivityTag = Settings.namespace + "sensitivity"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     sensitivity = nbt.getDouble(SensitivityTag)
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     nbt.setDouble(SensitivityTag, sensitivity)
   }

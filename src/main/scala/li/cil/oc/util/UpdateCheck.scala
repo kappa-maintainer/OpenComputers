@@ -17,7 +17,7 @@ import scala.concurrent.Future
 object UpdateCheck {
   private val releasesUrl = new URL("https://api.github.com/repos/MightyPirates/OpenComputers/releases")
 
-  var info = Future {
+  var info: Future[Option[Release]] = Future {
     initialize()
   }
 

@@ -22,8 +22,7 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.SoundCategory
 
-import scala.collection.convert.WrapAsJava._
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Agent with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -39,12 +38,12 @@ class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Age
     DeviceAttribute.Capacity -> agent.inventorySize.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   override protected def checkSideForAction(args: Arguments, n: Int) =
     args.checkSideAny(n)
 
-  override protected def suckableItems(side: EnumFacing) = entitiesInBlock(classOf[EntityItem], position) ++ super.suckableItems(side)
+  override protected def suckableItems(side: EnumFacing) = (entitiesInBlock(classOf[EntityItem], position).asScala ++ super.suckableItems(side).asScala).asJava
 
   override protected def onSuckCollect(entity: EntityItem) = {
     if (InventoryUtils.insertIntoInventory(entity.getItem, InventoryUtils.asItemHandler(inventory), slots = Option(insertionSlots))) {

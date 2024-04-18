@@ -10,18 +10,18 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
-  def iterator() = args.iterator
+  def iterator() = args.iterator.asJava
 
   def count() = args.length
 
   def checkAny(index: Int) = {
     checkIndex(index, "value")
     args(index) match {
-      case Unit | None => null
+      case None => null
       case arg => arg
     }
   }
@@ -194,13 +194,13 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
     checkIndex(index, "table")
     args(index) match {
       case value: java.util.Map[_, _] => value
-      case value: Map[_, _] => value
-      case value: mutable.Map[_, _] => value
+      case value: Map[_, _] => value.asJava
+      case value: mutable.Map[_, _] => value.asJava
       case value => throw typeError(index, value, "table")
     }
   }
 
-  def optTable(index: Int, default: util.Map[_, _]) = {
+  def optTable(index: Int, default: util.Map[?, ?]) = {
     if (!isDefined(index)) default
     else checkTable(index)
   }
@@ -321,7 +321,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
       s"bad argument #${index + 1} (${typeName(have)} has no integer representation)")
 
   private def typeName(value: AnyRef): String = value match {
-    case null | Unit | None => "nil"
+    case null | None => "nil"
     case _: java.lang.Boolean => "boolean"
     case _: java.lang.Byte => "integer"
     case _: java.lang.Short => "integer"

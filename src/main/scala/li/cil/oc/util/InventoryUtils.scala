@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandlerModifiable
 import net.minecraftforge.items.wrapper.InvWrapper
 import net.minecraftforge.items.wrapper.SidedInvWrapper
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object InventoryUtils {
 
@@ -48,6 +48,7 @@ object InventoryUtils {
       case tile: TileEntity if tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) => Option(BlockInventorySource(position, side, tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)))
       case tile: IInventory => Option(BlockInventorySource(position, side, asItemHandler(tile, side)))
       case _ => world.getEntitiesWithinAABB(classOf[Entity], position.bounds)
+        .asScala
         .filter(e => !e.isDead && e.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
         .map(a => EntityInventorySource(a, side, a.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)))
         .find(a => a != null && a.inventory != null)

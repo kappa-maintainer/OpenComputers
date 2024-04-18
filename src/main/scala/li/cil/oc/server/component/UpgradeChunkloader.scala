@@ -21,7 +21,7 @@ import net.minecraftforge.common.ForgeChunkManager
 import net.minecraftforge.common.ForgeChunkManager.Ticket
 import net.minecraft.entity.Entity
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
@@ -36,13 +36,13 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
     DeviceAttribute.Product -> "Realizer9001-CL"
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   var ticket: Option[Ticket] = None
 
   override val canUpdate = true
 
-  override def update() {
+  override def update():Unit = {
     super.update()
     if (host.world.getTotalWorldTime % Settings.get.tickFrequency == 0 && ticket.isDefined) {
       if (!node.tryChangeBuffer(-Settings.get.chunkloaderCost * Settings.get.tickFrequency)) {
@@ -62,7 +62,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
   @Callback(doc = "function(enabled:boolean):boolean -- Enables or disables the chunkloader, returns true if active changed")
   def setActive(context: Context, args: Arguments): Array[AnyRef] = result(setActive(args.checkBoolean(0), throwIfBlocked = true))
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     super.onConnect(node)
     if (node == this.node) {
       val restoredTicket = ChunkloaderUpgradeHandler.restoredTickets.remove(node.address)
@@ -84,7 +84,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     super.onDisconnect(node)
     if (node == this.node) {
       ticket.foreach(ticket => try ForgeChunkManager.releaseTicket(ticket) catch {
@@ -94,7 +94,7 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
     super.onMessage(message)
     if (message.name == "computer.stopped") {
       setActive(enabled = false)

@@ -13,8 +13,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider
 object CapabilityColored {
   final val ProviderColored = new ResourceLocation(Mods.IDs.OpenComputers, "colored")
 
-  class Provider(val tileEntity: TileEntity with Colored) extends ICapabilityProvider with Colored {
-    override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = {
+  class Provider(val tileEntity: TileEntity & Colored) extends ICapabilityProvider with Colored {
+    override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = {
       capability == Capabilities.ColoredCapability
     }
 

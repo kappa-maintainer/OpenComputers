@@ -24,13 +24,13 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
   def getFluidInTankInSlot(context: Context, args: Arguments): Array[AnyRef] = if (Settings.get.allowItemStackInspection) {
     withFluidInfo(optSlot(args, 0), (fluid, _) => result(fluid.orNull))
   }
-  else result(Unit, "not enabled in config")
+  else result((), "not enabled in config")
 
   @Callback(doc = """function([tank:number]):table -- Get a description of the fluid in the tank in the specified slot or the selected slot.""")
   def getFluidInInternalTank(context: Context, args: Arguments): Array[AnyRef] = if (Settings.get.allowItemStackInspection) {
     result(Option(tank.getFluidTank(optTank(args, 0))).map(_.getFluid).orNull)
   }
-  else result(Unit, "not enabled in config")
+  else result((), "not enabled in config")
 
   @Callback(doc = """function([amount:number]):boolean -- Transfers fluid from a tank in the selected inventory slot to the selected tank.""")
   def drain(context: Context, args: Arguments): Array[AnyRef] = {
@@ -47,12 +47,12 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
                 inventory.setInventorySlotContents(selectedSlot, handler.getContainer)
                 result(true, transferred)
               }
-              else result(Unit, "incompatible or no fluid")
-            case _ => result(Unit, "item is not a fluid container")
+              else result((), "incompatible or no fluid")
+            case _ => result((), "item is not a fluid container")
           }
-        case _ => result(Unit, "nothing selected")
+        case _ => result((), "nothing selected")
       }
-      case _ => result(Unit, "no tank")
+      case _ => result((), "no tank")
     }
   }
 
@@ -71,12 +71,12 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
                 inventory.setInventorySlotContents(selectedSlot, handler.getContainer)
                 result(true, transferred)
               }
-              else result(Unit, "incompatible or no fluid")
-            case _ => result(Unit, "item is not a fluid container")
+              else result((), "incompatible or no fluid")
+            case _ => result((), "item is not a fluid container")
           }
-        case _ => result(Unit, "nothing selected")
+        case _ => result((), "nothing selected")
       }
-      case _ => result(Unit, "no tank")
+      case _ => result((), "no tank")
     }
   }
 
@@ -91,7 +91,7 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
     inventory.getStackInSlot(slot) match {
       case stack: ItemStack => fluidInfo(stack) match {
         case Some((fluid, capacity)) => f(fluid, capacity)
-        case _ => result(Unit, "item is not a fluid container")
+        case _ => result((), "item is not a fluid container")
       }
     }
   }

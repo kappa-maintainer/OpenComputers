@@ -294,7 +294,7 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
   // ----------------------------------------------------------------------- //
   // Rotatable
 
-  override protected def onRotationChanged() {
+  override protected def onRotationChanged():Unit = {
     super.onRotationChanged()
     checkRedstoneInputChanged()
   }
@@ -302,7 +302,7 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
   // ----------------------------------------------------------------------- //
   // RedstoneAware
 
-  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
+  override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs):Unit = {
     super.onRedstoneInputChanged(args)
     components.collect {
       case Some(mountable: RackMountable) if mountable.node != null =>
@@ -323,7 +323,7 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
     case _ => false
   }
 
-  override def markDirty() {
+  override def markDirty():Unit = {
     super.markDirty()
     if (isServer) {
       setOutputEnabled(hasRedstoneCard)
@@ -367,7 +367,7 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
   // ----------------------------------------------------------------------- //
   // TileEntity
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     super.updateEntity()
     if (isServer && isConnected) {
       lazy val connectors = EnumFacing.VALUES.map(sidedNode).collect {
@@ -464,7 +464,7 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
   def isWorking(mountable: RackMountable): Boolean = mountable.getCurrentState.contains(api.util.StateAware.State.IsWorking)
 
   def hasRedstoneCard: Boolean = components.exists {
-    case Some(mountable: EnvironmentHost with RackMountable with IInventory) if isWorking(mountable) =>
+    case Some(mountable: (EnvironmentHost & RackMountable & IInventory)) if isWorking(mountable) =>
       mountable.exists(stack => DriverRedstoneCard.worksWith(stack, mountable.getClass))
     case _ => false
   }

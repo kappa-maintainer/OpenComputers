@@ -23,20 +23,20 @@ abstract class TextureFontRenderer {
     * beforehand, outside the display list, to ensure no characters have to
     * be generated inside the draw call.
     */
-  def generateChars(chars: Array[Char]) {
+  def generateChars(chars: Array[Char]):Unit = {
     GlStateManager.enableTexture2D()
     for (char <- chars) {
       generateChar(char)
     }
   }
 
-  def generateChars(chars: Array[Int]) {
+  def generateChars(chars: Array[Int]):Unit = {
     for (char <- chars) {
       generateChar(char)
     }
   }
 
-  def drawBuffer(buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
+  def drawBuffer(buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int):Unit = {
     val format = buffer.format
 
     GlStateManager.pushMatrix()
@@ -84,7 +84,7 @@ abstract class TextureFontRenderer {
     for (y <- 0 until (viewportHeight min buffer.height)) {
       val line = buffer.buffer(y)
       val color = buffer.color(y)
-      val ty = y * charHeight
+      val ty: Float = y.toFloat * charHeight
       for (i <- 0 until textureCount) {
         bindTexture(i)
         GL11.glBegin(GL11.GL_QUADS)
@@ -129,7 +129,7 @@ abstract class TextureFontRenderer {
     GlStateManager.pushMatrix()
     RenderState.pushAttrib()
 
-    GlStateManager.translate(x, y, 0)
+    GlStateManager.translate(x.toFloat, y.toFloat, 0)
     GlStateManager.scale(0.5f, 0.5f, 1)
     GlStateManager.depthMask(false)
 

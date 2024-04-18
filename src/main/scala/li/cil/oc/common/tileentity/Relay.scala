@@ -121,14 +121,14 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
 
   // ----------------------------------------------------------------------- //
 
-  protected def queueMessage(source: String, destination: String, port: Int, answerPort: Int, args: Array[AnyRef]) {
+  protected def queueMessage(source: String, destination: String, port: Int, answerPort: Int, args: Array[AnyRef]):Unit = {
     for (computer <- computers.map(_.asInstanceOf[IComputerAccess])) {
       val address = s"cc${computer.getID}_${computer.getAttachmentName}"
       if (source != address && Option(destination).forall(_ == address) && openPorts(computer).contains(port))
         computer.queueEvent("modem_message", Array(Seq(computer.getAttachmentName, Int.box(port), Int.box(answerPort)) ++ args.map {
           case x: Array[Byte] => new String(x, Charsets.UTF_8)
           case x => x
-        }: _*))
+        }*))
     }
   }
 
@@ -194,7 +194,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
     withConnector(math.round(Settings.get.bufferAccessPoint)).
     create()
 
-  override protected def onPlugConnect(plug: Plug, node: Node) {
+  override protected def onPlugConnect(plug: Plug, node: Node):Unit = {
     super.onPlugConnect(plug, node)
     if (node == plug.node) {
       api.Network.joinWirelessNetwork(this)
@@ -205,7 +205,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
       componentNodes(plug.side.ordinal).remove()
   }
 
-  override protected def onPlugDisconnect(plug: Plug, node: Node) {
+  override protected def onPlugDisconnect(plug: Plug, node: Node):Unit = {
     super.onPlugDisconnect(plug, node)
     if (node == plug.node) {
       api.Network.leaveWirelessNetwork(this)
@@ -218,12 +218,12 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
 
   // ----------------------------------------------------------------------- //
 
-  override protected def onItemAdded(slot: Int, stack: ItemStack) {
+  override protected def onItemAdded(slot: Int, stack: ItemStack):Unit = {
     super.onItemAdded(slot, stack)
     updateLimits(slot, stack)
   }
   
-  private def updateLimits(slot: Int, stack: ItemStack) {
+  private def updateLimits(slot: Int, stack: ItemStack):Unit = {
     Option(Driver.driverFor(stack, getClass)) match {
       case Some(driver) if driver.slot(stack) == Slot.CPU =>
         relayDelay = math.max(1, relayBaseDelay - ((driver.tier(stack) + 1) * relayDelayPerUpgrade).toInt)
@@ -250,7 +250,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
     }
   }
 
-  override protected def onItemRemoved(slot: Int, stack: ItemStack) {
+  override protected def onItemRemoved(slot: Int, stack: ItemStack):Unit = {
     super.onItemRemoved(slot, stack)
     Driver.driverFor(stack, getClass) match {
       case driver if driver.slot(stack) == Slot.CPU => relayDelay = relayBaseDelay
@@ -280,7 +280,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
   private final val IsRepeaterTag = Settings.namespace + "isRepeater"
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForServer(nbt)
     for (slot <- items.indices) if (!items(slot).isEmpty) {
       updateLimits(slot, items(slot))

@@ -4,7 +4,7 @@ import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.OreDictionary
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object Color {
   val rgbValues = Map(
@@ -66,7 +66,7 @@ object Color {
 
   def byMeta(meta: EnumDyeColor) = byOreName(dyes(meta.getDyeDamage))
 
-  def findDye(stack: ItemStack) = byOreName.keys.find(OreDictionary.getOres(_).exists(oreStack => OreDictionary.itemMatches(stack, oreStack, false)))
+  def findDye(stack: ItemStack) = byOreName.keys.find(OreDictionary.getOres(_).asScala.exists(oreStack => OreDictionary.itemMatches(stack, oreStack, false)))
 
   def isDye(stack: ItemStack) = findDye(stack).isDefined
 

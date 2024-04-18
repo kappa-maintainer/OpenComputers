@@ -18,7 +18,7 @@ object NavigationUpgradeTemplate {
     }
   }
 
-  def register() {
+  def register():Unit = {
     // Disassembler
     api.IMC.registerDisassemblerTemplate(
       "Navigation Upgrade",

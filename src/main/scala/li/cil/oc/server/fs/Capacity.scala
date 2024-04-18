@@ -7,7 +7,7 @@ import li.cil.oc.api.fs.Mode
 import net.minecraft.nbt.NBTTagCompound
 
 trait Capacity extends OutputStreamFileSystem {
-  private var used = computeSize("/")
+  private var used: Long = computeSize("/")
 
   // Used when loading data from disk to virtual file systems, to allow
   // exceeding the actual capacity of a file system.
@@ -58,14 +58,14 @@ trait Capacity extends OutputStreamFileSystem {
 
   // ----------------------------------------------------------------------- //
 
-  override def close() {
+  override def close():Unit = {
     super.close()
     used = computeSize("/")
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     try {
       ignoreCapacity = true
       super.load(nbt)
@@ -76,7 +76,7 @@ trait Capacity extends OutputStreamFileSystem {
     used = computeSize("/")
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
 
     // For the tooltip.
@@ -86,7 +86,7 @@ trait Capacity extends OutputStreamFileSystem {
   // ----------------------------------------------------------------------- //
 
   override abstract protected def openOutputHandle(id: Int, path: String, mode: Mode): Option[OutputHandle] = {
-    val delta =
+    val delta: Long =
       if (exists(path))
         if (mode == Mode.Write)
           -size(path) // Overwrite, file gets cleared.
@@ -128,7 +128,7 @@ trait Capacity extends OutputStreamFileSystem {
 
     override def seek(to: Long) = inner.seek(to)
 
-    override def write(b: Array[Byte]) {
+    override def write(b: Array[Byte]):Unit = {
       if (owner.capacity - owner.used < b.length && !ignoreCapacity)
         throw new io.IOException("not enough space")
       inner.write(b)

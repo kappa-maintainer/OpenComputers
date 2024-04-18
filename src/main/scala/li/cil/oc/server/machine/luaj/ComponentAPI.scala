@@ -5,10 +5,10 @@ import li.cil.oc.util.ScalaClosure._
 import li.cil.repack.org.luaj.vm2.LuaValue
 import li.cil.repack.org.luaj.vm2.Varargs
 
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 class ComponentAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
-  override def initialize() {
+  override def initialize():Unit = {
     // Component interaction stuff.
     val component = LuaValue.tableOf()
 
@@ -17,7 +17,7 @@ class ComponentAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
       val exact = args.optboolean(2, false)
       val table = LuaValue.tableOf(0, components.size)
       def matches(name: String) = if (exact) name == filter.get else name.contains(filter.get)
-      for ((address, name) <- components) {
+      for ((address, name) <- components.asScala) {
         if (filter.isEmpty || matches(name)) {
           table.set(address, name)
         }
@@ -47,7 +47,7 @@ class ComponentAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
     component.set("methods", (args: Varargs) => {
       withComponent(args.checkjstring(1), component => {
         val table = LuaValue.tableOf()
-        for ((name, annotation) <- machine.methods(component.host)) {
+        for ((name, annotation) <- machine.methods(component.host).asScala) {
           table.set(name, LuaValue.tableOf(Array(
             LuaValue.valueOf("direct"),
             LuaValue.valueOf(annotation.direct),

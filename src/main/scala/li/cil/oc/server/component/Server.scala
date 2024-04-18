@@ -39,7 +39,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 
 class Server(val rack: api.internal.Rack, val slot: Int) extends Environment with MachineHost with ServerInventory with ComponentInventory with Analyzable with internal.Server with ICapabilityProvider with DeviceInfo {
   lazy val machine: api.machine.Machine = Machine.create(this)
@@ -59,36 +59,36 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
     DeviceAttribute.Capacity -> getSizeInventory.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override def onConnect(node: Node) {
+  override def onConnect(node: Node):Unit = {
     if (node == this.node) {
       connectComponents()
     }
   }
 
-  override def onDisconnect(node: Node) {
+  override def onDisconnect(node: Node):Unit = {
     if (node == this.node) {
       disconnectComponents()
     }
   }
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message):Unit = {
   }
 
   private final val MachineTag = "machine"
 
-  override def load(nbt: NBTTagCompound) {
+  override def load(nbt: NBTTagCompound):Unit = {
     super.load(nbt)
     if (!rack.world.isRemote) {
       machine.load(nbt.getCompoundTag(MachineTag))
     }
   }
 
-  override def save(nbt: NBTTagCompound) {
+  override def save(nbt: NBTTagCompound):Unit = {
     super.save(nbt)
     if (!rack.world.isRemote) {
       nbt.setNewCompoundTag(MachineTag, machine.save)
@@ -100,7 +100,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   override def internalComponents(): Iterable[ItemStack] = (0 until getSizeInventory).collect {
     case i if !getStackInSlot(i).isEmpty && isComponentSlot(i, getStackInSlot(i)) => getStackInSlot(i)
-  }
+  }.asJava
 
   override def componentSlot(address: String): Int = components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
@@ -141,7 +141,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
 
   override def container: ItemStack = rack.getStackInSlot(slot)
 
-  override protected def connectItemNode(node: Node) {
+  override protected def connectItemNode(node: Node):Unit = {
     if (node != null) {
       api.Network.joinNewNetwork(machine.node)
       machine.node.connect(node)
@@ -234,7 +234,7 @@ class Server(val rack: api.internal.Rack, val slot: Int) extends Environment wit
   // ----------------------------------------------------------------------- //
   // ICapabilityProvider
 
-  override def hasCapability(capability: Capability[_], facing: EnumFacing): Boolean = components.exists {
+  override def hasCapability(capability: Capability[?], facing: EnumFacing): Boolean = components.exists {
     case Some(component: ICapabilityProvider) => component.hasCapability(capability, host.toLocal(facing))
     case _ => false
   }

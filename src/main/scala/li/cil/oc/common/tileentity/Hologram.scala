@@ -21,7 +21,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-import scala.collection.convert.WrapAsJava._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
@@ -45,7 +45,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
     DeviceAttribute.Width -> colors.length.toString
   )
 
-  override def getDeviceInfo: util.Map[String, String] = deviceInfo
+  override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
   // ----------------------------------------------------------------------- //
 
@@ -101,7 +101,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
     lbit | (hbit << 1)
   }
 
-  def setColor(x: Int, y: Int, z: Int, value: Int) {
+  def setColor(x: Int, y: Int, z: Int, value: Int):Unit = {
     if ((value & 3) != getColor(x, y, z)) {
       val lbit = value & 1
       val hbit = (value >>> 1) & 1
@@ -111,7 +111,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
     }
   }
 
-  private def setDirty(x: Int, z: Int) {
+  private def setDirty(x: Int, z: Int):Unit = {
     dirty += ((x.toByte << 8) | z.toByte).toShort
     dirtyFromX = math.min(dirtyFromX, x)
     dirtyUntilX = math.max(dirtyUntilX, x + 1)
@@ -120,7 +120,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
     litRatio = -1
   }
 
-  private def resetDirtyFlag() {
+  private def resetDirtyFlag():Unit = {
     dirty.clear()
     dirtyFromX = Int.MaxValue
     dirtyUntilX = -1
@@ -337,7 +337,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
 
       result(true)
     }
-    else result(Unit, "not supported")
+    else result((), "not supported")
   }
 
   @Callback(doc = """function(speed:number, x:number, y:number, z:number):boolean -- Set the rotation speed of the displayed hologram.""")
@@ -356,7 +356,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
 
       result(true)
     }
-    else result(Unit, "not supported")
+    else result((), "not supported")
   }
 
   @Callback(direct = true, doc = "function():number, number, number -- Get the dimension of the x,y,z axes.")
@@ -388,7 +388,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
+  override def updateEntity():Unit = {
     super.updateEntity()
     if (isServer) {
       if (dirty.nonEmpty) this.synchronized {
@@ -476,7 +476,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
   private final val RotationSpeedZTag = Settings.namespace + "rotationSpeedZ"
   private final val HasPowerTag = Settings.namespace + "hasPower"
 
-  override def readFromNBTForServer(nbt: NBTTagCompound) {
+  override def readFromNBTForServer(nbt: NBTTagCompound):Unit = {
     tier = nbt.getByte(TierTag) max 0 min 1
     super.readFromNBTForServer(nbt)
     val tag = SaveHandler.loadNBT(nbt, dataPath)
@@ -519,7 +519,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
   }
 
   @SideOnly(Side.CLIENT)
-  override def readFromNBTForClient(nbt: NBTTagCompound) {
+  override def readFromNBTForClient(nbt: NBTTagCompound):Unit = {
     super.readFromNBTForClient(nbt)
     nbt.getIntArray(VolumeTag).copyToArray(volume)
     nbt.getIntArray(ColorsTag).copyToArray(colors)
@@ -539,7 +539,7 @@ class Hologram(var tier: Int) extends traits.Environment with SidedEnvironment w
     rotationSpeedZ = nbt.getFloat(RotationSpeedZTag)
   }
 
-  override def writeToNBTForClient(nbt: NBTTagCompound) {
+  override def writeToNBTForClient(nbt: NBTTagCompound):Unit = {
     super.writeToNBTForClient(nbt)
     nbt.setIntArray(VolumeTag, volume)
     nbt.setIntArray(ColorsTag, colors)

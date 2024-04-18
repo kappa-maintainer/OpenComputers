@@ -60,7 +60,7 @@ abstract class SimpleBlock(material: Material = Material.IRON) extends BlockCont
   override def getRenderType(state: IBlockState): EnumBlockRenderType = EnumBlockRenderType.MODEL
 
   @SideOnly(Side.CLIENT)
-  def preItemRender(metadata: Int) {}
+  def preItemRender(metadata: Int):Unit = {}
 
   // ----------------------------------------------------------------------- //
   // ItemBlock
@@ -69,20 +69,20 @@ abstract class SimpleBlock(material: Material = Material.IRON) extends BlockCont
   def rarity(stack: ItemStack) = EnumRarity.COMMON
 
   @SideOnly(Side.CLIENT)
-  def addInformation(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  def addInformation(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     tooltipHead(metadata, stack, world, tooltip, flag)
     tooltipBody(metadata, stack, world, tooltip, flag)
     tooltipTail(metadata, stack, world, tooltip, flag)
   }
 
-  protected def tooltipHead(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  protected def tooltipHead(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
   }
 
-  protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  protected def tooltipBody(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
     tooltip.addAll(Tooltip.get(getClass.getSimpleName.toLowerCase))
   }
 
-  protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag) {
+  protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], flag: ITooltipFlag):Unit = {
   }
 
   // ----------------------------------------------------------------------- //

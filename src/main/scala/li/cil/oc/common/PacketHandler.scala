@@ -28,7 +28,7 @@ import scala.reflect.classTag
 
 abstract class PacketHandler {
   /** Top level dispatcher based on packet type. */
-  protected def onPacketData(handler: INetHandler, data: ByteBuf, player: EntityPlayer) {
+  protected def onPacketData(handler: INetHandler, data: ByteBuf, player: EntityPlayer):Unit = {
     val thread = FMLCommonHandler.instance.getWorldThread(handler)
     if (thread.isCallingFromMinecraftThread) {
       process(data, player)

@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack
 import net.minecraftforge.fluids.capability.{CapabilityFluidHandler, IFluidHandlerItem}
 
 import java.util
-import scala.collection.convert.WrapAsScala._
+import scala.jdk.CollectionConverters.*
 
 object ConverterFluidContainerItem extends api.driver.Converter {
   override def convert(value: scala.Any, output: util.Map[AnyRef, AnyRef]) =
@@ -14,11 +14,11 @@ object ConverterFluidContainerItem extends api.driver.Converter {
         stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null) match {
           case fc: IFluidHandlerItem =>
             val properties = fc.getTankProperties
-            output += "capacity" -> Int.box(properties.map(a => a.getCapacity).sum)
+            output.asScala += "capacity" -> Int.box(properties.map(a => a.getCapacity).sum)
             if (properties.length > 1) {
-              output += "fluid" -> properties
+              output.asScala += "fluid" -> properties
             } else {
-              output += "fluid" -> properties(0).getContents
+              output.asScala += "fluid" -> properties(0).getContents
             }
           case _ =>
         }

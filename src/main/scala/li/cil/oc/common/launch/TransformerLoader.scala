@@ -9,15 +9,15 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.{SortingIndex, Transf
 @SortingIndex(1001)
 @TransformerExclusions(Array("li.cil.oc.common.asm"))
 class TransformerLoader extends IFMLLoadingPlugin {
-  val instance = this
+  val instance: TransformerLoader = this
 
   override def getModContainerClass = "li.cil.oc.common.launch.CoreModContainer"
 
-  override def getASMTransformerClass = Array(classOf[ClassTransformer].getName)
+  override def getASMTransformerClass: Array[String] = Array(classOf[ClassTransformer].getName)
 
-  override def getAccessTransformerClass = null
+  override def getAccessTransformerClass: String = null
 
-  override def getSetupClass = null
+  override def getSetupClass: String = null
 
-  override def injectData(data: util.Map[String, AnyRef]) {}
+  override def injectData(data: util.Map[String, AnyRef]):Unit = {}
 }
