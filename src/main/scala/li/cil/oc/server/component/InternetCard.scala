@@ -213,7 +213,7 @@ object InternetCard {
 
           selector.select()
 
-          import scala.jdk.CollectionConverters.*
+          import scala.jdk.CollectionConverters.SetHasAsScala
           val selectedKeys = selector.selectedKeys
           val readableKeys = mutable.HashSet[SelectionKey]()
           selectedKeys.asScala.filter(_.isReadable).foreach(key => {
