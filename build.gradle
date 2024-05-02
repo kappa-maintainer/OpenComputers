@@ -277,6 +277,7 @@ jar {
         attributes FMLCorePlugin: "li.cil.oc.common.launch.TransformerLoader"
         attributes FMLCorePluginContainsFMLMod: "true"
         attributes FMLAT: "oc_at.cfg"
+        attributes ModType: "CRL"
     }
 }
 /*
