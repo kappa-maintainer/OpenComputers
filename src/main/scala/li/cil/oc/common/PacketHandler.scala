@@ -50,7 +50,7 @@ abstract class PacketHandler {
     // server like this). Just spam the log a bit... ;)
     var stream: InputStream = null
     try {
-      stream = new ByteBufInputStream(data)
+      stream = new ByteBufInputStream(data, true)
       if (stream.read() != 0) stream = new InflaterInputStream(stream)
       dispatch(new PacketParser(stream, player))
     } catch {

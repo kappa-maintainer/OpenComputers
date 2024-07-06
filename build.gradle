@@ -233,8 +233,8 @@ dependencies {
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
     embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
-    implementation 'org.scala-lang:scala3-compiler_3:3.4.1'
-    implementation 'org.scala-lang:scala3-library_3:3.4.1'
+    implementation 'org.scala-lang:scala3-compiler_3:3.4.2'
+    implementation 'org.scala-lang:scala3-library_3:3.4.2'
     implementation 'com.typesafe:config:1.4.3'
 
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.2')
