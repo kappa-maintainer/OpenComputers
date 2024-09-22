@@ -233,15 +233,15 @@ dependencies {
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
     embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
-    implementation 'org.scala-lang:scala3-compiler_3:3.4.2'
-    implementation 'org.scala-lang:scala3-library_3:3.4.2'
+    implementation 'org.scala-lang:scala3-compiler_3:3.5.1'
+    implementation 'org.scala-lang:scala3-library_3:3.5.1'
     implementation 'com.typesafe:config:1.4.3'
 
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.2')
-    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.10.2')
-    testImplementation('org.mockito:mockito-core:5.11.0')
-    testImplementation("org.scalactic:scalactic_3:3.2.18")
-    testImplementation("org.scalatest:scalatest_3:3.2.18")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.11.0')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.11.0')
+    testImplementation('org.mockito:mockito-core:5.13.0')
+    testImplementation("org.scalactic:scalactic_3:3.2.19")
+    testImplementation("org.scalatest:scalatest_3:3.2.19")
 
     provided fg.deobf("codechicken:EnderStorage:${config.minecraft.version}-${config.enderstorage.version}:universal")
 

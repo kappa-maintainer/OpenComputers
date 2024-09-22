@@ -527,6 +527,14 @@ object InternetCard {
               out.close()
             }
 
+            // Finish the connection. Call getInputStream a second time below to re-throw any exception.
+            // This avoids getResponseCode() waiting for the connection to end in the synchronized block.
+            try {
+              http.getInputStream
+            } catch {
+              case _: Exception =>
+            }
+
             HTTPRequest.this.synchronized {
               response = Some((http.getResponseCode, http.getResponseMessage, http.getHeaderFields))
             }
