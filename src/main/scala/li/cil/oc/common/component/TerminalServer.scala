@@ -295,7 +295,7 @@ object TerminalServer {
       completePending()
       ready.asJava.getOrDefault(address, null) match {
         case term: TerminalServer => Option(term)
-        case _ => None
+        case null => None
       }
     }
   }

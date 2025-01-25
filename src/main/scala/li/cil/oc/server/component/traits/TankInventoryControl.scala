@@ -50,7 +50,7 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
               else result((), "incompatible or no fluid")
             case _ => result((), "item is not a fluid container")
           }
-        case _ => result((), "nothing selected")
+        case null => result((), "nothing selected")
       }
       case _ => result((), "no tank")
     }
@@ -74,7 +74,7 @@ trait TankInventoryControl extends WorldAware with InventoryAware with TankAware
               else result((), "incompatible or no fluid")
             case _ => result((), "item is not a fluid container")
           }
-        case _ => result((), "nothing selected")
+        case null => result((), "nothing selected")
       }
       case _ => result((), "no tank")
     }

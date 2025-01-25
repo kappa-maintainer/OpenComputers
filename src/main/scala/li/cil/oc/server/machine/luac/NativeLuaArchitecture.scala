@@ -62,7 +62,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
         lua.pushBoolean(true)
         results.foreach(result => lua.pushValue(result))
         1 + results.length
-      case _ =>
+      case null =>
         lua.pushBoolean(true)
         1
     }

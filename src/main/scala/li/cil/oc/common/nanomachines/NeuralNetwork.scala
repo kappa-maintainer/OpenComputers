@@ -7,7 +7,7 @@ import li.cil.oc.api.Persistable
 import li.cil.oc.api.nanomachines.Behavior
 import li.cil.oc.api.nanomachines.BehaviorProvider
 import li.cil.oc.server.PacketSender
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.nbt.NBTTagCompound
@@ -17,16 +17,17 @@ import net.minecraftforge.common.util.Constants.NBT
 
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 class NeuralNetwork(controller: ControllerImpl) extends Persistable {
-  val triggers = mutable.ArrayBuffer.empty[TriggerNeuron]
-  val connectors = mutable.ArrayBuffer.empty[ConnectorNeuron]
-  val behaviors = mutable.ArrayBuffer.empty[BehaviorNeuron]
+  val triggers: ArrayBuffer[TriggerNeuron] = mutable.ArrayBuffer.empty[TriggerNeuron]
+  val connectors: ArrayBuffer[ConnectorNeuron] = mutable.ArrayBuffer.empty[ConnectorNeuron]
+  val behaviors: ArrayBuffer[BehaviorNeuron] = mutable.ArrayBuffer.empty[BehaviorNeuron]
 
-  val behaviorMap = mutable.Map.empty[Behavior, BehaviorNeuron]
+  private val behaviorMap: mutable.Map[Behavior, BehaviorNeuron] = mutable.Map.empty[Behavior, BehaviorNeuron]
 
-  def inputs(behavior: Behavior) = behaviorMap.get(behavior) match {
+  def inputs(behavior: Behavior): Int = behaviorMap.get(behavior) match {
     case Some(node) => node.inputs.count(_.isActive)
     case _ => 0
   }
@@ -124,7 +125,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   }
 
   def print(player: EntityPlayer): Unit = {
-    val sb = StringBuilder.newBuilder
+    val sb = new StringBuilder
     def colored(value: Any, enabled: Boolean) = {
       if (enabled) sb.append(TextFormatting.GREEN)
       else sb.append(TextFormatting.RED)
@@ -216,7 +217,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
           neuron.inputs ++= t.getIntArray(ConnectorInputsTag).map(connectors.apply)
           behaviors += neuron
           true // Done.
-        case _ =>
+        case null =>
           false // Keep looking.
       })
     })
@@ -234,9 +235,9 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   }
 
   class ConnectorNeuron extends Neuron {
-    val inputs = mutable.ArrayBuffer.empty[Neuron]
+    val inputs: ArrayBuffer[Neuron] = mutable.ArrayBuffer.empty[Neuron]
 
-    override def isActive = inputs.forall(_.isActive)
+    override def isActive: Boolean = inputs.forall(_.isActive)
   }
 
   class BehaviorNeuron(val provider: BehaviorProvider, val behavior: Behavior) extends ConnectorNeuron

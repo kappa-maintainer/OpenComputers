@@ -1,6 +1,6 @@
 package li.cil.oc.server.component
 
-import java.security._
+import java.security.*
 import java.security.interfaces.ECPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
@@ -12,7 +12,6 @@ import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-
 import com.google.common.hash.Hashing
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -22,7 +21,7 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.network.{ComponentConnector, Visibility}
 import li.cil.oc.api.prefab
 import net.minecraft.nbt.NBTTagCompound
 import org.apache.commons.codec.binary.Base64
@@ -31,7 +30,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream
 import scala.jdk.CollectionConverters.*
 
 abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInfo {
-  override val node = Network.newNode(this, Visibility.Neighbors).
+  override val node: ComponentConnector = Network.newNode(this, Visibility.Neighbors).
     withComponent("data", Visibility.Neighbors).
     withConnector().
     create()
@@ -51,16 +50,16 @@ abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInf
     if (!node.tryChangeBuffer(-baseCost)) throw new Exception("not enough energy")
   }
 
-  protected def trivialCost(context: Context, args: Arguments) =
+  protected def trivialCost(context: Context, args: Arguments): Array[Byte] =
     checkCost(context, args, Settings.get.dataCardTrivial, Settings.get.dataCardTrivialByte)
 
-  protected def simpleCost(context: Context, args: Arguments) =
+  protected def simpleCost(context: Context, args: Arguments): Array[Byte] =
     checkCost(context, args, Settings.get.dataCardSimple, Settings.get.dataCardSimpleByte)
 
-  protected def complexCost(context: Context, args: Arguments) =
+  protected def complexCost(context: Context, args: Arguments): Array[Byte] =
     checkCost(context, args, Settings.get.dataCardComplex, Settings.get.dataCardComplexByte)
 
-  protected def asymmetricCost(context: Context, args: Arguments) =
+  protected def asymmetricCost(context: Context, args: Arguments): Array[Byte] =
     checkCost(context, args, Settings.get.dataCardAsymmetric, Settings.get.dataCardComplexByte)
 
   // ----------------------------------------------------------------------- //
@@ -72,8 +71,8 @@ abstract class DataCard extends prefab.AbstractManagedEnvironment with DeviceInf
 }
 
 object DataCard {
-  val SecureRandomInstance = new ThreadLocal[SecureRandom]() {
-    override def initialValue = SecureRandom.getInstance("SHA1PRNG")
+  private val SecureRandomInstance: ThreadLocal[SecureRandom] = new ThreadLocal[SecureRandom]() {
+    override def initialValue: SecureRandom = SecureRandom.getInstance("SHA1PRNG")
   }
 
   class Tier1 extends DataCard {

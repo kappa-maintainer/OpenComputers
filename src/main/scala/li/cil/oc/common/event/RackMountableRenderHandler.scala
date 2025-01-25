@@ -2,11 +2,12 @@ package li.cil.oc.common.event
 
 import li.cil.oc.Constants
 import li.cil.oc.api
+import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.tileentity.RenderUtil
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedWorld.*
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
@@ -19,16 +20,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.opengl.GL11
 
 object RackMountableRenderHandler {
-  lazy val DiskDriveMountable = api.Items.get(Constants.ItemName.DiskDriveMountable)
+  lazy val DiskDriveMountable: ItemInfo = api.Items.get(Constants.ItemName.DiskDriveMountable)
 
-  lazy val Servers = Array(
+  lazy val Servers: Array[ItemInfo] = Array(
     api.Items.get(Constants.ItemName.ServerTier1),
     api.Items.get(Constants.ItemName.ServerTier2),
     api.Items.get(Constants.ItemName.ServerTier3),
     api.Items.get(Constants.ItemName.ServerCreative)
   )
 
-  lazy val TerminalServer = api.Items.get(Constants.ItemName.TerminalServer)
+  lazy val TerminalServer: ItemInfo = api.Items.get(Constants.ItemName.TerminalServer)
 
   @SubscribeEvent
   def onRackMountableRendering(e: RackMountableRenderEvent.TileEntity): Unit = {
@@ -45,7 +46,7 @@ object RackMountableRenderHandler {
           GlStateManager.scale(0.5f, 0.5f, 0.5f)
 
           val brightness = e.rack.world.getLightBrightnessForSkyBlocks(BlockPosition(e.rack).offset(e.rack.facing), 0)
-          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness % 65536, brightness / 65536)
+          OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (brightness % 65536).toFloat, (brightness / 65536).toFloat)
 
           // This is very 'meh', but item frames do it like this, too!
           val entity = new EntityItem(e.rack.world, 0, 0, 0, stack)

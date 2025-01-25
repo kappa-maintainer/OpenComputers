@@ -30,7 +30,7 @@ trait SimpleInventory extends IInventory {
           val result = stack.splitStack(amount)
           markDirty()
           result
-        case _ => ItemStack.EMPTY
+        case null => ItemStack.EMPTY
       }) match {
         case stack: ItemStack if stack.getCount > 0 => stack
         case _ => ItemStack.EMPTY

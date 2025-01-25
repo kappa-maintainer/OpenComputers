@@ -33,7 +33,7 @@ class RaidData extends ItemData(Constants.BlockName.Raid) {
   }
 
   override def save(nbt: NBTTagCompound): Unit = {
-    nbt.setNewTagList(DisksTag, disks.toIterable)
+    nbt.setNewTagList(DisksTag, disks.toList)
     nbt.setTag(FileSystemTag, filesystem)
     label.foreach(nbt.setString(LabelTag, _))
   }

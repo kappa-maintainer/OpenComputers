@@ -36,6 +36,6 @@ class DrawableAnimatedIcon(resourceLocation: ResourceLocation, u: Int, v: Int, w
     val y = yOffset + this.paddingTop
     val u = this.u + uOffsetTotal
     val v = this.v + vOffsetTotal
-    Gui.drawModalRectWithCustomSizedTexture(x, y, u, v, width, height, textureWidth, textureHeight)
+    Gui.drawModalRectWithCustomSizedTexture(x, y, u.toFloat, v.toFloat, width, height, textureWidth.toFloat, textureHeight.toFloat)
   }
 }

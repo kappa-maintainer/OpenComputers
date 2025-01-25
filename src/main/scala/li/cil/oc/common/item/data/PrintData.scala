@@ -6,14 +6,16 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.IMC
 import li.cil.oc.common.item.data.PrintData.Shape
-import li.cil.oc.util.ExtendedAABB._
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedAABB.*
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
+import scala.util.boundary
+import scala.util.boundary.break
 
 class PrintData extends ItemData(Constants.BlockName.Print) {
   def this(stack: ItemStack) = {
@@ -192,12 +194,13 @@ object PrintData {
   }
 
   def inkValue(stack: ItemStack): Int = {
-    for (provider <- inkProviders) {
-      val value = IMC.tryInvokeStatic(provider, stack)(0)
-      if (value > 0) {
-        return value
+    boundary:
+      for (provider <- inkProviders) {
+        val value = IMC.tryInvokeStatic(provider, stack)(0)
+        if (value > 0) {
+          break(value)
+        }
       }
-    }
     0
   }
 

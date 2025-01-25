@@ -40,7 +40,7 @@ object DiskDriveRenderer extends TileEntitySpecialRenderer[DiskDrive] {
         GlStateManager.scale(0.5f, 0.5f, 0.5f)
 
         val brightness = drive.world.getCombinedLight(drive.getPos.offset(drive.facing), 0)
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness % 65536, brightness / 65536)
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (brightness % 65536).toFloat, (brightness / 65536).toFloat)
 
         // This is very 'meh', but item frames do it like this, too!
         val entity = new EntityItem(drive.world, 0, 0, 0, stack)

@@ -10,17 +10,17 @@ import net.minecraftforge.fml.relauncher.SideOnly
   * @author Vexatos
   */
 trait OpenSides extends TileEntity {
-  protected def SideCount = EnumFacing.VALUES.length
+  protected def SideCount: Int = EnumFacing.VALUES.length
 
   protected def defaultState: Boolean = false
 
-  var openSides = Array.fill(SideCount)(defaultState)
+  var openSides: Array[Boolean] = Array.fill(SideCount)(defaultState)
 
-  def compressSides = (EnumFacing.values(), openSides).zipped.foldLeft(0)((acc, entry) => acc | (if (entry._2) 1 << entry._1.ordinal() else 0)).toByte
+  def compressSides: Byte = EnumFacing.values().lazyZip(openSides).foldLeft(0)((acc, entry) => acc | (if (entry._2) 1 << entry._1.ordinal() else 0)).toByte
 
-  def uncompressSides(byte: Byte) = EnumFacing.values().map(d => ((1 << d.ordinal()) & byte) != 0)
+  def uncompressSides(byte: Byte): Array[Boolean] = EnumFacing.values().map(d => ((1 << d.ordinal()) & byte) != 0)
 
-  def isSideOpen(side: EnumFacing) = side != null && openSides(side.ordinal())
+  def isSideOpen(side: EnumFacing): Boolean = side != null && openSides(side.ordinal())
 
   def setSideOpen(side: EnumFacing, value: Boolean): Unit = if (side != null && openSides(side.ordinal()) != value) {
     openSides(side.ordinal()) = value

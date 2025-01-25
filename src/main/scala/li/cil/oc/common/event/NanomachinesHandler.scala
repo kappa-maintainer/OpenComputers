@@ -55,7 +55,7 @@ object NanomachinesHandler {
             drawRect(left.toInt, top.toInt, sizeX, sizeY, sizeX, sizeY)
             Minecraft.getMinecraft.getTextureManager.bindTexture(Textures.GUI.NanomachinesBar)
             drawRect(left.toInt, top.toInt, sizeX, sizeY, sizeX, sizeY, fill)
-          case _ => // Nothing to show.
+          case null => // Nothing to show.
         }
       }
     }
@@ -79,7 +79,7 @@ object NanomachinesHandler {
     def onPlayerRespawn(e: PlayerRespawnEvent): Unit = {
       api.Nanomachines.getController(e.player) match {
         case controller: Controller => controller.changeBuffer(-controller.getLocalBuffer)
-        case _ => // Not a player with nanomachines.
+        case null => // Not a player with nanomachines.
       }
     }
 

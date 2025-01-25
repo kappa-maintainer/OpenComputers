@@ -37,7 +37,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
     })))
     nbt.setBooleanArray("nodePresence", (0 until rack.getSizeInventory).flatMap(slot => rack.getMountable(slot) match {
       case mountable: RackMountable => (Seq(true) ++ (0 until math.min(MaxConnections - 1, mountable.getConnectableCount)).map(index => mountable.getConnectableAt(index) != null)).padTo(MaxConnections, false)
-      case _ => Array.fill(MaxConnections)(false)
+      case null => Array.fill(MaxConnections)(false)
     }).toArray)
     nbt.setBoolean("isRelayEnabled", rack.isRelayEnabled)
   }

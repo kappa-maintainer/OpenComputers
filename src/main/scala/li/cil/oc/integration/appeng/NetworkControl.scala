@@ -170,7 +170,7 @@ trait NetworkControl[AETile >: Null <: TileEntity & IActionHost & IGridHost] {
     val filter = getFilter(args, 0).asScala
     val database = args.optString(1, null) match {
       case address: String => DatabaseAccess.database(node, address)
-      case _ => DatabaseAccess.databases(node).headOption.getOrElse(throw new IllegalArgumentException("no database upgrade found"))
+      case null => DatabaseAccess.databases(node).headOption.getOrElse(throw new IllegalArgumentException("no database upgrade found"))
     }
     val items = allItems.collect{ case aeItem if matches(convert(aeItem), filter) => aePotentialItem(aeItem)}.toArray
     val offset = args.optSlot(database.data, 2, 0)
@@ -226,7 +226,7 @@ trait NetworkControl[AETile >: Null <: TileEntity & IActionHost & IGridHost] {
     if (stack == null) return false
     filter.forall {
       case (key: AnyRef, value: AnyRef) => contains(stack, key, value)
-      case _ => false
+      case null => false
     }
   }
 
@@ -348,7 +348,7 @@ object NetworkControl {
 
         val source = new MachineSource(controller)
         val future = craftingGrid.beginCraftingJob(controller.getWorld, gridNode.getGrid, source, request, null)
-        val cpu = if (!cpuName.isEmpty) {
+        val cpu = if (cpuName.nonEmpty) {
           craftingGrid.getCpus.asScala.collectFirst({
             case c if cpuName.equals(c.getName) => c
           }).orNull
@@ -517,11 +517,11 @@ object NetworkControl {
     @Callback(doc = """function():boolean -- Cancels the request. Returns false if the craft cannot be canceled or nil if the link is computing""")
     def cancel(context: Context, args: Arguments): Array[AnyRef] = {
       asCraft(craft => {
-        if (craft.isDone) {
-          return result(false, "job already completed")
-        }
-        craft.cancel()
-        result(true)
+        if (craft.isDone)
+          result(false, "job already completed")
+        else
+          craft.cancel()
+          result(true)
       })
     }
 

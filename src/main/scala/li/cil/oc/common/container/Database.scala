@@ -3,12 +3,15 @@ package li.cil.oc.common.container
 import li.cil.oc.common.inventory.DatabaseInventory
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory._
+import net.minecraft.inventory.*
 import net.minecraft.item.ItemStack
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 class Database(playerInventory: InventoryPlayer, databaseInventory: DatabaseInventory) extends Player(playerInventory, databaseInventory) {
-  val rows = math.sqrt(databaseInventory.getSizeInventory).ceil.toInt
-  val offset = 8 + Array(3, 2, 0)(databaseInventory.tier) * slotSize
+  val rows: Int = math.sqrt(databaseInventory.getSizeInventory).ceil.toInt
+  val offset: Int = 8 + Array(3, 2, 0)(databaseInventory.tier) * slotSize
 
   for (row <- 0 until rows; col <- 0 until rows) {
     addSlotToContainer(offset + col * slotSize, offset + row * slotSize)
@@ -17,7 +20,7 @@ class Database(playerInventory: InventoryPlayer, databaseInventory: DatabaseInve
   // Show the player's inventory.
   addPlayerInventorySlots(8, 174)
 
-  override def canInteractWith(player: EntityPlayer) = player == playerInventory.player
+  override def canInteractWith(player: EntityPlayer): Boolean = player == playerInventory.player
 
   override def slotClick(slot: Int, dragType: Int, clickType: ClickType, player: EntityPlayer): ItemStack = {
     if (slot >= databaseInventory.getSizeInventory() || slot < 0) {
@@ -29,10 +32,10 @@ class Database(playerInventory: InventoryPlayer, databaseInventory: DatabaseInve
     val ghostSlot = this.inventorySlots.get(slot);
     if (ghostSlot != null) {
       val inventoryPlayer = player.inventory
-      val hand = inventoryPlayer.getItemStack()
+      val hand = inventoryPlayer.getItemStack
       var itemToAdd = ItemStack.EMPTY
       // if the player is holding an item, place a copy
-      if (!hand.isEmpty()) {
+      if (!hand.isEmpty) {
         itemToAdd = hand.copy()
       }
       ghostSlot.putStack(itemToAdd)
@@ -46,25 +49,25 @@ class Database(playerInventory: InventoryPlayer, databaseInventory: DatabaseInve
       return
     }
   
-    val fromStack = from.getStack().copy()
+    val fromStack = from.getStack.copy()
     if (fromStack.isEmpty) {
       return
     }
 
     fromStack.setCount(1)
     val (begin, end) = (0, inventorySlots.size - 1)
-
-    for (i <- begin to end) {
-      val intoSlot = inventorySlots.get(i)
-      if (intoSlot.inventory != from.inventory) {
-        if (!intoSlot.getHasStack && intoSlot.isItemValid(fromStack)) {
-          if (intoSlot.getSlotStackLimit > 0) {
-            intoSlot.putStack(fromStack)
-            return
+    boundary:
+      for (i <- begin to end) {
+        val intoSlot = inventorySlots.get(i)
+        if (intoSlot.inventory != from.inventory) {
+          if (!intoSlot.getHasStack && intoSlot.isItemValid(fromStack)) {
+            if (intoSlot.getSlotStackLimit > 0) {
+              intoSlot.putStack(fromStack)
+              break()
+            }
           }
         }
       }
-    }
   }
 }
 

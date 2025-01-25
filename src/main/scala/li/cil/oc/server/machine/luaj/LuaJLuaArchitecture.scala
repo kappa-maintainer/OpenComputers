@@ -47,7 +47,7 @@ class LuaJLuaArchitecture(val machine: api.machine.Machine) extends Architecture
     f() match {
       case results: Array[_] =>
         LuaValue.varargsOf(Array(LuaValue.TRUE) ++ results.map(toLuaValue))
-      case _ =>
+      case null =>
         LuaValue.TRUE
     }
   }

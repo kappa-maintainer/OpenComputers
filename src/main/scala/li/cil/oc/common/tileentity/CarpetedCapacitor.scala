@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -11,9 +10,11 @@ import net.minecraft.entity.passive.{EntityOcelot, EntitySheep}
 import net.minecraft.util.DamageSource
 import net.minecraft.util.EnumFacing
 
-
 import scala.jdk.CollectionConverters.*
 import li.cil.oc.common.tileentity.traits.Tickable
+
+import scala.util.boundary
+import scala.util.boundary.break
 
 class CarpetedCapacitor extends Capacitor with Tickable {
   private final lazy val deviceInfo = Map(
@@ -34,16 +35,17 @@ class CarpetedCapacitor extends Capacitor with Tickable {
   private def energyFromGroup(entities: Set[EntityLivingBase], power: Double): Double = {
     if (entities.size < 2) return 0
     def tryDamageOne(): Unit = {
-      for (ent <- entities) {
-        if (rng.nextDouble() < chance) {
-          ent.attackEntityFrom(DamageSource.GENERIC, 1)
-          ent.setRevengeTarget(ent) // panic
-          ent.knockBack(ent, 0, .25, 0)
-          // wait a minute before the next possible shock
-          nextChanceTime = _world.getTotalWorldTime + (20 * 60)
-          return
+      boundary:
+        for (ent <- entities) {
+          if (rng.nextDouble() < chance) {
+            ent.attackEntityFrom(DamageSource.GENERIC, 1)
+            ent.setRevengeTarget(ent) // panic
+            ent.knockBack(ent, 0, .25, 0)
+            // wait a minute before the next possible shock
+            nextChanceTime = _world.getTotalWorldTime + (20 * 60)
+            break()
+          }
         }
-      }
     }
     if (chance > 0 && nextChanceTime < _world.getTotalWorldTime) {
       tryDamageOne()

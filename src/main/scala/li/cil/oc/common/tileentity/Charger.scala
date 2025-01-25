@@ -262,7 +262,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     // Only update list when we have to, keeps pointless block updates to a minimum.
 
     val newConnectors = robots ++ drones ++ chargeablePlayers
-    if (connectors.size != newConnectors.length || (connectors.nonEmpty && (connectors -- newConnectors).nonEmpty)) {
+    if (connectors.size != newConnectors.length || (connectors.nonEmpty && (connectors.diff(newConnectors.toSet)).nonEmpty)) {
       connectors.clear()
       connectors ++= newConnectors
       getWorld.notifyNeighborsOfStateChange(getPos, getBlockType, false)
@@ -326,7 +326,7 @@ class Charger extends traits.Environment with traits.PowerAcceptor with traits.R
     override def changeBuffer(delta: Double): Double = {
       api.Nanomachines.getController(player) match {
         case controller: Controller => controller.changeBuffer(delta)
-        case _ => delta // Cannot charge.
+        case null => delta // Cannot charge.
       }
     }
 

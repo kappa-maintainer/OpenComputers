@@ -71,7 +71,7 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
         .filter(entity => entity.isEntityAlive && isInRange(entity) && isVisible(entity))
         .toSet
       // Get rid of all tracked entities that are no longer visible.
-      trackedEntities.retain((key, _) => entities.contains(key))
+      trackedEntities.filterInPlace((key, _) => entities.contains(key))
       // Check for which entities we should generate a signal.
       for (entity <- entities) {
         trackedEntities.get(entity) match {

@@ -141,21 +141,21 @@ object ExtendedRecipe {
         if (beaconBlocks.exists(_.isItemEqual(stack))) {
           if (data.isBeaconBase) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
-            return ItemStack.EMPTY
+            ItemStack.EMPTY
           }
           data.isBeaconBase = true
         }
         if (glowstoneDust.isItemEqual(stack)) {
           if (data.lightLevel == 15) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
-            return ItemStack.EMPTY
+            ItemStack.EMPTY
           }
           data.lightLevel = math.min(15, data.lightLevel + 1)
         }
         if (glowstone.isItemEqual(stack)) {
           if (data.lightLevel == 15) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
-            return ItemStack.EMPTY
+            ItemStack.EMPTY
           }
           data.lightLevel = math.min(15, data.lightLevel + 4)
         }

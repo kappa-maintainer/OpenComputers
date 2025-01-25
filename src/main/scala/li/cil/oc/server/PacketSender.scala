@@ -158,7 +158,7 @@ object PacketSender {
             case t: net.minecraft.tileentity.TileEntity =>
               pb.writeBoolean(true)
               pb.writeTileEntity(t)
-            case _ =>
+            case null =>
               pb.writeBoolean(false)
               pb.writeInt(event.getWorld.provider.getDimension)
               pb.writeDouble(event.getX)
@@ -188,7 +188,7 @@ object PacketSender {
         case t: net.minecraft.tileentity.TileEntity =>
           pb.writeBoolean(true)
           pb.writeTileEntity(t)
-        case _ =>
+        case null =>
           pb.writeBoolean(false)
           pb.writeInt(event.getWorld.provider.getDimension)
           pb.writeDouble(event.getX)
@@ -431,7 +431,7 @@ object PacketSender {
     val pb = new SimplePacketBuilder(PacketType.PowerState)
 
     pb.writeTileEntity(t)
-    pb.writeDouble(math.round(t.globalBuffer))
+    pb.writeDouble(math.round(t.globalBuffer).toDouble)
     pb.writeDouble(t.globalBufferSize)
 
     pb.sendToPlayersNearTileEntity(t)

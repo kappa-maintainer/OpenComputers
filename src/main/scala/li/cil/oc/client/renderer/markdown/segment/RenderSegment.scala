@@ -24,9 +24,9 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
 
   private def scale(maxWidth: Int) = math.min(1f, maxWidth / imageRenderer.getWidth.toFloat)
 
-  def imageWidth(maxWidth: Int) = math.min(maxWidth, imageRenderer.getWidth)
+  private def imageWidth(maxWidth: Int): Int = math.min(maxWidth, imageRenderer.getWidth)
 
-  def imageHeight(maxWidth: Int) = math.ceil(imageRenderer.getHeight * scale(maxWidth)).toInt + 4
+  private def imageHeight(maxWidth: Int): Int = math.ceil(imageRenderer.getHeight * scale(maxWidth)).toInt + 4
 
   override def nextY(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = imageHeight(maxWidth) + (if (indent > 0) Document.lineHeight(renderer) else 0)
 
@@ -45,7 +45,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
     val hovered = checkHovered(mouseX, mouseY, x + xOffset, y + yOffset, width, height)
 
     GlStateManager.pushMatrix()
-    GlStateManager.translate(x + xOffset, y + yOffset, 0)
+    GlStateManager.translate((x + xOffset).toFloat, (y + yOffset).toFloat, 0)
     GlStateManager.scale(s, s, s)
 
     GlStateManager.enableBlend()
@@ -56,9 +56,9 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
       GlStateManager.disableTexture2D()
       GL11.glBegin(GL11.GL_QUADS)
       GL11.glVertex2f(0, 0)
-      GL11.glVertex2f(0, imageRenderer.getHeight)
-      GL11.glVertex2f(imageRenderer.getWidth, imageRenderer.getHeight)
-      GL11.glVertex2f(imageRenderer.getWidth, 0)
+      GL11.glVertex2f(0, imageRenderer.getHeight.toFloat)
+      GL11.glVertex2f(imageRenderer.getWidth.toFloat, imageRenderer.getHeight.toFloat)
+      GL11.glVertex2f(imageRenderer.getWidth.toFloat, 0)
       GL11.glEnd()
       GlStateManager.enableTexture2D()
     }

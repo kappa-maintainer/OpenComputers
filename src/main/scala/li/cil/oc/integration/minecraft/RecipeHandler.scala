@@ -1,6 +1,7 @@
 package li.cil.oc.integration.minecraft
 
 import com.typesafe.config.Config
+import li.cil.oc.OpenComputers
 import li.cil.oc.common.recipe.ExtendedShapedOreRecipe
 import li.cil.oc.common.recipe.ExtendedShapelessOreRecipe
 import li.cil.oc.common.recipe.Recipes
@@ -56,7 +57,7 @@ object RecipeHandler {
     output.setCount(Recipes.tryGetCount(recipe))
 
     if (input.nonEmpty && output.getCount > 0) {
-      Recipes.addRecipe(new ExtendedShapelessOreRecipe(output, input.toArray))
+      Recipes.addRecipe(new ExtendedShapelessOreRecipe(output, input.toArray*))
     }
   }
 

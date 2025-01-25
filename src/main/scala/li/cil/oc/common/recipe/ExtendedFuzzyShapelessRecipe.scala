@@ -14,8 +14,10 @@ class ExtendedFuzzyShapelessRecipe(result: ItemStack, ingredients: AnyRef*) exte
       val itemStack = inv.getStackInSlot(i)
       if (!itemStack.isEmpty) {
         val index = requiredItems.indexWhere(req => {
-          if (req.getItem != itemStack.getItem) return false
-          req.getItemDamage == itemStack.getItemDamage
+          if (req.getItem != itemStack.getItem) 
+            false
+          else
+            req.getItemDamage == itemStack.getItemDamage
         })
         if (index >= 0) {
           requiredItems.remove(index)

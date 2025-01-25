@@ -17,7 +17,7 @@ trait WorldTankAnalytics extends WorldAware with SideRestricted {
     FluidUtils.fluidHandlerAt(position.offset(facing), facing.getOpposite) match {
       case Some(handler) => args.optTankProperties(handler, 1, null) match {
         case properties: IFluidTankProperties => result(Option(properties.getContents).fold(0)(_.amount))
-        case _ => result(handler.getTankProperties.map(info => Option(info.getContents).fold(0)(_.amount)).sum)
+        case null => result(handler.getTankProperties.map(info => Option(info.getContents).fold(0)(_.amount)).sum)
       }
       case _ => result((), "no tank")
     }
@@ -29,7 +29,7 @@ trait WorldTankAnalytics extends WorldAware with SideRestricted {
     FluidUtils.fluidHandlerAt(position.offset(facing), facing.getOpposite) match {
       case Some(handler) => args.optTankProperties(handler, 1, null) match {
         case properties: IFluidTankProperties  => result(properties.getCapacity)
-        case _ => result(handler.getTankProperties.map(_.getCapacity).foldLeft(0)((max, capacity) => math.max(max, capacity)))
+        case null => result(handler.getTankProperties.map(_.getCapacity).foldLeft(0)((max, capacity) => math.max(max, capacity)))
       }
       case _ => result((), "no tank")
     }
@@ -41,7 +41,7 @@ trait WorldTankAnalytics extends WorldAware with SideRestricted {
     FluidUtils.fluidHandlerAt(position.offset(facing), facing.getOpposite) match {
       case Some(handler) => args.optTankProperties(handler, 1, null) match {
         case properties: IFluidTankProperties  => result(properties)
-        case _ => result(handler.getTankProperties)
+        case null => result(handler.getTankProperties)
       }
       case _ => result((), "no tank")
     }
@@ -54,7 +54,7 @@ trait WorldTankAnalytics extends WorldAware with SideRestricted {
     FluidUtils.fluidHandlerAt(position.offset(facing), facing.getOpposite) match {
       case Some(handler) => handler.getTankProperties match {
         case info: Array[IFluidTankProperties] => result(info.length)
-        case _ => result((), "no tank")
+        case null => result((), "no tank")
       }
       case _ => result((), "no tank")
     }

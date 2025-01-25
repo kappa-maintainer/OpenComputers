@@ -5,7 +5,7 @@ import java.util.UUID
 import com.mojang.authlib.GameProfile
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import li.cil.oc.api.event._
+import li.cil.oc.api.event.*
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Connector
 import li.cil.oc.common.EventHandler
@@ -19,15 +19,15 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayer.SleepResult
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
-import net.minecraft.inventory._
+import net.minecraft.inventory.*
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.network.NetHandlerPlayServer
 import net.minecraft.potion.PotionEffect
 import net.minecraft.server.management.{PlayerInteractionManager, UserListOpsEntry}
-import net.minecraft.tileentity._
+import net.minecraft.tileentity.*
 import net.minecraft.util.EnumFacing
-import net.minecraft.util._
+import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.text.ITextComponent
@@ -43,9 +43,11 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.common.eventhandler.{Event, EventPriority, SubscribeEvent}
 import net.minecraftforge.items.IItemHandler
-import net.minecraftforge.items.wrapper._
+import net.minecraftforge.items.wrapper.*
 
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 object Player {
   def profileFor(agent: internal.Agent): GameProfile = {
@@ -61,8 +63,8 @@ object Player {
     val format = Settings.get.uuidFormat
     val randomUUID = UUID.randomUUID()
     try UUID.fromString(format.
-      replaceAllLiterally("$random$", randomUUID.toString).
-      replaceAllLiterally("$player$", playerUUID.getOrElse(randomUUID).toString)) catch {
+      replace("$random$", randomUUID.toString).
+      replace("$player$", playerUUID.getOrElse(randomUUID).toString)) catch {
       case t: Throwable =>
         OpenComputers.log.warn("Failed determining robot UUID, check your config's `uuidFormat` entry!", t)
         randomUUID
@@ -214,9 +216,8 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   override def interactOn(entity: Entity, hand: EnumHand): EnumActionResult = {
     val cancel = try MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.EntityInteract(this, hand, entity)) catch {
       case t: Throwable =>
-        if (!t.getStackTrace.exists(_.getClassName.startsWith("mods.battlegear2."))) {
+        if (!t.getStackTrace.exists(_.getClassName.startsWith("mods.battlegear2.")))
           OpenComputers.log.warn("Some event handler screwed up!", t)
-        }
         false
     }
     if(!cancel && callUsingItemInSlot(agent.equipmentInventory, 0, stack => {
@@ -224,55 +225,50 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
         case living: EntityLivingBase if !getHeldItemMainhand.isEmpty => getHeldItemMainhand.interactWithEntity(this, living, hand)
         case _ => false
       }))
-      if (!getHeldItemMainhand.isEmpty) {
-        if (getHeldItemMainhand.getCount <= 0) {
+      if (!getHeldItemMainhand.isEmpty)
+        if (getHeldItemMainhand.getCount <= 0)
           val orig = getHeldItemMainhand
           this.inventory.setInventorySlotContents(this.inventory.currentItem, ItemStack.EMPTY)
           ForgeEventFactory.onPlayerDestroyItem(this, orig, hand)
-        } else {
+        else
           // because of various hacks for IC2, we expect the in-hand result to be moved to our offhand buffer
           this.inventory.offHandInventory.set(0, getHeldItemMainhand)
           this.inventory.setInventorySlotContents(this.inventory.currentItem, ItemStack.EMPTY)
-        }
-      }
       result
     })) EnumActionResult.SUCCESS else EnumActionResult.PASS
   }
 
   def activateBlockOrUseItem(pos: BlockPos, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float, duration: Double): ActivationType.Value = {
     callUsingItemInSlot(agent.equipmentInventory, 0, stack => {
-      if (shouldCancel(() => fireRightClickBlock(pos, side))) {
-        return ActivationType.None
-      }
-
-      val item = if (!stack.isEmpty) stack.getItem else null
-      if (item != null && item.onItemUseFirst(this, world, pos, side, hitX, hitY, hitZ, EnumHand.OFF_HAND) == EnumActionResult.SUCCESS) {
-        return ActivationType.ItemUsed
-      }
-
-      val state = world.getBlockState(pos)
-      val block = state.getBlock
-      val canActivate = block != Blocks.AIR && Settings.get.allowActivateBlocks
-      val shouldActivate = canActivate && (!isSneaking || (item == null || item.doesSneakBypassUse(stack, world, pos, this)))
-      val result =
-        if (shouldActivate && block.onBlockActivated(world, pos, state, this, EnumHand.OFF_HAND, side, hitX, hitY, hitZ))
-          ActivationType.BlockActivated
-        else if (duration <= Double.MinPositiveValue && isItemUseAllowed(stack) && tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ))
-          ActivationType.ItemPlaced
-        else if (useEquippedItem(duration, Option(stack)))
+      if (shouldCancel(() => fireRightClickBlock(pos, side))) 
+        ActivationType.None
+      else
+        val item = if (!stack.isEmpty) stack.getItem else null
+        if (item != null && item.onItemUseFirst(this, world, pos, side, hitX, hitY, hitZ, EnumHand.OFF_HAND) == EnumActionResult.SUCCESS)
           ActivationType.ItemUsed
         else
-          ActivationType.None
-
-      result
+          val state = world.getBlockState(pos)
+          val block = state.getBlock
+          val canActivate = block != Blocks.AIR && Settings.get.allowActivateBlocks
+          val shouldActivate = canActivate && (!isSneaking || (item == null || item.doesSneakBypassUse(stack, world, pos, this)))
+          val result =
+            if (shouldActivate && block.onBlockActivated(world, pos, state, this, EnumHand.OFF_HAND, side, hitX, hitY, hitZ))
+              ActivationType.BlockActivated
+            else if (duration <= Double.MinPositiveValue && isItemUseAllowed(stack) && tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ))
+              ActivationType.ItemPlaced
+            else if (useEquippedItem(duration, Option(stack)))
+              ActivationType.ItemUsed
+            else
+              ActivationType.None
+          result
     })
   }
 
   override def setItemStackToSlot(slotIn: EntityEquipmentSlot, stack: ItemStack): Unit = {
     var superCall: () => Unit = () => super.setItemStackToSlot(slotIn, stack)
-    if (slotIn == EntityEquipmentSlot.MAINHAND) {
+    if (slotIn == EntityEquipmentSlot.MAINHAND)
       agent.equipmentInventory.setInventorySlotContents(0, stack)
-      superCall = () => {
+      superCall = () =>
         val slot = inventory.currentItem
         // So, if we're not in the main inventory, currentItem is set to -1
         // for compatibility with mods that try accessing the inv directly
@@ -280,10 +276,8 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
         if(inventory.currentItem < 0) inventory.currentItem = ~inventory.currentItem
         super.setItemStackToSlot(slotIn, stack)
         inventory.currentItem = slot
-      }
-    } else if(slotIn == EntityEquipmentSlot.OFFHAND) {
+    else if(slotIn == EntityEquipmentSlot.OFFHAND)
       inventory.offHandInventory.set(0, stack)
-    }
     superCall()
   }
 
@@ -399,10 +393,10 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   def placeBlock(slot: Int, pos: BlockPos, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     callUsingItemInSlot(agent.mainInventory, slot, stack => {
       if (shouldCancel(() => fireRightClickBlock(pos, side))) {
-        return false
+        false
+      } else {
+        tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ)
       }
-
-      tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ)
     }, repair = false)
   }
 
@@ -410,34 +404,47 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     val state = world.getBlockState(pos)
     val block = state.getBlock
 
-    if (!block.canHarvestBlock(world, pos, this)) return 0
+    if (block.canHarvestBlock(world, pos, this)) {
+      val hardness = block.getBlockHardness(state, world, pos)
+      val cobwebOverride = block == Blocks.WEB && Settings.get.screwCobwebs
 
-    val hardness = block.getBlockHardness(state, world, pos)
-    val cobwebOverride = block == Blocks.WEB && Settings.get.screwCobwebs
+      val strength = getDigSpeed(state, pos)
+      val breakTime =
+        if (cobwebOverride) Settings.get.swingDelay
+        else hardness * 1.5 / strength
 
-    val strength = getDigSpeed(state, pos)
-    val breakTime =
-      if (cobwebOverride) Settings.get.swingDelay
-      else hardness * 1.5 / strength
+      if (!breakTime.isInfinity){
+        if (breakTime >= 0) {
 
-    if (breakTime.isInfinity) return 0
-    if (breakTime < 0) return breakTime
+          val preEvent = new RobotBreakBlockEvent.Pre(agent, world, pos, breakTime * Settings.get.harvestRatio)
+          MinecraftForge.EVENT_BUS.post(preEvent)
+          if (!preEvent.isCanceled) {
+            val adjustedBreakTime = Math.max(0.05, preEvent.getBreakTime)
 
-    val preEvent = new RobotBreakBlockEvent.Pre(agent, world, pos, breakTime * Settings.get.harvestRatio)
-    MinecraftForge.EVENT_BUS.post(preEvent)
-    if (preEvent.isCanceled) return 0
-    val adjustedBreakTime = Math.max(0.05, preEvent.getBreakTime)
+            if (PlayerInteractionManagerHelper.onBlockClicked(this, pos, side)) {
 
-    if (!PlayerInteractionManagerHelper.onBlockClicked(this, pos, side)) {
-      if (world.isAirBlock(pos)) {
-        return 1.0 / 20.0
+              EventHandler.scheduleServer(() => new DamageOverTime(this, pos, side, (adjustedBreakTime * 20).toInt).tick())
+
+              adjustedBreakTime
+            } else {
+              if (world.isAirBlock(pos)) {
+                1.0 / 20.0
+              } else {
+                0
+              }
+            }
+          } else {
+            0
+          }
+        } else {
+          breakTime
+        }
+      } else {
+        0
       }
-      return 0
+    } else {
+      0
     }
-
-    EventHandler.scheduleServer(() => new DamageOverTime(this, pos, side, (adjustedBreakTime * 20).toInt).tick())
-
-    adjustedBreakTime
   })
 
   private def isItemUseAllowed(stack: ItemStack) = stack.isEmpty || {
@@ -563,7 +570,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
       config.canSendCommands(getGameProfile) && {
         config.getOppedPlayers.getEntry(getGameProfile) match {
           case opEntry: UserListOpsEntry => opEntry.getPermissionLevel >= level
-          case _ => server.getOpPermissionLevel >= level
+          case null => server.getOpPermissionLevel >= level
         }
       }
     }

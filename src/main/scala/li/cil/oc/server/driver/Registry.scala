@@ -193,7 +193,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
       case arg: mutable.Map[_, _] => convertMap(arg, arg.toMap, memo)
       case arg: java.util.Map[_, _] => convertMap(arg, arg.asScala.toMap, memo)
 
-      case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.toIterator, memo)
+      case arg: Iterable[_] => convertList(arg, arg.zipWithIndex.iterator, memo)
       case arg: java.lang.Iterable[_] => convertList(arg, arg.asScala.zipWithIndex.iterator, memo)
 
       case arg =>

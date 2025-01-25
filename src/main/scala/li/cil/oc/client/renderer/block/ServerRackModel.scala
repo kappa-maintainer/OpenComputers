@@ -52,7 +52,7 @@ class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
                   }
                   faces ++= bakeQuads(Servers(slot), textures, None)
                 }
-              case _ =>
+              case null =>
             }
 
             faces.asJava

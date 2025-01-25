@@ -313,7 +313,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
         if (count == 0) -1
         else {
           val n = math.min(len, count)
-          file.data.view(position, file.data.length).copyToArray(b, off, n)
+          file.data.view.slice(position, file.data.length).copyToArray(b, off, n)
           position += n
           n
         }

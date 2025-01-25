@@ -18,7 +18,7 @@ class OSAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
         else "%d/%m/%y %H:%M:%S"
       val time: Double =
         if (args.narg > 1 && args.isnumber(2)) args.todouble(2)
-        else (machine.worldTime + 6000) * 60 * 60 / 1000
+        else ((machine.worldTime + 6000) * 60 * 60 / 1000).toDouble
 
       val dt = GameTimeFormatter.parse(time)
       def fmt(format: String) = {
@@ -54,7 +54,7 @@ class OSAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
         // starts days at 6 o'clock, versus the 1 o'clock of timestamps so we
         // add those five hours. Thus:
         // timestamp = (time + 5000) * 60[kh] * 60[km] / 1000[s]
-        LuaValue.valueOf((machine.worldTime + 5000) * 60 * 60 / 1000)
+        LuaValue.valueOf(((machine.worldTime + 5000) * 60 * 60 / 1000).toDouble)
       }
       else {
         val table = args.checktable(1)

@@ -39,11 +39,11 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
     GL11.glTexCoord2f(0, 0)
     GL11.glVertex2f(0, 0)
     GL11.glTexCoord2f(0, 1)
-    GL11.glVertex2f(0, texture.height)
+    GL11.glVertex2f(0, texture.height.toFloat)
     GL11.glTexCoord2f(1, 1)
-    GL11.glVertex2f(texture.width, texture.height)
+    GL11.glVertex2f(texture.width.toFloat, texture.height.toFloat)
     GL11.glTexCoord2f(1, 0)
-    GL11.glVertex2f(texture.width, 0)
+    GL11.glVertex2f(texture.width.toFloat, 0)
     GL11.glEnd()
   }
 

@@ -31,7 +31,7 @@ abstract class Template {
     "Inventory" -> hasInventory,
     "OS" -> hasFileSystem)
 
-  protected def hostClass: Class[_ <: api.network.EnvironmentHost]
+  protected def hostClass: Class[? <: api.network.EnvironmentHost]
 
   protected def validateComputer(inventory: IInventory): Array[AnyRef] = {
     val hasCase = caseTier(inventory) != Tier.None

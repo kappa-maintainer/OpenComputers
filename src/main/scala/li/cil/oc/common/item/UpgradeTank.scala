@@ -18,7 +18,7 @@ class UpgradeTank(val parent: Delegator) extends traits.Delegate with traits.Ite
       FluidStack.loadFluidStackFromNBT(stack.getTagCompound.getCompoundTag(Settings.namespace + "data")) match {
         case stack: FluidStack =>
           tooltip.add(stack.getFluid.getLocalizedName(stack) + ": " + stack.amount + "/16000")
-        case _ =>
+        case null =>
       }
     }
     super.tooltipLines(stack, world, tooltip, flag)

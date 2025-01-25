@@ -1,11 +1,8 @@
 package li.cil.oc.server.fs
 
 import java.io
-import java.net.MalformedURLException
-import java.net.URISyntaxException
-import java.net.URL
+import java.net.{MalformedURLException, URI, URISyntaxException, URL}
 import java.util.UUID
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -14,6 +11,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.item.Delegator
 import li.cil.oc.common.item.traits.FileSystemLike
 import li.cil.oc.server.component
+import li.cil.oc.server.component.FileSystem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.DimensionManager
@@ -21,7 +19,7 @@ import net.minecraftforge.common.DimensionManager
 import scala.util.Try
 
 object FileSystem extends api.detail.FileSystemAPI {
-  lazy val isCaseInsensitive: Boolean = Settings.get.forceCaseInsensitive || (try {
+  private lazy val isCaseInsensitive: Boolean = Settings.get.forceCaseInsensitive || (try {
     val uuid = UUID.randomUUID().toString
     val lowerCase = new io.File(DimensionManager.getCurrentSaveRootDirectory, uuid + "oc_rox")
     val upperCase = new io.File(DimensionManager.getCurrentSaveRootDirectory, uuid + "OC_ROX")
@@ -68,10 +66,10 @@ object FileSystem extends api.detail.FileSystemAPI {
         (codeSource, false)
 
     val url = Try {
-      new URL(codeUrl)
+      new URI(codeUrl).toURL
     }.recoverWith {
       case _: MalformedURLException => Try {
-        new URL("file://" + codeUrl)
+        new URI("file://" + codeUrl).toURL
       }
     }
     val file = url.map(url => new io.File(url.toURI)).recoverWith {
@@ -137,33 +135,33 @@ object FileSystem extends api.detail.FileSystemAPI {
       new ReadOnlyWrapper(fileSystem)
     }
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label, host: EnvironmentHost, accessSound: String, speed: Int) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label, host: EnvironmentHost, accessSound: String, speed: Int): FileSystem =
     Option(fileSystem).flatMap(fs => Some(new component.FileSystem(fs, label, Option(host), Option(accessSound), (speed - 1) max 0 min 5))).orNull
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String, host: EnvironmentHost, accessSound: String, speed: Int) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String, host: EnvironmentHost, accessSound: String, speed: Int): FileSystem =
     asManagedEnvironment(fileSystem, new ReadOnlyLabel(label), host, accessSound, speed)
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label, host: EnvironmentHost, sound: String) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label, host: EnvironmentHost, sound: String): FileSystem =
     asManagedEnvironment(fileSystem, label, host, sound, 1)
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String, host: EnvironmentHost, sound: String) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String, host: EnvironmentHost, sound: String): FileSystem =
     asManagedEnvironment(fileSystem, new ReadOnlyLabel(label), host, sound, 1)
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: Label): FileSystem =
     asManagedEnvironment(fileSystem, label, null, null, 1)
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem, label: String): FileSystem =
     asManagedEnvironment(fileSystem, new ReadOnlyLabel(label), null, null, 1)
 
-  def asManagedEnvironment(fileSystem: api.fs.FileSystem) =
+  def asManagedEnvironment(fileSystem: api.fs.FileSystem): FileSystem =
     asManagedEnvironment(fileSystem, null: Label, null, null, 1)
 
   abstract class ItemLabel(val stack: ItemStack) extends Label
 
   class ReadOnlyLabel(val label: String) extends Label {
-    def setLabel(value: String) = throw new IllegalArgumentException("label is read only")
+    def setLabel(value: String): Nothing = throw new IllegalArgumentException("label is read only")
 
-    def getLabel = label
+    def getLabel: String = label
 
     private final val LabelTag = Settings.namespace + "fs.label"
 

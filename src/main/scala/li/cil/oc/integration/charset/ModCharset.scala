@@ -15,7 +15,7 @@ object ModCharset extends ModProxy with RedstoneProvider {
     override def onBundledInputChange(): Unit = { onChange() }
   }
 
-  override def getMod = Mods.Charset
+  override def getMod: Mods.SimpleMod = Mods.Charset
 
   override def initialize(): Unit = {
     BundledRedstone.addProvider(this)
@@ -32,7 +32,7 @@ object ModCharset extends ModProxy with RedstoneProvider {
           }
         }
         0
-      case _ => 0
+      case null => 0
     }
   }
 
@@ -48,7 +48,7 @@ object ModCharset extends ModProxy with RedstoneProvider {
           }
         }
         null
-      case _ => null
+      case null => null
     }
   }
 }

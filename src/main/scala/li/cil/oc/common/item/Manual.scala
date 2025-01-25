@@ -43,7 +43,7 @@ class Manual(val parent: Delegator) extends traits.Delegate {
           api.Manual.navigate(path)
         }
         true
-      case _ => super.onItemUse(stack, player, position, side, hitX, hitY, hitZ)
+      case null => super.onItemUse(stack, player, position, side, hitX, hitY, hitZ)
     }
   }
 }

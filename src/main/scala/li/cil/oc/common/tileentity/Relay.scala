@@ -45,16 +45,16 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
 
   var strength: Double = maxWirelessRange
 
-  var isRepeater = true
+  private var isRepeater = true
 
-  var wirelessTier = -1
-  
-  def isWirelessEnabled = wirelessTier >= Tier.One
+  private var wirelessTier = -1
 
-  def maxWirelessRange = if (wirelessTier == Tier.One || wirelessTier == Tier.Two)
+  def isWirelessEnabled: Boolean = wirelessTier >= Tier.One
+
+  def maxWirelessRange: Double = if (wirelessTier == Tier.One || wirelessTier == Tier.Two)
     Settings.get.maxWirelessRange(wirelessTier) else 0
 
-  def wirelessCostPerRange = if (wirelessTier == Tier.One || wirelessTier == Tier.Two)
+  def wirelessCostPerRange: Double = if (wirelessTier == Tier.One || wirelessTier == Tier.Two)
     Settings.get.wirelessCostPerRange(wirelessTier) else 0
   
   var isLinkedEnabled = false
@@ -191,7 +191,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
   // ----------------------------------------------------------------------- //
 
   override protected def createNode(plug: Plug): Connector = api.Network.newNode(plug, Visibility.Network).
-    withConnector(math.round(Settings.get.bufferAccessPoint)).
+    withConnector(math.round(Settings.get.bufferAccessPoint).toDouble).
     create()
 
   override protected def onPlugConnect(plug: Plug, node: Node):Unit = {
@@ -307,7 +307,7 @@ class Relay extends traits.Hub with traits.ComponentInventory with traits.PowerA
         val tag = new NBTTagCompound()
         node.save(tag)
         tag
-      case _ => new NBTTagCompound()
+      case null => new NBTTagCompound()
     })
   }
 }

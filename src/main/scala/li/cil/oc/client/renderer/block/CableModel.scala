@@ -61,7 +61,7 @@ class CableModel extends SmartBlockModelBase {
             }
 
             faces.asJava
-          case _ => super.getQuads(state, side, rand)
+          case null => super.getQuads(state, side, rand)
         }
       case _ => super.getQuads(state, side, rand)
     }

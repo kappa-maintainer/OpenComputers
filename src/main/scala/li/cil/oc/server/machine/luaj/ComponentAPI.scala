@@ -29,7 +29,7 @@ class ComponentAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
       components.get(args.checkjstring(1)) match {
         case name: String =>
           LuaValue.valueOf(name)
-        case _ =>
+        case null =>
           LuaValue.varargsOf(LuaValue.NIL, LuaValue.valueOf("no such component"))
       }
     })
@@ -39,7 +39,7 @@ class ComponentAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
       components.get(address) match {
         case name: String =>
           LuaValue.valueOf(machine.host.componentSlot(address))
-        case _ =>
+        case null =>
           LuaValue.varargsOf(LuaValue.NIL, LuaValue.valueOf("no such component"))
       }
     })

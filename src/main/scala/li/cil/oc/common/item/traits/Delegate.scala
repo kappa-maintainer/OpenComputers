@@ -30,7 +30,7 @@ trait Delegate {
 
   def unlocalizedName: String = getClass.getSimpleName.toLowerCase
 
-  protected def tooltipName = Option(unlocalizedName)
+  protected def tooltipName: Option[String] = Option(unlocalizedName)
 
   protected def tooltipData = Seq.empty[Any]
 
@@ -69,7 +69,7 @@ trait Delegate {
   protected def tierFromDriver(stack: ItemStack): Int =
     api.Driver.driverFor(stack) match {
       case driver: DriverItem => driver.tier(stack)
-      case _ => 0
+      case null => 0
     }
 
   def color(stack: ItemStack, pass: Int) = 0xFFFFFF

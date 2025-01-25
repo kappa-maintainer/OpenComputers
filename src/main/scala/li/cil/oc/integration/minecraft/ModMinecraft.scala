@@ -15,7 +15,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.MinecraftForge
 
 object ModMinecraft extends ModProxy with RedstoneProvider {
-  def getMod = Mods.Minecraft
+  def getMod: Mods.SimpleMod = Mods.Minecraft
 
   def initialize():Unit = {
     Driver.add(DriverBeacon)

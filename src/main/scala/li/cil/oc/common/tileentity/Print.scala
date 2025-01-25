@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import com.google.common.base.Strings
 import li.cil.oc.Constants
 import li.cil.oc.Settings
@@ -9,17 +8,21 @@ import li.cil.oc.api
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.ExtendedAABB
-import li.cil.oc.util.ExtendedAABB._
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedAABB.*
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.init.SoundEvents
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util._
+import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+
+import scala.collection.mutable
+import scala.util.boundary
+import scala.util.boundary.break
 
 class Print(val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit]) extends traits.TileEntity with traits.RedstoneAware with traits.RotatableTile {
   def this() = this(None, None, None)
@@ -29,30 +32,31 @@ class Print(val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int
 
   val data = new PrintData()
 
-  var boundsOff = ExtendedAABB.unitBounds
-  var boundsOn = ExtendedAABB.unitBounds
-  var state = false
+  var boundsOff: AxisAlignedBB = ExtendedAABB.unitBounds
+  var boundsOn: AxisAlignedBB = ExtendedAABB.unitBounds
+  var state: Boolean = false
 
-  def bounds = if (state) boundsOn else boundsOff
-  def noclip = if (state) data.noclipOn else data.noclipOff
-  def shapes = if (state) data.stateOn else data.stateOff
+  def bounds: AxisAlignedBB = if (state) boundsOn else boundsOff
+  def noclip: Boolean = if (state) data.noclipOn else data.noclipOff
+  def shapes: mutable.Set[PrintData.Shape] = if (state) data.stateOn else data.stateOff
 
   def isSideSolid(side: EnumFacing): Boolean = {
-    for (shape <- shapes if !Strings.isNullOrEmpty(shape.texture)) {
-      val bounds = shape.bounds.rotateTowards(facing)
-      val fullX = bounds.minX == 0 && bounds.maxX == 1
-      val fullY = bounds.minY == 0 && bounds.maxY == 1
-      val fullZ = bounds.minZ == 0 && bounds.maxZ == 1
-      if (side match {
-        case EnumFacing.DOWN => bounds.minY == 0 && fullX && fullZ
-        case EnumFacing.UP => bounds.maxY == 1 && fullX && fullZ
-        case EnumFacing.NORTH => bounds.minZ == 0 && fullX && fullY
-        case EnumFacing.SOUTH => bounds.maxZ == 1 && fullX && fullY
-        case EnumFacing.WEST => bounds.minX == 0 && fullY && fullZ
-        case EnumFacing.EAST => bounds.maxX == 1 && fullY && fullZ
-        case _ => false
-      }) return true
-    }
+    boundary:
+      for (shape <- shapes if !Strings.isNullOrEmpty(shape.texture)) {
+        val bounds = shape.bounds.rotateTowards(facing)
+        val fullX = bounds.minX == 0 && bounds.maxX == 1
+        val fullY = bounds.minY == 0 && bounds.maxY == 1
+        val fullZ = bounds.minZ == 0 && bounds.maxZ == 1
+        if (side match {
+          case EnumFacing.DOWN => bounds.minY == 0 && fullX && fullZ
+          case EnumFacing.UP => bounds.maxY == 1 && fullX && fullZ
+          case EnumFacing.NORTH => bounds.minZ == 0 && fullX && fullY
+          case EnumFacing.SOUTH => bounds.maxZ == 1 && fullX && fullY
+          case EnumFacing.WEST => bounds.minX == 0 && fullY && fullZ
+          case EnumFacing.EAST => bounds.maxX == 1 && fullY && fullZ
+          case null => false
+        }) break(true)
+      }
     false
   }
 
@@ -116,7 +120,7 @@ class Print(val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int
   private def buildValueSet(value: Int): util.Map[AnyRef, AnyRef] = {
     val map: util.Map[AnyRef, AnyRef] = new util.HashMap[AnyRef, AnyRef]()
     EnumFacing.values.foreach {
-      side => map.put(new java.lang.Integer(side.ordinal), new java.lang.Integer(value))
+      side => map.put(java.lang.Integer.valueOf(side.ordinal), java.lang.Integer.valueOf(value))
     }
     map
   }

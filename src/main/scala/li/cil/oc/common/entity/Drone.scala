@@ -407,7 +407,7 @@ class Drone(iworld: World) extends Entity(iworld) with MachineHost with internal
         }
 
         // Interpolate wing rotations.
-        (flapAngles, targetFlapAngles).zipped.foreach((f, t) => {
+        flapAngles.lazyZip(targetFlapAngles).foreach((f, t) => {
           f(0) = f(0) * 0.7f + t(0) * 0.3f
           f(1) = f(1) * 0.7f + t(1) * 0.3f
         })

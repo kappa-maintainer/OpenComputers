@@ -16,7 +16,7 @@ object ItemImageProvider extends ImageProvider {
     val meta = if (Strings.isNullOrEmpty(optMeta)) 0 else Integer.parseInt(optMeta.drop(1))
     Item.REGISTRY.getObject(new ResourceLocation(name)) match {
       case item: Item => new ItemStackImageRenderer(Array(new ItemStack(item, 1, meta)))
-      case _ => new TextureImageRenderer(Textures.GUI.ManualMissingItem) with InteractiveImageRenderer {
+      case null => new TextureImageRenderer(Textures.GUI.ManualMissingItem) with InteractiveImageRenderer {
         override def getTooltip(tooltip: String): String = "oc:gui.Manual.Warning.ItemMissing"
 
         override def onMouseClick(mouseX: Int, mouseY: Int): Boolean = false

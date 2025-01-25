@@ -26,7 +26,7 @@ object PrinterRenderer extends TileEntitySpecialRenderer[Printer] {
       GlStateManager.scale(0.75, 0.75, 0.75)
 
       val brightness = printer.world.getCombinedLight(printer.getPos, 0)
-      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness % 65536, brightness / 65536)
+      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (brightness % 65536).toFloat, (brightness / 65536).toFloat)
 
       Textures.Block.bind()
       Minecraft.getMinecraft.getRenderItem.renderItem(stack, ItemCameraTransforms.TransformType.FIXED)

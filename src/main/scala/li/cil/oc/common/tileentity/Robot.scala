@@ -375,7 +375,7 @@ class Robot extends traits.Computer with traits.PowerInformation with traits.Rot
         case stack: ItemStack => try stack.updateAnimation(getWorld, if (!getWorld.isRemote) player_ else null, slot, slot == 0) catch {
           case ignored: NullPointerException => // Client side item updates that need a player instance...
         }
-        case _ =>
+        case null =>
       }
     }
   }

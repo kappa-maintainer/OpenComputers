@@ -16,6 +16,8 @@ import net.minecraftforge.common.util.FakePlayer
 
 import java.util
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: IInventory) extends Container {
   /** Number of player inventory slots to display horizontally. */
@@ -107,10 +109,11 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
   }
 
   protected def tryTransferStackInSlot(from: Slot, intoPlayerInventory: Boolean):Unit = {
-    for (i <- fillOrder(intoPlayerInventory)) {
-      if (inventorySlots.get(i) match { case slot: Slot => tryMoveAllSlotToSlot(from, slot) case _ => false })
-        return
-    }
+    boundary:
+      for (i <- fillOrder(intoPlayerInventory)) {
+        if (inventorySlots.get(i) match { case slot: Slot => tryMoveAllSlotToSlot(from, slot) case null => false })
+          break()
+      }
   }
 
   def addSlotToContainer(x: Int, y: Int, slot: String = common.Slot.Any, tier: Int = common.Tier.Any):Unit = {
@@ -129,7 +132,7 @@ abstract class Player(val playerInventory: InventoryPlayer, val otherInventory: 
   }
 
   /** Render player inventory at the specified coordinates. */
-  protected def addPlayerInventorySlots(left: Int, top: Int) = {
+  protected def addPlayerInventorySlots(left: Int, top: Int) : Unit = {
     // Show the inventory proper. Start at plus one to skip hot bar.
     for (slotY <- 1 until playerInventorySizeY) {
       for (slotX <- 0 until playerInventorySizeX) {

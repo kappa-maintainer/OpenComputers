@@ -15,7 +15,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
     load(stack)
   }
 
-  var tier = Tier.One
+  var tier: Int = Tier.One
 
   var components: Array[ItemStack] = Array[ItemStack](ItemStack.EMPTY)
 
@@ -40,7 +40,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
 
   override def save(nbt: NBTTagCompound):Unit = {
     nbt.setByte(TierTag, tier.toByte)
-    nbt.setNewTagList(ComponentsTag, components.filter(!_.isEmpty).toIterable)
+    nbt.setNewTagList(ComponentsTag, components.filter(!_.isEmpty).toList)
     nbt.setInteger(StoredEnergyTag, storedEnergy)
   }
 

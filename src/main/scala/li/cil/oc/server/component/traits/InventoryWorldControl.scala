@@ -4,10 +4,10 @@ import li.cil.oc.Settings
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
-import li.cil.oc.util.StackOption._
+import li.cil.oc.util.StackOption.*
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
@@ -17,6 +17,8 @@ import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.fml.common.eventhandler.Event.Result
 
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 trait InventoryWorldControl extends InventoryAware with WorldAware with SideRestricted {
   @Callback(doc = "function(side:number[, fuzzy:boolean=false]):boolean -- Compare the block on the specified side with the one in the selected slot. Returns true if equal.")
@@ -85,15 +87,15 @@ trait InventoryWorldControl extends InventoryAware with WorldAware with SideRest
     * @return the number of items sucked
     */
   def suckFromItems(facing: EnumFacing): Int = {
-    for (entity <- suckableItems(facing).asScala if !entity.isDead && !entity.cannotPickup) {
-      val stack = entity.getItem
-      val size = stack.getCount
-      onSuckCollect(entity)
-      if (stack.getCount < size)
-        return size - stack.getCount
-      else if (entity.isDead)
-        return size
-    }
+    boundary:
+      for (entity <- suckableItems(facing).asScala if !entity.isDead && !entity.cannotPickup)
+        val stack = entity.getItem
+        val size = stack.getCount
+        onSuckCollect(entity)
+        if (stack.getCount < size)
+          break(size - stack.getCount)
+        else if (entity.isDead)
+          break(size)
     0
   }
 

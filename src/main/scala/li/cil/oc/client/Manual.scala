@@ -19,23 +19,25 @@ import net.minecraftforge.fml.common.FMLCommonHandler
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
+import scala.util.boundary
+import scala.util.boundary.break
 
 object Manual extends ManualAPI {
-  final val LanguageKey = "%LANGUAGE%"
+  private final val LanguageKey = "%LANGUAGE%"
 
-  final val FallbackLanguage = "en_us"
+  private final val FallbackLanguage = "en_us"
 
   class History(val path: String, var offset: Int = 0)
 
   class Tab(val renderer: TabIconRenderer, val tooltip: Option[String], val path: String)
 
-  val tabs = mutable.Buffer.empty[Tab]
+  val tabs: mutable.Buffer[Tab] = mutable.Buffer.empty[Tab]
 
-  val pathProviders = mutable.Buffer.empty[PathProvider]
+  private val pathProviders: mutable.Buffer[PathProvider] = mutable.Buffer.empty[PathProvider]
 
-  val contentProviders = mutable.Buffer.empty[ContentProvider]
+  private val contentProviders: mutable.Buffer[ContentProvider] = mutable.Buffer.empty[ContentProvider]
 
-  val imageProviders = mutable.Buffer.empty[(String, ImageProvider)]
+  private val imageProviders: mutable.Buffer[(String, ImageProvider)] = mutable.Buffer.empty[(String, ImageProvider)]
 
   val history = new mutable.Stack[History]
 
@@ -61,55 +63,59 @@ object Manual extends ManualAPI {
   }
 
   override def pathFor(stack: ItemStack): String = {
-    for (provider <- pathProviders) {
-      val path = try provider.pathFor(stack) catch {
-        case t: Throwable =>
-          OpenComputers.log.warn("A path provider threw an error when queried with an item.", t)
-          null
+    boundary:
+      for (provider <- pathProviders) {
+        val path = try provider.pathFor(stack) catch {
+          case t: Throwable =>
+            OpenComputers.log.warn("A path provider threw an error when queried with an item.", t)
+            null
+        }
+        if (path != null) break(path)
       }
-      if (path != null) return path
-    }
-    null
+      null
   }
 
   override def pathFor(world: World, pos: BlockPos): String = {
-    for (provider <- pathProviders) {
-      val path = try provider.pathFor(world, pos) catch {
-        case t: Throwable =>
-          OpenComputers.log.warn("A path provider threw an error when queried with a block.", t)
-          null
+    boundary:
+      for (provider <- pathProviders) {
+        val path = try provider.pathFor(world, pos) catch {
+          case t: Throwable =>
+            OpenComputers.log.warn("A path provider threw an error when queried with a block.", t)
+            null
+        }
+        if (path != null) break(path)
       }
-      if (path != null) return path
-    }
-    null
+      null
   }
 
   override def contentFor(path: String): java.lang.Iterable[String] = {
     val cleanPath = com.google.common.io.Files.simplifyPath(path)
-    val language = try {
+    val language: String = try {
       FMLCommonHandler.instance.getCurrentLanguage
     } catch {
       case t: Throwable =>
         OpenComputers.log.warn("The game threw an error when querying current language.", t)
         FallbackLanguage
     }
-    contentForWithRedirects(cleanPath.replaceAll(LanguageKey, language)).
-      orElse(contentForWithRedirects(cleanPath.replaceAll(LanguageKey, FallbackLanguage))).
+
+    contentForWithRedirects(cleanPath.replace(LanguageKey, language)).
+      orElse(contentForWithRedirects(cleanPath.replace(LanguageKey, FallbackLanguage))).
       orNull
   }
 
   override def imageFor(href: String): ImageRenderer = {
-    for ((prefix, provider) <- Manual.imageProviders.reverse) {
-      if (href.startsWith(prefix)) {
-        val image = try provider.getImage(href.stripPrefix(prefix)) catch {
-          case t: Throwable =>
-            OpenComputers.log.warn("An image provider threw an error when queried.", t)
-            null
+    boundary:
+      for ((prefix, provider) <- Manual.imageProviders.reverse) {
+        if (href.startsWith(prefix)) {
+          val image = try provider.getImage(href.stripPrefix(prefix)) catch {
+            case t: Throwable =>
+              OpenComputers.log.warn("An image provider threw an error when queried.", t)
+              null
+          }
+          if (image != null) break(image)
         }
-        if (image != null) return image
       }
-    }
-    null
+      null
   }
 
   override def openFor(player: EntityPlayer): Unit = {
@@ -151,14 +157,15 @@ object Manual extends ManualAPI {
   }
 
   private def doContentLookup(path: String): Option[java.lang.Iterable[String]] = {
-    for (provider <- contentProviders) {
-      val lines = try provider.getContent(path) catch {
-        case t: Throwable =>
-          OpenComputers.log.warn("A content provider threw an error when queried.", t)
-          null
+    boundary:
+      for (provider <- contentProviders) {
+        val lines = try provider.getContent(path) catch {
+          case t: Throwable =>
+            OpenComputers.log.warn("A content provider threw an error when queried.", t)
+            null
+        }
+        if (lines != null) break(Some(lines))
       }
-      if (lines != null) return Some(lines)
-    }
-    None
+      None
   }
 }

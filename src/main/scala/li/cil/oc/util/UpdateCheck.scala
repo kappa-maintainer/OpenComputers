@@ -2,6 +2,7 @@ package li.cil.oc.util
 
 import java.io.InputStreamReader
 import java.net.URL
+import java.net.URI
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import li.cil.oc.OpenComputers
@@ -15,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object UpdateCheck {
-  private val releasesUrl = new URL("https://api.github.com/repos/MightyPirates/OpenComputers/releases")
+  private val releasesUrl = new URI("https://api.github.com/repos/MightyPirates/OpenComputers/releases").toURL
 
   var info: Future[Option[Release]] = Future {
     initialize()

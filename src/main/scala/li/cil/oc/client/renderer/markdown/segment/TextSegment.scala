@@ -17,13 +17,13 @@ private[markdown] class TextSegment(val parent: Segment, val text: String) exten
     val wrapIndent = computeWrapIndent(renderer)
     var numChars = maxChars(chars, maxWidth - indent, maxWidth - wrapIndent, renderer)
     var hovered: Option[InteractiveSegment] = None
-    while (chars.length > 0) {
+    while (chars.nonEmpty) {
       val part = chars.take(numChars)
       hovered = hovered.orElse(resolvedInteractive.fold(None: Option[InteractiveSegment])(_.checkHovered(mouseX, mouseY, currentX, currentY, stringWidth(part, renderer), (Document.lineHeight(renderer) * resolvedScale).toInt)))
       GlStateManager.pushMatrix()
-      GlStateManager.translate(currentX, currentY, 0)
+      GlStateManager.translate(currentX.toFloat, currentY.toFloat, 0)
       GlStateManager.scale(resolvedScale, resolvedScale, resolvedScale)
-      GlStateManager.translate(-currentX, -currentY, 0)
+      GlStateManager.translate(-currentX.toFloat, -currentY.toFloat, 0)
       renderer.drawString(resolvedFormat + part, currentX, currentY, resolvedColor)
       GlStateManager.popMatrix()
       currentX = x + wrapIndent
@@ -69,9 +69,9 @@ private[markdown] class TextSegment(val parent: Segment, val text: String) exten
 
   // ----------------------------------------------------------------------- //
 
-  protected def color = None: Option[Int]
+  protected def color: Option[Int] = None: Option[Int]
 
-  protected def scale = None: Option[Float]
+  protected def scale: Option[Float] = None: Option[Float]
 
   protected def format = ""
 

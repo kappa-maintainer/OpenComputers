@@ -28,21 +28,17 @@ import scala.reflect.classTag
 
 abstract class PacketHandler {
   /** Top level dispatcher based on packet type. */
-  protected def onPacketData(handler: INetHandler, data: ByteBuf, player: EntityPlayer):Unit = {
+  protected def onPacketData(handler: INetHandler, data: ByteBuf, player: EntityPlayer): Unit =
     val thread = FMLCommonHandler.instance.getWorldThread(handler)
-    if (thread.isCallingFromMinecraftThread) {
+    if (thread.isCallingFromMinecraftThread)
       process(data, player)
-    }
-    else {
+    else
       data.retain()
-      thread.addScheduledTask(new Runnable {
-        override def run(): Unit = {
-          process(data, player)
+      thread.addScheduledTask(() => {
+        process(data, player)
+        if (data.isReadable)
           data.release()
-        }
       })
-    }
-  }
 
   private def process(data: ByteBuf, player: EntityPlayer): Unit = {
     // Don't crash on badly formatted packets (may have been altered by a
@@ -86,7 +82,7 @@ abstract class PacketHandler {
   protected def dispatch(p: PacketParser): Unit
 
   protected class PacketParser(stream: InputStream, val player: EntityPlayer) extends DataInputStream(stream) {
-    val packetType = PacketType(readByte())
+    val packetType: PacketType.Value = PacketType(readByte())
 
     def getTileEntity[T: ClassTag](dimension: Int, x: Int, y: Int, z: Int): Option[T] = {
       world(player, dimension) match {
@@ -162,10 +158,10 @@ abstract class PacketHandler {
       val c0 = readUnsignedByte()
       val c1 = readUnsignedByte()
       val c2 = readUnsignedByte()
-      (c0) | (c1 << 8) | (c2 << 16)
+      c0 | (c1 << 8) | (c2 << 16)
     }
 
-    def readPacketType() = PacketType(readByte())
+    def readPacketType(): PacketType.Value = PacketType(readByte())
   }
 
 }

@@ -14,15 +14,16 @@ import scala.language.implicitConversions
 import scala.math.ScalaNumber
 import scala.runtime.BoxedUnit
 
-class ScalaClosure(val f: (Varargs) => Varargs) extends VarArgFunction {
-  override def invoke(args: Varargs) = f(args)
+class ScalaClosure(val f: Varargs => Varargs) extends VarArgFunction {
+  override def invoke(args: Varargs): Varargs = f(args)
 }
 
 object ScalaClosure {
-  implicit def wrapClosure(f: (Varargs) => LuaValue): ScalaClosure = new ScalaClosure(args => f(args) match {
-    case varargs: Varargs => varargs
+  implicit def wrapClosure(f: Varargs => LuaValue): ScalaClosure = new ScalaClosure(args => f(args) match {
     case LuaValue.NONE => LuaValue.NONE
-    case result => LuaValue.varargsOf(Array(result))
+    case varargs: Varargs => varargs
+    //case result => LuaValue.varargsOf(Array(result))
+
   })
 
   implicit def wrapVarArgClosure(f: (Varargs) => Varargs): ScalaClosure = new ScalaClosure(f)
@@ -40,14 +41,14 @@ object ScalaClosure {
       case value: java.lang.Character => LuaValue.valueOf(String.valueOf(value))
       case value: java.lang.Short => LuaValue.valueOf(value.shortValue)
       case value: java.lang.Integer => LuaValue.valueOf(value.intValue)
-      case value: java.lang.Long => LuaValue.valueOf(value.longValue)
+      case value: java.lang.Long => LuaValue.valueOf(value.longValue.toDouble)
       case value: java.lang.Float => LuaValue.valueOf(value.floatValue)
       case value: java.lang.Double => LuaValue.valueOf(value.doubleValue)
       case value: java.lang.String => LuaValue.valueOf(value)
       case value: Array[Byte] => LuaValue.valueOf(value)
       case value: Array[_] => toLuaList(value)
       case value: Value if Settings.get.allowUserdata => LuaValue.userdataOf(value)
-      case value: Product => toLuaList(value.productIterator.toIterable)
+      case value: Product => toLuaList(value.productIterator.iterator.toList)
       case value: Seq[_] => toLuaList(value)
       case value: java.util.Map[_, _] => toLuaTable(value.asScala.toMap)
       case value: Map[_, _] => toLuaTable(value)
@@ -58,11 +59,11 @@ object ScalaClosure {
     }
   }
 
-  def toLuaList(value: Iterable[Any]): LuaValue = {
+  private def toLuaList(value: Iterable[Any]): LuaValue = {
     LuaValue.listOf(value.map(toLuaValue).toArray)
   }
 
-  def toLuaTable(value: Map[?, ?]): LuaValue = {
+  private def toLuaTable(value: Map[?, ?]): LuaValue = {
     val seq: mutable.Seq[LuaValue] = mutable.Seq.empty[LuaValue]
     value.foreach(t=>seq.appended(toLuaValue(t._1)).appended(toLuaValue(t._2)))
     LuaValue.tableOf(seq.toArray)
@@ -82,6 +83,6 @@ object ScalaClosure {
     case _ => null
   }
 
-  def toSimpleJavaObjects(args: Varargs, start: Int = 1) =
+  def toSimpleJavaObjects(args: Varargs, start: Int = 1): Seq[AnyRef] =
     for (index <- start to args.narg()) yield toSimpleJavaObject(args.arg(index))
 }

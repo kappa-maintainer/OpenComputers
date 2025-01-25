@@ -3,15 +3,15 @@ package li.cil.oc.server.component.traits
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, EntityInventorySource, InventorySource}
-import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedBlock.*
+import li.cil.oc.util.ExtendedWorld.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityMinecart
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.{EnumActionResult, EnumFacing, EnumHand}
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.world.WorldServer
+import net.minecraft.world.{World, WorldServer}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -21,10 +21,13 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result
 import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 
+import java.util
+import java.util.List
+
 trait WorldAware {
   def position: BlockPosition
 
-  def world = position.world.get
+  def world: World = position.world.get
 
   def fakePlayer: EntityPlayer = {
     val player = FakePlayerFactory.get(world.asInstanceOf[WorldServer], Settings.get.fakePlayerProfile)
@@ -64,27 +67,27 @@ trait WorldAware {
   }) && (inv match {
     case inv: BlockInventorySource => mayInteract(inv.position, inv.side)
     case inv: EntityInventorySource => mayInteract(inv.entity)
-    case _ => true
+    case null => true
   })
 
-  def entitiesInBounds[Type <: Entity](clazz: Class[Type], bounds: AxisAlignedBB) = {
+  def entitiesInBounds[Type <: Entity](clazz: Class[Type], bounds: AxisAlignedBB): util.List[Type] = {
     world.getEntitiesWithinAABB(clazz, bounds)
   }
 
-  def entitiesInBlock[Type <: Entity](clazz: Class[Type], blockPos: BlockPosition) = {
+  def entitiesInBlock[Type <: Entity](clazz: Class[Type], blockPos: BlockPosition): util.List[Type] = {
     entitiesInBounds(clazz, blockPos.bounds)
   }
 
-  def entitiesOnSide[Type <: Entity](clazz: Class[Type], side: EnumFacing) = {
+  def entitiesOnSide[Type <: Entity](clazz: Class[Type], side: EnumFacing): util.List[Type] = {
     entitiesInBlock(clazz, position.offset(side))
   }
 
-  def closestEntity[Type <: Entity](clazz: Class[Type], side: EnumFacing) = {
+  def closestEntity[Type <: Entity](clazz: Class[Type], side: EnumFacing): Option[Entity] = {
     val blockPos = position.offset(side)
     Option(world.findNearestEntityWithinAABB(clazz, blockPos.bounds, fakePlayer))
   }
 
-  def blockContent(side: EnumFacing) = {
+  def blockContent(side: EnumFacing): (Boolean, String) = {
     closestEntity[Entity](classOf[Entity], side) match {
       case Some(_@(_: EntityLivingBase | _: EntityMinecart)) =>
         (true, "entity")

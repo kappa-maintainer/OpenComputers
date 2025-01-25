@@ -75,11 +75,11 @@ object ExtendedNBT {
       case (k: Number, v) => k -> v
     }.sortBy(_._1.intValue()).map(_._2)
     def asList(value: Option[Any]): IndexedSeq[?] = value match {
-      case Some(v: Array[_]) => v
-      case Some(v: Map[_, _]) => mapToList(v.toArray)
-      case Some(v: mutable.Map[_, _]) => mapToList(v.toArray)
-      case Some(v: java.util.Map[_, _]) => mapToList(v.asScala.toArray)
-      case Some(v: String) => v.getBytes(Charsets.UTF_8)
+      case Some(v: Array[_]) => v.toIndexedSeq
+      case Some(v: Map[_, _]) => mapToList(v.toArray).toIndexedSeq
+      case Some(v: mutable.Map[_, _]) => mapToList(v.toArray).toIndexedSeq
+      case Some(v: java.util.Map[_, _]) => mapToList(v.asScala.toArray).toIndexedSeq
+      case Some(v: String) => v.getBytes(Charsets.UTF_8).toIndexedSeq
       case _ => throw new IllegalArgumentException("Illegal or missing value.")
     }
     def asMap[K](value: Option[Any]): Map[K, ?] = value match {

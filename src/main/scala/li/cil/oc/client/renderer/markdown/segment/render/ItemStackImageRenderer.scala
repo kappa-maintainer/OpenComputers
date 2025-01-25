@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL12
 
 private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) extends ImageRenderer {
   // How long to show individual stacks, in milliseconds, before switching to the next.
-  final val cycleSpeed = 1000
+  private final val cycleSpeed = 1000
 
   override def getWidth = 32
 
@@ -22,7 +22,7 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
     val index = (System.currentTimeMillis() % (cycleSpeed * stacks.length)).toInt / cycleSpeed
     val stack = stacks(index)
 
-    GlStateManager.scale(getWidth / 16, getHeight / 16, getWidth / 16)
+    GlStateManager.scale(getWidth.toFloat / 16.0F, getHeight.toFloat / 16.0F, getWidth.toFloat / 16.0F)
     GlStateManager.enableRescaleNormal()
     RenderHelper.enableGUIStandardItemLighting()
     OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240)

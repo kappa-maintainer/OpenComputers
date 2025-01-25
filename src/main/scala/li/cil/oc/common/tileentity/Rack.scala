@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.Driver
@@ -18,9 +17,9 @@ import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.Slot
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedInventory._
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedInventory.*
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
@@ -30,6 +29,9 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+
+import scala.util.boundary
+import scala.util.boundary.break
 
 class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalancer with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware {
   var isRelayEnabled = false
@@ -194,20 +196,21 @@ class Rack extends traits.PowerAcceptor with traits.Hub with traits.PowerBalance
       val mountable = getMountable(slot)
       if (mountable != null) {
         val mapping = nodeMapping(slot)
-        for (connectableIndex <- 0 until 3) {
-          mapping(connectableIndex + 1) match {
-            case Some(side) =>
-              if (connectableIndex < mountable.getConnectableCount) {
-                val connectable = mountable.getConnectableAt(connectableIndex)
-                if (connectable != null && connectable.node == message.source) {
-                  sidedNode(toGlobal(side)).sendToReachable("network.message", packet)
-                  relayToConnectablesOnSide(message, packet, side)
-                  return
+        boundary:
+          for (connectableIndex <- 0 until 3) {
+            mapping(connectableIndex + 1) match {
+              case Some(side) =>
+                if (connectableIndex < mountable.getConnectableCount) {
+                  val connectable = mountable.getConnectableAt(connectableIndex)
+                  if (connectable != null && connectable.node == message.source) {
+                    sidedNode(toGlobal(side)).sendToReachable("network.message", packet)
+                    relayToConnectablesOnSide(message, packet, side)
+                    break()
+                  }
                 }
-              }
-            case _ => // Not connected to a bus.
+              case _ => // Not connected to a bus.
+            }
           }
-        }
       }
     }
   }

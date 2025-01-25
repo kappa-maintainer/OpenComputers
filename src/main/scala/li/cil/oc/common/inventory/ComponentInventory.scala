@@ -3,7 +3,7 @@ package li.cil.oc.common.inventory
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.api.Driver
-import li.cil.oc.api.driver.{DriverItem => ItemDriver}
+import li.cil.oc.api.driver.DriverItem as ItemDriver
 import li.cil.oc.api.network
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.network.ManagedEnvironment
@@ -16,6 +16,9 @@ import net.minecraft.nbt.NBTTagCompound
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.collection.immutable
+import scala.collection.mutable.ArrayBuffer
+import scala.util.boundary
+import scala.util.boundary.break
 
 trait ComponentInventory extends Inventory with network.Environment {
   private var _components: Array[Option[ManagedEnvironment]] = scala.compiletime.uninitialized
@@ -28,7 +31,7 @@ trait ComponentInventory extends Inventory with network.Environment {
     if (_components == null) Array[Option[ManagedEnvironment]]() else _components
   }
 
-  protected val updatingComponents = mutable.ArrayBuffer.empty[ManagedEnvironment]
+  protected val updatingComponents: ArrayBuffer[ManagedEnvironment] = mutable.ArrayBuffer.empty[ManagedEnvironment]
 
   // ----------------------------------------------------------------------- //
 
@@ -106,25 +109,26 @@ trait ComponentInventory extends Inventory with network.Environment {
   }
 
   def saveComponents():Unit = {
-    for (slot <- 0 until getSizeInventory) {
-      val stack = getStackInSlot(slot)
-      if (!stack.isEmpty) {
-        if (slot >= components.length) {
-          // isSizeInventoryReady was added to resolve issues where an inventory was used before its
-          // nbt data had been parsed. See https://github.com/MightyPirates/OpenComputers/issues/2522
-          // If this error is hit again, perhaps another subtype needs to handle nbt loading like Case does
-          OpenComputers.log.error(s"ComponentInventory components length ${components.length} does not accommodate inventory size ${getSizeInventory}")
-          return
-        } else {
-          components(slot) match {
-            case Some(component) =>
-              // We're guaranteed to have a driver for entries.
-              save(component, Driver.driverFor(stack), stack)
-            case _ => // Nothing special to save.
+    boundary:
+      for (slot <- 0 until getSizeInventory) {
+        val stack = getStackInSlot(slot)
+        if (!stack.isEmpty) {
+          if (slot >= components.length) {
+            // isSizeInventoryReady was added to resolve issues where an inventory was used before its
+            // nbt data had been parsed. See https://github.com/MightyPirates/OpenComputers/issues/2522
+            // If this error is hit again, perhaps another subtype needs to handle nbt loading like Case does
+            OpenComputers.log.error(s"ComponentInventory components length ${components.length} does not accommodate inventory size ${getSizeInventory}")
+            break()
+          } else {
+            components(slot) match {
+              case Some(component) =>
+                // We're guaranteed to have a driver for entries.
+                save(component, Driver.driverFor(stack), stack)
+              case _ => // Nothing special to save.
+            }
           }
         }
       }
-    }
   }
 
   // ----------------------------------------------------------------------- //

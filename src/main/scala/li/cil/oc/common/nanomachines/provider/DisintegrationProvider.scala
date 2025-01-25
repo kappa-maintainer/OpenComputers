@@ -88,7 +88,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
           }
 
           // Handle aborted / incomplete breaks.
-          for (pos <- breakingMap.keySet -- breakingMapNew.keySet) {
+          for (pos <- breakingMap.keySet.diff(breakingMapNew.keySet)) {
             world.destroyBlockInWorldPartially(pos.hashCode(), pos, -1)
           }
 

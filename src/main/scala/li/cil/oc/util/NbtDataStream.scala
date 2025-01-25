@@ -2,6 +2,9 @@ package li.cil.oc.util
 
 import net.minecraft.nbt.NBTTagCompound
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 object NbtDataStream {
   def getShortArray(nbt: NBTTagCompound, key: String, array2d: Array[Array[Short]], w: Int, h: Int) : Boolean = {
     if (!nbt.hasKey(key)) {
@@ -10,14 +13,12 @@ object NbtDataStream {
 
     val rawByteReader = new java.io.ByteArrayInputStream(nbt.getByteArray(key))
     val memReader = new java.io.DataInputStream(rawByteReader)
-    for (y <- 0 until h) {
-      for (x <- 0 until w) {
-        if (2 > memReader.available()) {
-          return true // not great, but get out now
-        }
-        array2d(y)(x) = memReader.readShort()
-      }
-    }
+    boundary:
+      for (y <- 0 until h)
+        for (x <- 0 until w)
+          if (2 > memReader.available())
+            break(true) // not great, but get out now
+          array2d(y)(x) = memReader.readShort()
     true
   }
 
@@ -27,16 +28,14 @@ object NbtDataStream {
     }
     // legacy format
     val c = nbt.getIntArray(key)
-    for (y <- 0 until h) {
-      val rowColor = array2d(y)
-      for (x <- 0 until w) {
-        val index = x + y * w
-        if (index >= c.length) {
-          return true // not great, but, the read at least started
-        }
-        rowColor(x) = c(index).toShort
-      }
-    }
+    boundary:
+      for (y <- 0 until h)
+        val rowColor = array2d(y)
+        for (x <- 0 until w)
+          val index = x + y * w
+          if (index >= c.length)
+            break(true) // not great, but, the read at least started
+          rowColor(x) = c(index).toShort
     true
   }
 

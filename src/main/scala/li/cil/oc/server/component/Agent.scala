@@ -89,11 +89,11 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       }
       else {
         // Always try the direction we're looking first.
-        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).toIterable
+        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).iterator
       }
     val sneaky = args.isBoolean(2) && args.checkBoolean(2)
 
-    def triggerDelay(delay: Double = Settings.get.swingDelay) = {
+    def triggerDelay(delay: Double = Settings.get.swingDelay): Unit = {
       onWorldInteraction(context, delay)
     }
     def attack(player: Player, entity: Entity) = {
@@ -152,7 +152,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
 
       player.setSneaking(false)
       if (success) {
-        return result(true, what)
+        result(true, what)
       }
       reason = reason.orElse(Option(what))
     }
@@ -180,7 +180,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       }
       else {
         // Always try the direction we're looking first.
-        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).toIterable
+        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).iterator
       }
     val sneaky = args.isBoolean(2) && args.checkBoolean(2)
     val duration =
@@ -243,7 +243,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
 
       player.setSneaking(false)
       if (success) {
-        return result(true, what)
+        result(true, what)
       }
     }
 
@@ -259,7 +259,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       }
       else {
         // Always try the direction we're looking first.
-        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).toIterable
+        Iterable(facing) ++ EnumFacing.values.filter(side => side != facing && side != facing.getOpposite).iterator
       }
     val sneaky = args.isBoolean(2) && args.checkBoolean(2)
     val stack = agent.mainInventory.getStackInSlot(agent.selectedSlot)
@@ -296,7 +296,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       player.setSneaking(false)
       if (success) {
         onWorldInteraction(context, Settings.get.placeDelay)
-        return result(true)
+        result(true)
       }
     }
 

@@ -33,7 +33,7 @@ object FluidUtils {
       case t: TileEntity if t.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side) =>
         t.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side) match {
           case handler: capability.IFluidHandler => Option(handler)
-          case _ => Option(new GenericBlockWrapper(position))
+          case null => Option(new GenericBlockWrapper(position))
         }
       case _ => Option(new GenericBlockWrapper(position))
     }

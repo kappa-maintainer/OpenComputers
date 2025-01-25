@@ -30,7 +30,7 @@ class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
         case name: String =>
           lua.pushString(name)
           1
-        case _ =>
+        case null =>
           lua.pushNil()
           lua.pushString("no such component")
           2
@@ -44,7 +44,7 @@ class ComponentAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
         case name: String =>
           lua.pushInteger(owner.machine.host.componentSlot(address))
           1
-        case _ =>
+        case null =>
           lua.pushNil()
           lua.pushString("no such component")
           2

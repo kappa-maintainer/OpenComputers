@@ -168,7 +168,7 @@ object ModelInitialization {
               registry.putObject(location, model(parent))
             }
           }
-        case _ =>
+        case null =>
       }
     }
   }

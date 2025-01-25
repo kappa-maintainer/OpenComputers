@@ -374,7 +374,7 @@ object DebugCard {
       checkAccess()
       FMLCommonHandler.instance.getMinecraftServerInstance.getPlayerList.getPlayerByUsername(name) match {
         case player: EntityPlayerMP => f(player)
-        case _ => result((), "player is offline")
+        case null => result((), "player is offline")
       }
     }
 
@@ -744,7 +744,7 @@ object DebugCard {
       val blockPos = new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       world.getTileEntity(blockPos) match {
         case tileEntity: TileEntity => result(toNbt((nbt) => tileEntity.writeToNBT(nbt): Unit).toTypedMap)
-        case _ => null
+        case null => null
       }
     }
 
@@ -762,7 +762,7 @@ object DebugCard {
               result(true)
             case nbt => result((), s"nbt tag compound expected, got '${NBTBase.NBT_TYPES(nbt.getId)}'")
           }
-        case _ => result((), "no tile entity")
+        case null => result((), "no tile entity")
       }
     }
 
@@ -925,7 +925,7 @@ object DebugCard {
       val config = server.getPlayerList
       server.isSinglePlayer || (config.canSendCommands(profile) && (config.getOppedPlayers.getEntry(profile) match {
         case entry: UserListOpsEntry => entry.getPermissionLevel >= level
-        case _ => server.getOpPermissionLevel >= level
+        case null => server.getOpPermissionLevel >= level
       }))
     }
 

@@ -17,7 +17,7 @@ class ColorizeRecipe(target: Item, source: Array[Item] = null) extends Container
   def this(target: Block) = this(target, null)
 
   val targetItem: Item = target
-  val sourceItems: Array[Item] = if (source != null) source else Array(targetItem)
+  private val sourceItems: Array[Item] = if (source != null) source else Array(targetItem)
 
   override def matches(crafting: InventoryCrafting, world: World): Boolean = {
     val stacks = (0 until crafting.getSizeInventory).flatMap(i => StackOption(crafting.getStackInSlot(i)))
@@ -39,18 +39,20 @@ class ColorizeRecipe(target: Item, source: Array[Item] = null) extends Container
         targetStack.setCount(1)
       } else {
         val dye = Color.findDye(stack)
-        if (dye.isEmpty)
-          return ItemStack.EMPTY
+        if (dye.isDefined) {
+          val itemColor = Color.byOreName(dye.get).getColorComponentValues
+          val red = (itemColor(0) * 255.0F).toInt
+          val green = (itemColor(1) * 255.0F).toInt
+          val blue = (itemColor(2) * 255.0F).toInt
+          maximum += Math.max(red, Math.max(green, blue))
+          color(0) += red
+          color(1) += green
+          color(2) += blue
+          colorCount = colorCount + 1
+        } else {
+          ItemStack.EMPTY
+        }
 
-        val itemColor = Color.byOreName(dye.get).getColorComponentValues
-        val red = (itemColor(0) * 255.0F).toInt
-        val green = (itemColor(1) * 255.0F).toInt
-        val blue = (itemColor(2) * 255.0F).toInt
-        maximum += Math.max(red, Math.max(green, blue))
-        color(0) += red
-        color(1) += green
-        color(2) += blue
-        colorCount = colorCount + 1
       }
     }
 
@@ -86,5 +88,5 @@ class ColorizeRecipe(target: Item, source: Array[Item] = null) extends Container
 
   override def getMinimumRecipeSize = 2
 
-  override def getRecipeOutput = ItemStack.EMPTY
+  override def getRecipeOutput: ItemStack = ItemStack.EMPTY
 }

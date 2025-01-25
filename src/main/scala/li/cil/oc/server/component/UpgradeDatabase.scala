@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import com.google.common.hash.Hashing
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
@@ -16,13 +15,15 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.DatabaseAccess
-import li.cil.oc.util.ExtendedArguments._
+import li.cil.oc.util.ExtendedArguments.*
 import li.cil.oc.util.ItemUtils
 import li.cil.oc.util.StackOption
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment with internal.Database with DeviceInfo {
   override val node = Network.newNode(this, Visibility.Network).
@@ -39,13 +40,13 @@ class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment w
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo.asJava
 
-  override def size = data.getSizeInventory
+  override def size: Int = data.getSizeInventory
 
-  override def getStackInSlot(slot: Int) = StackOption(data.getStackInSlot(slot)).map(_.copy()).orEmpty
+  override def getStackInSlot(slot: Int): ItemStack = StackOption(data.getStackInSlot(slot)).map(_.copy()).orEmpty
 
-  override def setStackInSlot(slot: Int, stack: ItemStack) = data.setInventorySlotContents(slot, stack)
+  override def setStackInSlot(slot: Int, stack: ItemStack): Unit = data.setInventorySlotContents(slot, stack)
 
-  override def findStackWithHash(needle: String) = indexOf(needle)
+  override def findStackWithHash(needle: String): Int = indexOf(needle)
 
   @Callback(doc = "function(slot:number):table -- Get the representation of the item stack stored in the specified slot.")
   def get(context: Context, args: Arguments): Array[AnyRef] = result(data.getStackInSlot(args.checkSlot(data, 0)))
@@ -56,7 +57,7 @@ class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment w
       case stack: ItemStack =>
         val hash = Hashing.sha256().hashBytes(ItemUtils.saveStack(stack))
         result(hash.toString)
-      case _ => null
+      case null => null
     }
   }
 
@@ -98,12 +99,13 @@ class UpgradeDatabase(val data: IInventory) extends AbstractManagedEnvironment w
   }
 
   private def indexOf(needle: String, offset: Int = 0): Int = {
-    for (slot <- 0 until data.getSizeInventory) data.getStackInSlot(slot) match {
-      case stack: ItemStack =>
-        val hash = Hashing.sha256().hashBytes(ItemUtils.saveStack(stack))
-        if (hash.toString == needle) return slot + offset
-      case _ =>
-    }
+    boundary:
+      for (slot <- 0 until data.getSizeInventory) data.getStackInSlot(slot) match {
+        case stack: ItemStack =>
+          val hash = Hashing.sha256().hashBytes(ItemUtils.saveStack(stack))
+          if (hash.toString == needle) break(slot + offset)
+        case null =>
+      }
     -1
   }
 }

@@ -66,12 +66,12 @@ class InternetFilteringRuleTest extends AnyFunSpec {
     !InternetCard.isRequestAllowed(settings, resolved, uriObj.getHost)
   }
 
-  def autoClose[A <: AutoCloseable, B](closeable: A)(fun: (A) ⇒ B): B = {
+  def autoClose[A <: AutoCloseable, B](closeable: A)(fun: (A) => B): B = {
     var t: Throwable = null
     try {
       fun(closeable)
     } catch {
-      case funT: Throwable ⇒
+      case funT: Throwable =>
         t = funT
         throw t
     } finally {
@@ -79,7 +79,7 @@ class InternetFilteringRuleTest extends AnyFunSpec {
         try {
           closeable.close()
         } catch {
-          case closeT: Throwable ⇒
+          case closeT: Throwable =>
             t.addSuppressed(closeT)
             throw t
         }

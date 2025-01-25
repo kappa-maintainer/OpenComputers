@@ -6,11 +6,12 @@ import li.cil.oc.common.container
 import li.cil.oc.common.inventory.DatabaseInventory
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.item.ItemStack
 
 class Database(playerInventory: InventoryPlayer, val databaseInventory: DatabaseInventory) extends DynamicGuiContainer(new container.Database(playerInventory, databaseInventory)) with traits.LockedHotbar {
   ySize = 256
 
-  override def lockedStack = databaseInventory.container
+  override def lockedStack: ItemStack = databaseInventory.container
 
   override def drawSecondaryForegroundLayer(mouseX: Int, mouseY: Int):Unit = {}
 

@@ -197,12 +197,12 @@ class Proxy {
 
   private final val BrokenJavaVersions = Set("1.6.0_65, Apple Inc.")
 
-  def isBrokenJavaVersion = {
+  private def isBrokenJavaVersion: Boolean = {
     val javaVersion = System.getProperty("java.version") + ", " + System.getProperty("java.vendor")
     BrokenJavaVersions.contains(javaVersion)
   }
 
-  def checkForBrokenJavaVersion() = if (isBrokenJavaVersion) {
+  private def checkForBrokenJavaVersion(): Unit = if (isBrokenJavaVersion) {
     FMLLog.bigWarning("You're using a broken Java version! Please update now, or remove OpenComputers. DO NOT REPORT THIS! UPDATE YOUR JAVA!")
     throw new Exception("You're using a broken Java version! Please update now, or remove OpenComputers. DO NOT REPORT THIS! UPDATE YOUR JAVA!")
   }

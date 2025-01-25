@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -12,12 +11,12 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
+import li.cil.oc.api.network.*
 import li.cil.oc.common.template.AssemblerTemplates
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.StackOption
-import li.cil.oc.util.StackOption._
+import li.cil.oc.util.StackOption.*
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
@@ -26,6 +25,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.fml.common.Optional
 
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 //@Optional.Interface(iface = "li.cil.oc.common.tileentity.traits.power.AppliedEnergistics2", modid = Mods.IDs.AppliedEnergistics2, striprefs = true)
 class Assembler extends traits.Environment with traits.PowerAcceptor with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo {
@@ -87,10 +88,12 @@ class Assembler extends traits.Environment with traits.PowerAcceptor with traits
   def start(finishImmediately: Boolean = false): Boolean = this.synchronized {
     AssemblerTemplates.select(getStackInSlot(0)) match {
       case Some(template) if !isAssembling && output.isEmpty && template.validate(this)._1 =>
-        for (slot <- 0 until getSizeInventory) {
-          val stack = getStackInSlot(slot)
-          if (!stack.isEmpty && !isItemValidForSlot(slot, stack)) return false
-        }
+        boundary:
+          for (slot <- 0 until getSizeInventory) {
+            val stack = getStackInSlot(slot)
+            if (!stack.isEmpty && !isItemValidForSlot(slot, stack)) 
+              break(false)
+          }
         val (stack, energy) = template.assemble(this)
         output = StackOption(stack)
         if (finishImmediately) {

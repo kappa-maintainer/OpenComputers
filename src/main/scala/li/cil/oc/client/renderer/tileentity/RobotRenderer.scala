@@ -305,7 +305,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
     // the *old* proxy the robot would be rendered at the wrong position, so we
     // correct for the offset.
     if (robot.proxy != proxy) {
-      GlStateManager.translate(robot.proxy.x - proxy.x, robot.proxy.y - proxy.y, robot.proxy.z - proxy.z)
+      GlStateManager.translate((robot.proxy.x - proxy.x).toFloat, (robot.proxy.y - proxy.y).toFloat, (robot.proxy.z - proxy.z).toFloat)
     }
 
     if (robot.isAnimatingMove) {
@@ -328,7 +328,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
 
     if (robot.isAnimatingTurn) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toFloat
-      GlStateManager.rotate(90 * remaining, 0, robot.turnAxis, 0)
+      GlStateManager.rotate(90 * remaining, 0, robot.turnAxis.toFloat, 0)
     }
 
     robot.yaw match {
@@ -439,7 +439,7 @@ object RobotRenderer extends TileEntitySpecialRenderer[tileentity.RobotProxy] {
           firstEmpty = slotMapping.indexOf(null)
         }
 
-        for ((info, mountPoint) <- (slotMapping, mountPoints).zipped if info != null) try {
+        for ((info, mountPoint) <- slotMapping.lazyZip(mountPoints) if info != null) try {
           val (stack, renderer) = info
           GlStateManager.pushMatrix()
           GlStateManager.translate(0.5f, 0.5f, 0.5f)

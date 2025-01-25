@@ -139,7 +139,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
           }
         case _ => false
       }
-      case _ => false
+      case null => false
     }
     // This needs to operate synchronized against the worker thread, to avoid the
     // architecture changing while it is currently being executed.
@@ -309,7 +309,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
   }
 
-  def convertArg(param: Any): AnyRef = {
+  private def convertArg(param: Any): AnyRef = {
     param match {
       case arg: java.lang.Boolean => arg
       case arg: java.lang.Character => Integer.valueOf(arg.toInt)
@@ -630,9 +630,9 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
   override def onMessage(message: Message):Unit = {
     message.data match {
-      case Array(name: String, args@_*) if message.name == "computer.signal" =>
+      case Array(name: String, args*) if message.name == "computer.signal" =>
         signal(name, Seq(message.source.address) ++ args*)
-      case Array(player: EntityPlayer, name: String, args@_*) if message.name == "computer.checked_signal" =>
+      case Array(player: EntityPlayer, name: String, args*) if message.name == "computer.checked_signal" =>
         if (canInteract(player.getName))
           signal(name, Seq(message.source.address) ++ args*)
       case _ =>
@@ -749,7 +749,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
     super.load(nbt)
 
-    state.pushAll(nbt.getIntArray(StateTag).reverseMap(Machine.State(_)))
+    state.pushAll(nbt.getIntArray(StateTag).reverseIterator.map(Machine.State(_)))
     nbt.getTagList(UsersTag, NBT.TAG_STRING).foreach((tag: NBTTagString) => _users += tag.getString)
     if (nbt.hasKey(MessageTag)) {
       message = Some(nbt.getString(MessageTag))
@@ -929,7 +929,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
       true
     }
 
-  private def close() =
+  private def close(): Unit =
     if (state.synchronized(state.isEmpty || state.top != Machine.State.Stopped)) {
       // Give up the state lock, then get the more generic lock on this instance first
       // before locking on state again. Always must be in that order to avoid deadlocks.
@@ -1064,7 +1064,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
 
 object Machine extends MachineAPI {
   // Keep registration order, to allow deterministic iteration of the architectures.
-  val checked: mutable.LinkedHashSet[Class[? <: Architecture]] = mutable.LinkedHashSet.empty[Class[? <: Architecture]]
+  private val checked: mutable.LinkedHashSet[Class[? <: Architecture]] = mutable.LinkedHashSet.empty[Class[? <: Architecture]]
 
   override def add(architecture: Class[? <: Architecture]):Unit = {
     if (!checked.contains(architecture)) {
@@ -1083,7 +1083,7 @@ object Machine extends MachineAPI {
   def getArchitectureName(architecture: Class[? <: Architecture]): String =
     architecture.getAnnotation(classOf[Architecture.Name]) match {
       case annotation: Architecture.Name => annotation.value
-      case _ => architecture.getSimpleName
+      case null => architecture.getSimpleName
     }
 
   override def create(host: MachineHost) = new Machine(host)
@@ -1091,34 +1091,34 @@ object Machine extends MachineAPI {
   /** Possible states of the computer, and in particular its executor. */
   private[machine] object State extends Enumeration {
     /** The computer is not running right now and there is no Lua state. */
-    val Stopped = Value("Stopped")
+    val Stopped: Value = Value("Stopped")
 
     /** Booting up, doing the first run to initialize the kernel and libs. */
-    val Starting = Value("Starting")
+    val Starting: Value = Value("Starting")
 
     /** Computer is currently rebooting. */
-    val Restarting = Value("Restarting")
+    val Restarting: Value = Value("Restarting")
 
     /** The computer is currently shutting down. */
-    val Stopping = Value("Stopping")
+    val Stopping: Value = Value("Stopping")
 
     /** The computer is paused and waiting for the game to resume. */
-    val Paused = Value("Paused")
+    val Paused: Value = Value("Paused")
 
     /** The computer executor is waiting for a synchronized call to be made. */
-    val SynchronizedCall = Value("SynchronizedCall")
+    val SynchronizedCall: Value = Value("SynchronizedCall")
 
     /** The computer should resume with the result of a synchronized call. */
-    val SynchronizedReturn = Value("SynchronizedReturn")
+    val SynchronizedReturn: Value = Value("SynchronizedReturn")
 
     /** The computer will resume as soon as possible. */
-    val Yielded = Value("Yielded")
+    val Yielded: Value = Value("Yielded")
 
     /** The computer is yielding for a longer amount of time. */
-    val Sleeping = Value("Sleeping")
+    val Sleeping: Value = Value("Sleeping")
 
     /** The computer is up and running, executing Lua code. */
-    val Running = Value("Running")
+    val Running: Value = Value("Running")
   }
 
   /** Signals are messages sent to the Lua state from Java asynchronously. */

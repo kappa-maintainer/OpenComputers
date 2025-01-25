@@ -99,7 +99,7 @@ object ItemUtils {
     def isInputBlacklisted(stack: ItemStack) = stack.getItem match {
       case item: ItemBlock => Settings.get.disassemblerInputBlacklist.contains(Block.REGISTRY.getNameForObject(item.getBlock))
       case item: Item => Settings.get.disassemblerInputBlacklist.contains(Item.REGISTRY.getNameForObject(item))
-      case _ => false
+      case null => false
     }
 
     val (ingredients, count) = CraftingManager.REGISTRY.

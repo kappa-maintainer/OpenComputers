@@ -65,7 +65,7 @@ object SpawnComputerCommand extends SimpleCommand("oc_spawnComputer") {
                   rotatable.pitch = EnumFacing.NORTH
                 case _ => // nothing to do here, pitch is fine
               }
-              case _ => // ???
+              case null => // ???
             }
             world.setBlock(keyboardPos, api.Items.get(Constants.BlockName.Keyboard).block())
             world.getTileEntity(keyboardPos) match {

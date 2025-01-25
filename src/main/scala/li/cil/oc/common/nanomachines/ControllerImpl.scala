@@ -2,7 +2,6 @@ package li.cil.oc.common.nanomachines
 
 import java.lang
 import java.util.UUID
-
 import com.google.common.base.Charsets
 import com.google.common.base.Strings
 import li.cil.oc.Constants
@@ -18,7 +17,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.integration.util.DamageSourceWithRandomCause
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.PlayerUtils
 import net.minecraft.entity.player.EntityPlayer
@@ -26,35 +25,33 @@ import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
-import net.minecraft.util.EnumParticleTypes
-import net.minecraft.util.ResourceLocation
+import net.minecraft.util.{DamageSource, EnumParticleTypes, ResourceLocation}
 import net.minecraft.world.World
-
 
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessEndpoint {
   if (isServer) api.Network.joinWirelessNetwork(this)
-  var previousDimension = player.world.provider.getDimension
+  private var previousDimension: Int = player.world.provider.getDimension
 
-  lazy val CommandRange = Settings.get.nanomachinesCommandRange * Settings.get.nanomachinesCommandRange
-  final val FullSyncInterval = 20 * 60
+  private lazy val CommandRange: Double = Settings.get.nanomachinesCommandRange * Settings.get.nanomachinesCommandRange
+  private final val FullSyncInterval: 1200 = 20 * 60
 
-  final val OverloadDamage = new DamageSourceWithRandomCause("oc.nanomachinesOverload", 3).
+  private final val OverloadDamage: DamageSource = new DamageSourceWithRandomCause("oc.nanomachinesOverload", 3).
     setDamageBypassesArmor().
     setDamageIsAbsolute()
 
-  var uuid = UUID.randomUUID.toString
-  var responsePort = 0
-  var commandDelay = 0
-  var queuedCommand: Option[() => Unit] = None
-  var storedEnergy = Settings.get.bufferNanomachines * 0.25
+  var uuid: String = UUID.randomUUID.toString
+  private var responsePort = 0
+  private var commandDelay = 0
+  private var queuedCommand: Option[() => Unit] = None
+  var storedEnergy: Double = Settings.get.bufferNanomachines * 0.25
   var hadPower = true
   val configuration = new NeuralNetwork(this)
-  val activeBehaviors = mutable.Set.empty[Behavior]
+  private val activeBehaviors = mutable.Set.empty[Behavior]
   var activeBehaviorsDirty = true
-  var hasSentConfiguration = false
+  private var hasSentConfiguration = false
 
   override def world: World = player.getEntityWorld
 
@@ -149,7 +146,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
     }
   }
 
-  def respond(endpoint: WirelessEndpoint, data: Any*): Unit = {
+  private def respond(endpoint: WirelessEndpoint, data: Any*): Unit = {
     queuedCommand = Option(() => {
       if (responsePort > 0) {
         val cost = Settings.get.wirelessCostPerRange(Tier.Two) * CommandRange
@@ -165,7 +162,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
 
   // ----------------------------------------------------------------------- //
 
-  override def reconfigure() = {
+  override def reconfigure(): ControllerImpl = {
     if (isServer) configuration.synchronized {
       configuration.reconfigure()
       activeBehaviorsDirty = true
@@ -256,7 +253,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
     }
 
     var hasPower = getLocalBuffer > 0 || Settings.get.ignorePower
-    lazy val active = getActiveBehaviors.asScala.toIterable // Wrap once.
+    lazy val active = getActiveBehaviors.asScala.toList // Wrap once.
     lazy val activeInputs = configuration.triggers.count(_.isActive)
 
     if (hasPower != hadPower) {
@@ -278,7 +275,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
 
         val overload = activeInputs - getSafeActiveInputs
         if (!player.capabilities.isCreativeMode && overload > 0 && player.getEntityWorld.getTotalWorldTime % 20 == 0) {
-          player.attackEntityFrom(OverloadDamage, overload)
+          player.attackEntityFrom(OverloadDamage, overload.toFloat)
         }
       }
 
@@ -365,7 +362,7 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
     if (activeBehaviorsDirty) {
       configuration.synchronized(if (activeBehaviorsDirty) {
         val newBehaviors = configuration.behaviors.filter(_.isActive).map(_.behavior)
-        val addedBehaviors = newBehaviors.toSet.filterNot(activeBehaviors.contains(_))
+        val addedBehaviors = newBehaviors.toSet.diff(activeBehaviors)
         val removedBehaviors = activeBehaviors.filterNot(newBehaviors.contains(_))
         activeBehaviors.clear()
         activeBehaviors ++= newBehaviors

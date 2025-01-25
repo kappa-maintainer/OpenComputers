@@ -1,7 +1,6 @@
 package li.cil.oc.common.block
 
 import java.util.Random
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -11,14 +10,18 @@ import li.cil.oc.integration.util.ItemBlacklist
 import li.cil.oc.util.Rarity
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
-import net.minecraft.util._
+import net.minecraft.item.{EnumRarity, ItemStack}
+import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.*
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3i
 import net.minecraft.world.IBlockAccess
 import net.minecraft.world.World
+
+import scala.util.boundary
+import scala.util.boundary.break
 
 class RobotAfterimage extends SimpleBlock {
   setLightOpacity(0)
@@ -61,11 +64,11 @@ class RobotAfterimage extends SimpleBlock {
 
   override def hasTileEntity(state: IBlockState): Boolean = false
 
-  override def createNewTileEntity(worldIn: World, meta: Int) = null
+  override def createNewTileEntity(worldIn: World, meta: Int): TileEntity = null
 
   // ----------------------------------------------------------------------- //
 
-  override def rarity(stack: ItemStack) = {
+  override def rarity(stack: ItemStack): EnumRarity = {
     val data = new RobotData(stack)
     Rarity.byTier(data.tier)
   }
@@ -90,7 +93,7 @@ class RobotAfterimage extends SimpleBlock {
     }
   }
 
-  override def localOnBlockActivated(world: World, pos: BlockPos, player: EntityPlayer, hand: EnumHand, heldItem: ItemStack, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def localOnBlockActivated(world: World, pos: BlockPos, player: EntityPlayer, hand: EnumHand, heldItem: ItemStack, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     findMovingRobot(world, pos) match {
       case Some(robot) => api.Items.get(Constants.BlockName.Robot).block.onBlockActivated(world, robot.getPos, world.getBlockState(robot.getPos), player, hand, side, hitX, hitY, hitZ)
       case _ => world.setBlockToAir(pos)
@@ -98,16 +101,17 @@ class RobotAfterimage extends SimpleBlock {
   }
 
   def findMovingRobot(world: IBlockAccess, pos: BlockPos): Option[tileentity.Robot] = {
-    for (side <- EnumFacing.values) {
-      val tpos = pos.offset(side)
-      if (world match {
-        case world: World => world.isBlockLoaded(tpos)
-        case _ => true
-      }) world.getTileEntity(tpos) match {
-        case proxy: tileentity.RobotProxy if proxy.robot.moveFrom.contains(pos) => return Some(proxy.robot)
-        case _ =>
+    boundary:
+      for (side <- EnumFacing.values) {
+        val tpos = pos.offset(side)
+        if (world match {
+          case world: World => world.isBlockLoaded(tpos)
+          case _ => true
+        }) world.getTileEntity(tpos) match {
+          case proxy: tileentity.RobotProxy if proxy.robot.moveFrom.contains(pos) => break(Some(proxy.robot))
+          case _ =>
+        }
       }
-    }
     None
   }
 }

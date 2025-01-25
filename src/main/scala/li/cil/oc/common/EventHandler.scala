@@ -156,7 +156,7 @@ object EventHandler {
             }
           case _ =>
         }
-        case _ =>
+        case null =>
       }
     }
   }
@@ -172,7 +172,7 @@ object EventHandler {
     event.getObject match {
       case tileEntity: (TileEntity & Environment & SidedComponent) =>
         event.addCapability(CapabilitySidedComponent.SidedComponent, new CapabilitySidedComponent.Provider(tileEntity))
-      case tileEntity: TileEntity with SidedEnvironment =>
+      case tileEntity: (TileEntity & SidedEnvironment) =>
         event.addCapability(CapabilitySidedEnvironment.ProviderSidedEnvironment, new CapabilitySidedEnvironment.Provider(tileEntity))
       case _ =>
     }
@@ -266,6 +266,7 @@ object EventHandler {
           Future ({
             UpdateCheck.info.onComplete {
               case Success(option) => if (option.nonEmpty) player.sendMessage(Localization.Chat.InfoNewVersion(option.get.tag_name))
+              case scala.util.Failure(_) =>
             }
           })
         }

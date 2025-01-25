@@ -40,7 +40,7 @@ object DriverWorldspike extends DriverSidedTileEntity {
       case WorldspikeVariant.ADMIN => result("admin")
       case WorldspikeVariant.PERSONAL => result("personal")
       case WorldspikeVariant.PASSIVE => result("passive")
-      case _ => result("missing")
+      case null => result("missing")
     }
 
     @Callback(doc = "function():table -- Get the anchor fuel slot's contents.")

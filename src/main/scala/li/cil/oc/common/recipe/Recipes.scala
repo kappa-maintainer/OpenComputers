@@ -363,7 +363,7 @@ object Recipes {
     list.clear()
   }
 
-  private def addRecipe(output: ItemStack, recipe: Config, name: String) = try {
+  private def addRecipe(output: ItemStack, recipe: Config, name: String): Unit = try {
     val recipeType = tryGetType(recipe)
     recipeHandlers.get(recipeType) match {
       case Some(recipeHandler) => recipeHandler(output, recipe)

@@ -32,7 +32,7 @@ class DecolorizeRecipe(target: Item) extends ContainerItemAwareRecipe {
         targetStack = stack.copy()
         targetStack.setCount(1)
       } else if (stack.getItem != Items.WATER_BUCKET) {
-        return ItemStack.EMPTY
+        ItemStack.EMPTY
       }
     }
 
@@ -44,5 +44,5 @@ class DecolorizeRecipe(target: Item) extends ContainerItemAwareRecipe {
 
   override def getMinimumRecipeSize = 2
 
-  override def getRecipeOutput = ItemStack.EMPTY
+  override def getRecipeOutput: ItemStack = ItemStack.EMPTY
 }

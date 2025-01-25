@@ -25,7 +25,7 @@ object ManualUsageHandler {
   def getRecipes(registry: IModRegistry): util.List[ManualUsageRecipe] = registry.getIngredientRegistry.getIngredients(classOf[ItemStack]).asScala.collect {
     case stack: ItemStack => api.Manual.pathFor(stack) match {
       case s: String => Option(new ManualUsageRecipe(stack, s))
-      case _ => None
+      case null => None
     }
   }.flatten.toList.asJava
 

@@ -22,7 +22,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
       }
     } filter (_ != null)
     if (list.isEmpty) null
-    else new CompoundBlockEnvironment(cleanName(tryGetName(world, pos, list.map(_._2))), list*)
+    else new CompoundBlockEnvironment(cleanName(tryGetName(world, pos, list.map(_._2).toIndexedSeq)), list*)
   }
 
   override def worksWith(world: World, pos: BlockPos, side: EnumFacing): Boolean = sidedBlocks.forall(_.worksWith(world, pos, side))

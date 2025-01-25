@@ -36,8 +36,7 @@ object CallbackWrapper {
       cw.visitEnd()
       GeneratedClassLoader.addClass(className, cw.toByteArray)
     }
-
-    GeneratedClassLoader.findClass(className).newInstance().asInstanceOf[AnyRef]
+    GeneratedClassLoader.findClass(className).getConstructor().newInstance().asInstanceOf[AnyRef]
   }
 
   private def emitConstructor(cw: ClassWriter): Unit = {

@@ -24,7 +24,7 @@ trait InventoryWorldControlMk2 extends InventoryAware with WorldAware with SideR
         val slot = args.checkSlot(inventory, 1)
         if (!InventoryUtils.insertIntoInventorySlot(stack, inventory, slot, count)) {
           // Cannot drop into that inventory.
-          return result(false, "inventory full/invalid slot")
+          result(false, "inventory full/invalid slot")
         }
         else if (stack.getCount == 0) {
           // Dropped whole stack.

@@ -119,7 +119,7 @@ object ScreenRenderer extends TileEntitySpecialRenderer[Screen] {
 
     // Fit area to screen (bottom left = bottom left).
     GlStateManager.translate(-0.5f, -0.5f, 0.5f)
-    GlStateManager.translate(0, screen.height, 0)
+    GlStateManager.translate(0, screen.height.toFloat, 0)
 
     // Flip text upside down.
     GlStateManager.scale(1, -1, 1)
@@ -130,10 +130,10 @@ object ScreenRenderer extends TileEntitySpecialRenderer[Screen] {
       case _: li.cil.oc.common.block.Screen => true
       case _ => false
     }
-    case _ => false
+    case null => false
   }
 
-  private def drawOverlay() = if (screen.facing == EnumFacing.UP || screen.facing == EnumFacing.DOWN) {
+  private def drawOverlay(): Unit = if (screen.facing == EnumFacing.UP || screen.facing == EnumFacing.DOWN) {
     // Show up vector overlay when holding same screen block.
     val stack = Minecraft.getMinecraft.player.getHeldItemMainhand
     if (!stack.isEmpty) {

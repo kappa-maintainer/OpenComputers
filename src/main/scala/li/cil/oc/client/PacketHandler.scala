@@ -675,7 +675,7 @@ object PacketHandler extends CommonPacketHandler {
         val background = p.readInt()
         val backgroundIsPalette = p.readBoolean()
         buffer.setBackgroundColor(background, backgroundIsPalette)
-      case _ => // Invalid packet.
+      case null => // Invalid packet.
     }
   }
 

@@ -16,9 +16,9 @@ import net.minecraftforge.common.util.Constants.NBT
 import scala.io.Source
 
 object RobotData {
-  val names = try {
+  val names: Array[String] = try {
     Source.fromInputStream(getClass.getResourceAsStream(
-      "/assets/" + Settings.resourceDomain + "/robot.names"))(Charsets.UTF_8).
+        "/assets/" + Settings.resourceDomain + "/robot.names"))(Charsets.UTF_8).
       getLines().map(_.takeWhile(_ != '#').trim()).filter(_ != "").toArray
   }
   catch {
@@ -26,9 +26,9 @@ object RobotData {
       OpenComputers.log.warn("Failed loading robot name list.", t)
       Array.empty[String]
   }
-  
 
-  def randomName = if (names.length > 0) names((math.random * names.length).toInt) else "Robot"
+
+  def randomName: String = if (names.length > 0) names((math.random * names.length).toInt) else "Robot"
 }
 
 class RobotData extends ItemData(Constants.BlockName.Robot) {
@@ -84,8 +84,8 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     nbt.setInteger(StoredEnergyTag, totalEnergy)
     nbt.setInteger(RobotEnergyTag, robotEnergy)
     nbt.setInteger(TierTag, tier)
-    nbt.setNewTagList(ComponentsTag, components.toIterable)
-    nbt.setNewTagList(ContainersTag, containers.toIterable)
+    nbt.setNewTagList(ComponentsTag, components.toList)
+    nbt.setNewTagList(ContainersTag, containers.toList)
     nbt.setInteger(LightColorTag, lightColor)
   }
 

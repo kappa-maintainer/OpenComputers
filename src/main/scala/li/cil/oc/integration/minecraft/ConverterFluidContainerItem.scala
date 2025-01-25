@@ -8,7 +8,7 @@ import java.util
 import scala.jdk.CollectionConverters.*
 
 object ConverterFluidContainerItem extends api.driver.Converter {
-  override def convert(value: scala.Any, output: util.Map[AnyRef, AnyRef]) =
+  override def convert(value: scala.Any, output: util.Map[AnyRef, AnyRef]): Unit =
     value match {
       case stack: ItemStack => if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
         stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null) match {
@@ -20,7 +20,7 @@ object ConverterFluidContainerItem extends api.driver.Converter {
             } else {
               output.asScala += "fluid" -> properties(0).getContents
             }
-          case _ =>
+          case null =>
         }
       }
       case _ =>

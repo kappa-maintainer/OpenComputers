@@ -1,45 +1,28 @@
 package li.cil.oc.server.component
 
 import com.google.common.net.InetAddresses
-
-import java.io.BufferedWriter
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStreamWriter
-import java.net._
-import java.nio.ByteBuffer
-import java.nio.channels.SelectionKey
-import java.nio.channels.Selector
-import java.nio.channels.SocketChannel
-import java.util
-import java.util.UUID
-import java.util.concurrent._
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.Network
+import li.cil.oc.{Constants, OpenComputers, Settings}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.api.prefab.AbstractValue
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.*
+import li.cil.oc.api.{Network, prefab}
+import li.cil.oc.api.prefab.{AbstractManagedEnvironment, AbstractValue}
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.server.MinecraftServer
 import net.minecraftforge.fml.common.FMLCommonHandler
 
-import scala.jdk.CollectionConverters.*
+import java.io.*
+import java.net.*
+import java.nio.ByteBuffer
+import java.nio.channels.{SelectionKey, Selector, SocketChannel}
+import java.util
+import java.util.UUID
+import java.util.concurrent.*
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.*
 
 class InternetCard extends AbstractManagedEnvironment with DeviceInfo {
-  override val node = Network.newNode(this, Visibility.Network).
+  override val node: Component = Network.newNode(this, Visibility.Network).
     withComponent("internet", Visibility.Neighbors).
     create()
 
@@ -128,7 +111,7 @@ class InternetCard extends AbstractManagedEnvironment with DeviceInfo {
     }
   }
 
-  override def onDisconnect(node: Node) = this.synchronized {
+  override def onDisconnect(node: Node): Unit = this.synchronized {
     super.onDisconnect(node)
     if (owner.isDefined && (node == this.node || node.host.isInstanceOf[Context] && (node.host.asInstanceOf[Context] == owner.get))) {
       owner = None
@@ -176,7 +159,7 @@ class InternetCard extends AbstractManagedEnvironment with DeviceInfo {
   }
 
   private def checkAddress(address: String) = {
-    val url = try new URL(address)
+    val url = try new URI(address).toURL
     catch {
       case e: Throwable => throw new FileNotFoundException("invalid address")
     }
@@ -199,14 +182,14 @@ object InternetCard {
     def close(): Unit
   }
 
-  object TCPNotifier extends Thread {
+  private object TCPNotifier extends Thread {
     private var selector = Selector.open()
     private val toAccept = new ConcurrentLinkedQueue[(SocketChannel, () => Unit)]
 
     override def run(): Unit = {
       while (true) {
         try {
-          Stream.continually(toAccept.poll).takeWhile(_ != null).foreach({
+          LazyList.continually(toAccept.poll).takeWhile(_ != null).foreach({
             case (channel: SocketChannel, action: (() => Unit)) =>
               channel.register(selector, SelectionKey.OP_READ, action)
           })

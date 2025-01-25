@@ -13,7 +13,7 @@ import li.cil.oc.Settings
 import scala.collection.mutable
 
 object ThreadPoolFactory {
-  val priority = {
+  val priority: Int = {
     // For InternetFilteringRuleTest, where Settings.get is not provided.
     val custom = Option(Settings.get) match {
       case None => -1
@@ -23,18 +23,15 @@ object ThreadPoolFactory {
     else custom max Thread.MIN_PRIORITY min Thread.MAX_PRIORITY
   }
 
-  def create(name: String, threads: Int) = Executors.newScheduledThreadPool(threads,
+  def create(name: String, threads: Int): ScheduledExecutorService = Executors.newScheduledThreadPool(threads,
     new ThreadFactory() {
       private val baseName = "OpenComputers-" + name + "-"
 
       private val threadNumber = new AtomicInteger(1)
 
-      private val group = System.getSecurityManager match {
-        case null => Thread.currentThread().getThreadGroup
-        case s => s.getThreadGroup
-      }
+      private val group = Thread.currentThread().getThreadGroup
 
-      def newThread(r: Runnable) = {
+      def newThread(r: Runnable): Thread = {
         val thread = new Thread(group, r, baseName + threadNumber.getAndIncrement)
         if (!thread.isDaemon) {
           thread.setDaemon(true)

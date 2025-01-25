@@ -38,9 +38,9 @@ trait ItemInventoryControl extends InventoryAware {
     inventory.getStackInSlot(slot) match {
       case stack: ItemStack => api.Driver.itemHandlerFor(stack, fakePlayer) match {
         case inventory: IItemHandler => f(inventory)
-        case _ => result(0, "no item inventory")
+        case null => result(0, "no item inventory")
       }
-      case _ => result(0, "no item inventory")
+      case null => result(0, "no item inventory")
     }
   }
 }

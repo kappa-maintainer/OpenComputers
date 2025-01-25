@@ -51,7 +51,7 @@ trait Segment {
   def renderAsText(format: MarkupFormat.Value): Iterable[String] = {
     var segment = this
     val result = mutable.Buffer.empty[String]
-    val builder = mutable.StringBuilder.newBuilder
+    val builder = new mutable.StringBuilder()
     while (segment != null) {
       builder.append(segment.toString(format))
       if (segment.isLast) {
@@ -60,7 +60,7 @@ trait Segment {
       }
       segment = segment.next
     }
-    result.toIterable
+    result.toList
   }
 
   def toString(format: MarkupFormat.Value): String

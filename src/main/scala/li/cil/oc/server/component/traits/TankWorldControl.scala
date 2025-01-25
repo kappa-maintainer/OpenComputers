@@ -18,7 +18,7 @@ trait TankWorldControl extends TankAware with WorldAware with SideRestricted {
         FluidUtils.fluidHandlerAt(position.offset(side), side.getOpposite) match {
           case Some(handler) => args.optTankProperties(handler, 1, null) match {
             case properties: IFluidTankProperties => result(stack.isFluidEqual(properties.getContents))
-            case _ => result(Option(handler.getTankProperties).exists(_.exists(other => stack.isFluidEqual(other.getContents))))
+            case null => result(Option(handler.getTankProperties).exists(_.exists(other => stack.isFluidEqual(other.getContents))))
           }
           case _ => result(false)
         }
@@ -45,7 +45,7 @@ trait TankWorldControl extends TankAware with WorldAware with SideRestricted {
                     result(true, filled)
                   }
                   else result((), "incompatible or no fluid")
-                case _ =>
+                case null =>
                   val transferred = tank.fill(handler.drain(amount, true), true)
                   result(transferred > 0, transferred)
               }
@@ -75,7 +75,7 @@ trait TankWorldControl extends TankAware with WorldAware with SideRestricted {
                     result(true, filled)
                   }
                   else result((), "incompatible or no fluid")
-                case _ =>
+                case null =>
                   result((), "tank is empty")
               }
             case _ => result((), "no space")

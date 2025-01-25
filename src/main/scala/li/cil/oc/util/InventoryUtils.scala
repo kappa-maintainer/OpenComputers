@@ -1,8 +1,8 @@
 package li.cil.oc.util
 
 import li.cil.oc.OpenComputers
-import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.StackOption._
+import li.cil.oc.util.ExtendedWorld.*
+import li.cil.oc.util.StackOption.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
@@ -18,6 +18,8 @@ import net.minecraftforge.items.wrapper.InvWrapper
 import net.minecraftforge.items.wrapper.SidedInvWrapper
 
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 object InventoryUtils {
 
@@ -63,12 +65,11 @@ object InventoryUtils {
     .map(a => a.inventory)
 
   def anyInventorySourceAt(position: BlockPosition): Option[InventorySource] = {
-    for(side <- null :: EnumFacing.VALUES.toList) {
-      inventorySourceAt(position, side) match {
-        case inv: Some[InventorySource] => return inv
-        case _ =>
-      }
-    }
+    boundary:
+      for(side <- null :: EnumFacing.VALUES.toList) 
+        inventorySourceAt(position, side) match 
+          case inv: Some[InventorySource] => break(inv)
+          case _ =>
     None
   }
 
@@ -106,7 +107,7 @@ object InventoryUtils {
           val result = remaining.getCount < amount
           stack.grow(remaining.getCount)
           result
-        case _ => true
+        case null => true
       }
     }
 
@@ -158,7 +159,7 @@ object InventoryUtils {
             }
          }
         count
-      case _ => 0
+      case null => 0
     }
   }
 
@@ -213,11 +214,11 @@ object InventoryUtils {
    * This returns <tt>true</tt> if at least one item was extracted.
    */
   def extractAnyFromInventory(consumer: (ItemStack, Boolean) => Unit, inventory: IItemHandler, limit: Int = 64): Int = {
-    for (slot <- 0 until inventory.getSlots) {
-      val extracted = extractFromInventorySlot(consumer, inventory, slot, limit)
-      if (extracted > 0)
-        return extracted
-    }
+    boundary:
+      for (slot <- 0 until inventory.getSlots) 
+        val extracted = extractFromInventorySlot(consumer, inventory, slot, limit)
+        if (extracted > 0)
+          break(extracted)
     0
   }
 

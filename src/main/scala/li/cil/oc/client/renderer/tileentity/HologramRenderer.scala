@@ -176,14 +176,14 @@ object HologramRenderer extends TileEntitySpecialRenderer[Hologram] with Callabl
 
       val data = BufferUtils.createFloatBuffer(hologram.width * hologram.width * hologram.height * 24 * (2 + 3 + 3))
       def addVertex(x: Int, y: Int, z: Int, u: Int, v: Int, nx: Int, ny: Int, nz: Int):Unit = {
-        data.put(u)
-        data.put(v)
-        data.put(nx)
-        data.put(ny)
-        data.put(nz)
-        data.put(x)
-        data.put(y)
-        data.put(z)
+        data.put(u.toFloat)
+        data.put(v.toFloat)
+        data.put(nx.toFloat)
+        data.put(ny.toFloat)
+        data.put(nz.toFloat)
+        data.put(x.toFloat)
+        data.put(y.toFloat)
+        data.put(z.toFloat)
       }
 
       for (x <- 0 until hologram.width) {

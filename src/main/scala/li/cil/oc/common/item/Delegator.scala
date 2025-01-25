@@ -134,7 +134,7 @@ class Delegator extends Item with driver.item.UpgradeRenderer with Chargeable {
         case Some(subItem) => subItem.onItemUseFirst(stack, player, BlockPosition(pos, world), side, hitX, hitY, hitZ)
         case _ => super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand)
       }
-      case _ => super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand)
+      case null => super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand)
   }
 
   override def onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult =
@@ -143,7 +143,7 @@ class Delegator extends Item with driver.item.UpgradeRenderer with Chargeable {
         case Some(subItem) => if (subItem.onItemUse(stack, player, BlockPosition(pos, world), side, hitX, hitY, hitZ)) EnumActionResult.SUCCESS else EnumActionResult.PASS
         case _ => super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ)
       }
-      case _ => super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ)
+      case null => super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ)
     }
 
   override def onItemRightClick(world: World, player: EntityPlayer, hand: EnumHand): ActionResult[ItemStack] =
@@ -152,7 +152,7 @@ class Delegator extends Item with driver.item.UpgradeRenderer with Chargeable {
         case Some(subItem) => subItem.onItemRightClick(stack, world, player)
         case _ => super.onItemRightClick(world, player, hand)
       }
-      case _ => super.onItemRightClick(world, player, hand)
+      case null => super.onItemRightClick(world, player, hand)
     }
 
   // ----------------------------------------------------------------------- //

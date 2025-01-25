@@ -229,7 +229,7 @@ class Microcontroller extends traits.PowerAcceptor with traits.Hub with traits.C
         val tag = new NBTTagCompound()
         node.save(tag)
         tag
-      case _ => new NBTTagCompound()
+      case null => new NBTTagCompound()
     })
     nbt.setNewCompoundTag(SnooperTag, snooperNode.save)
   }

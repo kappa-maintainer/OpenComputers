@@ -84,7 +84,7 @@ object CallbackDocHandler {
 
     override def drawInfo(@Nonnull minecraft: Minecraft, recipeWidth: Int, recipeHeight: Int, mouseX: Int, mouseY: Int): Unit = {
       for ((text, line) <- page.lines.toList.asScala.zipWithIndex) {
-        minecraft.fontRenderer.drawString(text, 4, 4 + line * (minecraft.fontRenderer.FONT_HEIGHT + 1), 0x333333, false)
+        minecraft.fontRenderer.drawString(text, 4, (4 + line * (minecraft.fontRenderer.FONT_HEIGHT + 1)).toFloat, 0x333333, false)
       }
     }
   }

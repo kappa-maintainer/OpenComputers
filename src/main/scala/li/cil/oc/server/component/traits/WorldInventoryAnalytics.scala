@@ -98,7 +98,7 @@ trait WorldInventoryAnalytics extends WorldAware with SideRestricted with Networ
     def blockAt(position: BlockPosition): Option[Block] = position.world match {
       case Some(world) if world.blockExists(position) => world.getBlock(position) match {
         case block: Block => Some(block)
-        case _ => None
+        case null => None
       }
       case _ => None
     }
@@ -108,7 +108,7 @@ trait WorldInventoryAnalytics extends WorldAware with SideRestricted with Networ
         case _ => result((), "Unknown")
       }
       case EntityInventorySource(entity, _, _) => result(EntityRegistry.getEntry(entity.getClass).getRegistryName)
-      case _ => result((), "Unknown")
+      case null => result((), "Unknown")
     })
   }
   else result((), "not enabled in config")

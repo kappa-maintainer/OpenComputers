@@ -14,7 +14,7 @@ trait PowerAcceptor extends SimpleBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag) {
+  override protected def tooltipTail(metadata: Int, stack: ItemStack, world: World, tooltip: util.List[String], advanced: ITooltipFlag): Unit = {
     super.tooltipTail(metadata, stack, world, tooltip, advanced)
     tooltip.addAll(Tooltip.extended("poweracceptor", energyThroughput.toInt))
   }

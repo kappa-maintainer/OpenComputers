@@ -8,11 +8,11 @@ import net.minecraft.util.EnumFacing
 import scala.collection.mutable
 
 object BundledRedstone {
-  val providers = mutable.Buffer.empty[RedstoneProvider]
+  val providers: mutable.Buffer[RedstoneProvider] = mutable.Buffer.empty[RedstoneProvider]
 
   def addProvider(provider: RedstoneProvider): Unit = providers += provider
 
-  def isAvailable = providers.nonEmpty
+  def isAvailable: Boolean = providers.nonEmpty
 
   def computeInput(pos: BlockPosition, side: EnumFacing): Int = {
     if (pos.world.get.blockExists(pos.offset(side)))

@@ -5,20 +5,20 @@ import li.cil.oc.Settings
 import li.cil.oc.common.GuiType
 import li.cil.oc.util.Rarity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
+import net.minecraft.item.{EnumRarity, ItemStack}
 import net.minecraft.util.ActionResult
 import net.minecraft.util.EnumActionResult
 import net.minecraft.util.EnumHand
 import net.minecraft.world.World
 
 class UpgradeDatabase(val parent: Delegator, val tier: Int) extends traits.Delegate with traits.ItemTier {
-  override val unlocalizedName = super.unlocalizedName + tier
+  override val unlocalizedName: String = super.unlocalizedName + tier
 
-  override protected def tooltipName = Option(super.unlocalizedName)
+  override protected def tooltipName: Option[String] = Option(super.unlocalizedName)
 
-  override protected def tooltipData = Seq(Settings.get.databaseEntriesPerTier(tier))
+  override protected def tooltipData: Seq[Int] = Seq(Settings.get.databaseEntriesPerTier(tier))
 
-  override def rarity(stack: ItemStack) = Rarity.byTier(tier)
+  override def rarity(stack: ItemStack): EnumRarity = Rarity.byTier(tier)
 
   override def onItemRightClick(stack: ItemStack, world: World, player: EntityPlayer): ActionResult[ItemStack] = {
     if (!player.isSneaking) {
