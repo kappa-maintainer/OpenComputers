@@ -1,6 +1,6 @@
 [{
   "modid": "opencomputers",
-  "name": "OpenComputers",
+  "name": "OpenComputers Rescaled",
   "description": "This mod adds modular computers and robots that can be programmed in Lua.",
   "version": "${mod_version}",
   "mcversion": "1.12.2",

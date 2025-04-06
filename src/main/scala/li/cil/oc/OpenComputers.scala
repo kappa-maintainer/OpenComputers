@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger
 object OpenComputers {
   final val ID = "opencomputers"
 
-  final val Name = "OpenComputers"
+  final val Name = Reference.MOD_NAME
 
   final val McVersion = "1.12.2-forge"
 
