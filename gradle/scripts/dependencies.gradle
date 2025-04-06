@@ -1,0 +1,128 @@
+apply from: 'gradle/scripts/helpers.gradle'
+
+repositories {
+    mavenCentral()
+    maven {
+        name "MightyPirates"
+        url "https://maven.cil.li/"
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
+    maven {
+        name "mvnmrtjp"
+        url "https://files.projectredwiki.com/maven"
+    }
+    maven {
+        name "SquidDev" /* CC: Tweaked */
+        url "https://squiddev.cc/maven/"
+    }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        name "Outlands"
+        url "https://maven.outlands.top/releases/"
+    }
+    maven {
+        name "CleanroomMC releases"
+        url "https://repo.cleanroommc.com/releases"
+    }
+    ivy {
+        name 'asie dependency mirror'
+        artifactPattern "https://asie.pl/javadeps/[module]-[revision](-[classifier]).[ext]"
+        metadataSources {
+            artifact()
+        }
+    }
+}
+
+file "build.properties" withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
+
+dependencies {
+    implementation "com.cleanroommc:sponge-mixin:0.20.10+mixin.0.8.7"
+    compileOnly "com.cleanroommc:lwjglx:1.0.0"
+
+    implementation "com.cleanroommc:scalar:1.0.0"
+
+    modCompileOnly("li.cil.tis3d:TIS-3D:${config.tis3d.version}") {
+        exclude module: "jei_1.12"
+    }
+    modCompileOnly("curse.maven:buildcraft-61811:6376391")
+    modCompileOnly("MCMultiPart2:MCMultiPart-exp:${config.mcmp.version}")
+    modCompileOnly("curse.maven:forestry-59751:6104316")
+    modCompileOnly("net.industrial-craft:industrialcraft-2:${config.ic2.version}")
+    modCompileOnly("mcp.mobius.waila:Hwyla:${config.hwyla.version}:api")
+    /* modCompileOnly("dan200.computercraft:ComputerCraft:${config.cc.version}") */
+    //modCompileOnly("org.squiddev:cc-tweaked-1.12.2:${config.cctweaked.version}")
+    modCompileOnly("charset:Charset:${config.charset.version}:api")
+    modCompileOnly("curse.maven:cofh-core-69162:2920433") /* CoFHCore */
+    modCompileOnly("curse.maven:ender-io-64578:3328811") /* Ender IO */
+    modCompileOnly("curse.maven:railcraft-51195:2687757") /* Railcraft */
+
+    modCompileOnly("appeng:appliedenergistics2:${config.ae2.version}") {
+        transitive = false
+    }
+    modCompileOnly("extracells:ExtraCells:${config.extracells.version}:api")
+
+    modCompileOnly("mekanism:Mekanism:${config.mekanism.version}:api") {
+        transitive = false
+    }
+
+    modCompileOnly("codechicken:ForgeMultipart:1.12.2-${config.forgemultipart.version}:universal") {
+        exclude module: "jei_1.12"
+        exclude module: "CodeChickenLib"
+    }
+
+    modCompileOnly("codechicken:ChickenASM:${config.casm.version}")
+
+    modCompileOnly("mezz:jei:4.27.3")
+    modCompileOnly("codechicken:CodeChickenLib:1.12.2-${config.ccl.version}:universal")
+    modCompileOnly("codechicken:WR-CBE:1.12.2-${config.wrcbe.version}:universal")
+
+    modCompileOnly("mrtjp:ProjectRed:${config.projred.version}:Base") {
+        exclude module: "NotEnoughItems"
+        exclude module: "CodeChickenLib"
+        exclude module: "jei_1.12"
+        exclude module: "ForgeMultipart"
+    }
+
+    modCompileOnly("mrtjp:ProjectRed:${config.projred.version}:integration") {
+        exclude module: "NotEnoughItems"
+        exclude module: "CodeChickenLib"
+        exclude module: "jei_1.12"
+        exclude module: "ForgeMultipart"
+    }
+
+    modCompileOnly ("mrtjp:MrTJPCore:${config.mrtjpcore.version}:universal") {
+        exclude module: "NotEnoughItems"
+        exclude module: "CodeChickenLib"
+        exclude module: "jei_1.12"
+        exclude module: "ForgeMultipart"
+    }
+
+    embed name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
+    embed name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
+    embed name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
+
+    contain 'com.typesafe:config:1.4.3'
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.12.1')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.12.1')
+    testImplementation('org.mockito:mockito-core:5.16.1')
+    testImplementation("org.scalactic:scalactic_3:3.2.19")
+    testImplementation("org.scalatest:scalatest_3:3.2.19")
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    modCompileOnly("codechicken:EnderStorage:1.12.2-${config.enderstorage.version}:universal")
+
+    compileOnly fileTree("./libs")
+}
