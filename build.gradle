@@ -160,11 +160,20 @@ jar {
     }
 }
 
-task apiJar(type: Jar) {
+tasks.register('apiJar', Jar) {
     from sourceSets.main.allSource
     from sourceSets.main.output
     archiveClassifier = 'api'
     include 'li/cil/oc/api/**'
+}
+
+tasks.remapJar {
+    doFirst {
+        logging.captureStandardOutput LogLevel.INFO
+    }
+    doLast {
+        logging.captureStandardOutput LogLevel.QUIET
+    }
 }
 
 compileTestJava {

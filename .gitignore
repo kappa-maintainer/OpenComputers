@@ -33,3 +33,5 @@
 /config
 /options.txt
 /usernamecache.json
+
+src/main/scala/li/cil/oc/Reference.scala
