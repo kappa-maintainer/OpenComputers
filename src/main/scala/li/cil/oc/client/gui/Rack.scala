@@ -254,7 +254,7 @@ class Rack(playerInventory: InventoryPlayer, val rack: tileentity.Rack) extends 
 
     if (mouseX >= guiLeft + 122 && mouseY >= guiTop + 20 && mouseX < guiLeft + 158 && mouseY < guiTop + 20 + 5 * 11) {
       val tooltip = new java.util.ArrayList[String]
-      tooltip.addAll(asJavaCollection(Localization.Rack.OrientationTooltip.lines.toIterable))
+      tooltip.addAll(Localization.Rack.OrientationTooltip.lines.toList)
       copiedDrawHoveringText(tooltip, mouseX - guiLeft, mouseY - guiTop, fontRenderer)
     }
 

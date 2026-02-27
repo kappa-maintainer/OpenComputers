@@ -67,7 +67,12 @@ import scala.util.Success
 
 object EventHandler {
   private var serverTicks = 0L
-  private val pendingServerTimed = mutable.PriorityQueue.empty[(Long, () => Unit)](Ordering.by(x => -x._1))
+  
+  // Explicit Ordering for PriorityQueue to avoid Scala 3 inference issues
+  private given Ordering[(Long, () => Unit)] = Ordering.by[(Long, () => Unit), Long](_._1).reverse
+  
+  private val pendingServerTimed: mutable.PriorityQueue[(Long, () => Unit)] = 
+    mutable.PriorityQueue.empty[(Long, () => Unit)]
 
   private val pendingServer = mutable.Buffer.empty[() => Unit]
 
