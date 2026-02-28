@@ -6,7 +6,6 @@ import li.cil.oc.util.SideTracker
 import net.minecraftforge.common.MinecraftForge
 
 object IC2EventHandler {
-
   def scheduleIC2Add(tileEntity: power.IndustrialCraft2Experimental): Unit ={
     if (SideTracker.isServer)
       tileEntity match {
@@ -18,5 +17,4 @@ object IC2EventHandler {
         case _ =>
       }
   }
-
 }

@@ -8,7 +8,7 @@ import li.cil.oc.integration.ModProxy
 import li.cil.oc.integration.Mods
 
 object ModAppEng extends ModProxy {
-  override def getMod = Mods.AppliedEnergistics2
+  override def getMod: Mods.ClassBasedMod = Mods.AppliedEnergistics2
 
   override def initialize():Unit = {
     api.IMC.registerWrenchTool("li.cil.oc.integration.appeng.EventHandlerAE2.useWrench")

@@ -8,7 +8,7 @@ import li.cil.oc.integration.Mods
 import net.minecraftforge.common.MinecraftForge
 
 object ModIndustrialCraft2 extends ModProxy {
-  override def getMod = Mods.IndustrialCraft2
+  override def getMod: Mods.SimpleMod = Mods.IndustrialCraft2
 
   def tryAddDriver(driver: DriverSidedTileEntity): Unit = {
     try {
