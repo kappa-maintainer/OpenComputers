@@ -1,17 +1,15 @@
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import li.cil.oc.Settings
 import li.cil.oc.server.component.InternetCard
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.funspec.AnyFunSpec
-import org.scalatest.wordspec.AnyWordSpec
 
-import java.net.InetAddress
 import java.lang.System
+import java.net.InetAddress
 import scala.io.{Codec, Source}
 
 class InternetFilteringRuleTest extends AnyFunSpec {
-  val config = autoClose(classOf[Settings].getResourceAsStream("/application.conf")) { in =>
-    val configStr = Source.fromInputStream(in)(Codec.UTF8).getLines().mkString("", System.lineSeparator(), System.lineSeparator())
+  val config: Config = autoClose(classOf[Settings].getResourceAsStream("/application.conf")) { in =>
+    val configStr = Source.fromInputStream(in)(using Codec.UTF8).getLines().mkString("", System.lineSeparator(), System.lineSeparator())
     ConfigFactory.parseString(configStr)
   }
   val settings = new Settings(config.getConfig("opencomputers"))

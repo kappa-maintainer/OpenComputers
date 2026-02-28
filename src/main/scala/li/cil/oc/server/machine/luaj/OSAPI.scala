@@ -55,7 +55,7 @@ class OSAPI(owner: LuaJLuaArchitecture) extends LuaJAPI(owner) {
         // reflects the local time zone, but Minecraft has no concept of
         // time zones, so this detail can be ignored. Thus:
         // timestamp = (time + 6000) * 60[kh] * 60[km] / 1000[s]
-        LuaValue.valueOf((machine.worldTime + 6000) * 60 * 60 / 1000)
+        LuaValue.valueOf((machine.worldTime + 6000) * 60 * 60 / 1000.0)
       }
       else {
         val table = args.checktable(1)
