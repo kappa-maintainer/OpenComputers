@@ -1,56 +1,36 @@
 package li.cil.oc.integration.opencomputers
 
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.driver.item.Chargeable
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.Wrench
 import li.cil.oc.api.manual.PathProvider
-import li.cil.oc.api.prefab.ItemStackTabIconRenderer
-import li.cil.oc.api.prefab.ResourceContentProvider
-import li.cil.oc.api.prefab.TextureTabIconRenderer
+import li.cil.oc.api.prefab.{ItemStackTabIconRenderer, ResourceContentProvider, TextureTabIconRenderer}
 import li.cil.oc.client.Textures
-import li.cil.oc.client.renderer.markdown.segment.render.BlockImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.ItemImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.OreDictImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.TextureImageProvider
-import li.cil.oc.common.EventHandler
-import li.cil.oc.common.Loot
-import li.cil.oc.common.SaveHandler
+import li.cil.oc.client.renderer.markdown.segment.render.{BlockImageProvider, ItemImageProvider, OreDictImageProvider, TextureImageProvider}
+import li.cil.oc.common.{EventHandler, Loot, SaveHandler}
 import li.cil.oc.common.asm.SimpleComponentTickHandler
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.event._
-import li.cil.oc.common.item.Analyzer
-import li.cil.oc.common.item.Delegator
-import li.cil.oc.common.item.RedstoneCard
-import li.cil.oc.common.item.Tablet
-import li.cil.oc.common.nanomachines.provider.DisintegrationProvider
-import li.cil.oc.common.nanomachines.provider.HungryProvider
-import li.cil.oc.common.nanomachines.provider.MagnetProvider
-import li.cil.oc.common.nanomachines.provider.ParticleProvider
-import li.cil.oc.common.nanomachines.provider.PotionProvider
-import li.cil.oc.common.template._
-import li.cil.oc.integration.ModProxy
-import li.cil.oc.integration.Mods
-import li.cil.oc.integration.util.BundledRedstone
-import li.cil.oc.integration.util.ItemBlacklist
-import li.cil.oc.server.machine.luac.LuaStateFactory
-import li.cil.oc.server.machine.luac.NativeLua53Architecture
-import li.cil.oc.server.network.Waypoints
-import li.cil.oc.server.network.WirelessNetwork
+import li.cil.oc.common.event.*
+import li.cil.oc.common.item.{Analyzer, Delegator, RedstoneCard, Tablet}
+import li.cil.oc.common.nanomachines.provider.*
+import li.cil.oc.common.template.*
+import li.cil.oc.integration.appeng.AE2EventHandler
+import li.cil.oc.integration.ic2.IC2EventHandler
+import li.cil.oc.integration.{ModProxy, Mods}
+import li.cil.oc.integration.util.{BundledRedstone, ItemBlacklist}
+import li.cil.oc.server.network.{Waypoints, WirelessNetwork}
 import li.cil.oc.util.Color
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import net.minecraftforge.common.ForgeChunkManager
-import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.{ForgeChunkManager, MinecraftForge}
+import net.minecraftforge.fml.common.Loader
 
 object ModOpenComputers extends ModProxy {
-  override def getMod = Mods.OpenComputers
+  override def getMod: Mods.SimpleMod = Mods.OpenComputers
 
   override def initialize():Unit = {
     ItemBlacklist.apply()
@@ -94,6 +74,10 @@ object ModOpenComputers extends ModProxy {
     ForgeChunkManager.setForcedChunkLoadingCallback(OpenComputers, ChunkloaderUpgradeHandler)
 
     MinecraftForge.EVENT_BUS.register(EventHandler)
+    if (Loader.isModLoaded(Mods.IDs.AppliedEnergistics2))
+      MinecraftForge.EVENT_BUS.register(AE2EventHandler)
+    if (Loader.isModLoaded(Mods.IDs.IndustrialCraft2))
+      MinecraftForge.EVENT_BUS.register(IC2EventHandler)
     MinecraftForge.EVENT_BUS.register(NanomachinesHandler.Common)
     MinecraftForge.EVENT_BUS.register(SimpleComponentTickHandler.Instance)
     MinecraftForge.EVENT_BUS.register(Tablet)
@@ -102,7 +86,6 @@ object ModOpenComputers extends ModProxy {
     MinecraftForge.EVENT_BUS.register(AngelUpgradeHandler)
     MinecraftForge.EVENT_BUS.register(BlockChangeHandler)
     MinecraftForge.EVENT_BUS.register(ChunkloaderUpgradeHandler)
-    MinecraftForge.EVENT_BUS.register(EventHandler)
     MinecraftForge.EVENT_BUS.register(ExperienceUpgradeHandler)
     MinecraftForge.EVENT_BUS.register(FileSystemAccessHandler)
     MinecraftForge.EVENT_BUS.register(HoverBootsHandler)

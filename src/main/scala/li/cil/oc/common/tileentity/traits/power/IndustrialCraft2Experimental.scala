@@ -7,6 +7,7 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.common.asm.Injectable
 import li.cil.oc.common.tileentity.traits
 import li.cil.oc.integration.Mods
+import li.cil.oc.integration.ic2.IC2EventHandler
 import li.cil.oc.integration.util.Power
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
@@ -40,7 +41,7 @@ trait IndustrialCraft2Experimental extends Common with IndustrialCraft2Common wi
 
   override def validate():Unit ={
     super.validate()
-    if (useIndustrialCraft2Power() && !addedToIC2PowerGrid) EventHandler.scheduleIC2Add(this)
+    if (useIndustrialCraft2Power() && !addedToIC2PowerGrid) IC2EventHandler.scheduleIC2Add(this)
   }
 
   override def invalidate():Unit ={

@@ -1,68 +1,48 @@
 package li.cil.oc.common
 
-import java.util.Calendar
-import appeng.api.networking.IGridBlock
-import appeng.api.util.AEPartLocation
 import li.cil.oc.*
 import li.cil.oc.api.Network
 import li.cil.oc.api.detail.ItemInfo
-import li.cil.oc.api.internal.Colored
-import li.cil.oc.api.internal.Rack
-import li.cil.oc.api.internal.Server
+import li.cil.oc.api.internal.{Colored, Rack, Server}
 import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.SidedComponent
-import li.cil.oc.api.network.SidedEnvironment
+import li.cil.oc.api.network.{Environment, SidedComponent, SidedEnvironment}
 import li.cil.oc.client.renderer.PetRenderer
 import li.cil.oc.common.asm.ClassTransformer
-import li.cil.oc.common.capabilities.CapabilityColored
-import li.cil.oc.common.capabilities.CapabilityEnvironment
-import li.cil.oc.common.capabilities.CapabilitySidedComponent
-import li.cil.oc.common.capabilities.CapabilitySidedEnvironment
+import li.cil.oc.common.capabilities.{CapabilityColored, CapabilityEnvironment, CapabilitySidedComponent, CapabilitySidedEnvironment}
 import li.cil.oc.common.component.TerminalServer
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data.{MicrocontrollerData, RobotData, TabletData}
 import li.cil.oc.common.item.traits
 import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.common.tileentity.Robot
-import li.cil.oc.common.tileentity.traits.power
-import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util
-import li.cil.oc.server.component.Keyboard
-import li.cil.oc.server.machine.Callbacks
-import li.cil.oc.server.machine.Machine
-import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.server.PacketSender as ServerPacketSender
+import li.cil.oc.server.component.Keyboard
+import li.cil.oc.server.machine.luac.LuaStateFactory
+import li.cil.oc.server.machine.{Callbacks, Machine}
+import li.cil.oc.util.*
 import li.cil.oc.util.ExtendedWorld.*
 import li.cil.oc.util.StackOption.*
-import li.cil.oc.util.{UpdateCheck, *}
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.SoundCategory
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
-import net.minecraftforge.event.world.BlockEvent
-import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.world.{BlockEvent, ChunkEvent, WorldEvent}
 import net.minecraftforge.fml.common.FMLCommonHandler
-import net.minecraftforge.fml.common.Optional
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.*
 import net.minecraftforge.fml.common.gameevent.TickEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent
+import net.minecraftforge.fml.common.gameevent.TickEvent.{ClientTickEvent, ServerTickEvent}
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent
 
-import scala.jdk.CollectionConverters.*
+import java.util.Calendar
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 import scala.util.Success
 
 object EventHandler {
@@ -115,27 +95,6 @@ object EventHandler {
   def scheduleClient(f: () => Unit):Unit ={
     pendingClient.synchronized {
       pendingClient += f
-    }
-  }
-
-  @Optional.Method(modid = Mods.IDs.IndustrialCraft2)
-  def scheduleIC2Add(tileEntity: power.IndustrialCraft2Experimental):Unit ={
-    if (SideTracker.isServer) pendingServer.synchronized {
-      tileEntity match {
-        case tile: ic2.api.energy.tile.IEnergyTile =>
-          pendingServer += (() => if (!tileEntity.addedToIC2PowerGrid && !tileEntity.isInvalid) {
-            MinecraftForge.EVENT_BUS.post(new ic2.api.energy.event.EnergyTileLoadEvent(tile))
-            tileEntity.addedToIC2PowerGrid = true
-          })
-        case _ =>
-      }
-    }
-  }
-
-  @Optional.Method(modid = Mods.IDs.AppliedEnergistics2)
-  def scheduleAE2Add(tileEntity: power.AppliedEnergistics2): Unit = {
-    if (SideTracker.isServer) pendingServer.synchronized {
-      pendingServer += (() => tileEntity.updateGridNodeState())
     }
   }
 
@@ -229,7 +188,7 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def onClientTick(e: ClientTickEvent) = if (e.phase == TickEvent.Phase.START) {
+  def onClientTick(e: ClientTickEvent): Unit = if (e.phase == TickEvent.Phase.START) {
     pendingClient.synchronized {
       val adds = pendingClient.toArray
       pendingClient.clear()
@@ -334,15 +293,15 @@ object EventHandler {
     }
   }
 
-  lazy val drone = api.Items.get(Constants.ItemName.Drone)
-  lazy val eeprom = api.Items.get(Constants.ItemName.EEPROM)
-  lazy val mcu = api.Items.get(Constants.BlockName.Microcontroller)
-  lazy val navigationUpgrade = api.Items.get(Constants.ItemName.NavigationUpgrade)
-  lazy val robot = api.Items.get(Constants.BlockName.Robot)
-  lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
+  lazy val drone: ItemInfo = api.Items.get(Constants.ItemName.Drone)
+  lazy val eeprom: ItemInfo = api.Items.get(Constants.ItemName.EEPROM)
+  lazy val mcu: ItemInfo = api.Items.get(Constants.BlockName.Microcontroller)
+  lazy val navigationUpgrade: ItemInfo = api.Items.get(Constants.ItemName.NavigationUpgrade)
+  lazy val robot: ItemInfo = api.Items.get(Constants.BlockName.Robot)
+  lazy val tablet: ItemInfo = api.Items.get(Constants.ItemName.Tablet)
 
   @SubscribeEvent
-  def onCrafting(e: ItemCraftedEvent) = {
+  def onCrafting(e: ItemCraftedEvent): Unit = {
     var didRecraft = false
 
     didRecraft = recraft(e, navigationUpgrade, stack => {
@@ -402,7 +361,7 @@ object EventHandler {
     }
   }
 
-  private def timeForPresents = {
+  private def timeForPresents: Boolean = {
     val now = Calendar.getInstance()
     val month = now.get(Calendar.MONTH)
     val dayOfMonth = now.get(Calendar.DAY_OF_MONTH)
@@ -415,7 +374,7 @@ object EventHandler {
       (month == Calendar.DECEMBER && dayOfMonth == 14)
   }
 
-  def isItTime = {
+  def isItTime: Boolean = {
     val now = Calendar.getInstance()
     val month = now.get(Calendar.MONTH)
     val dayOfMonth = now.get(Calendar.DAY_OF_MONTH)

@@ -232,7 +232,7 @@ class ClassTransformer extends IClassTransformer {
     
   }
 
-  private def insertInto(classNode: ClassNode, methodNames: Array[String], methodDescs: Array[String], inserter: (InsnList) => Boolean): Option[Array[Byte]] = {
+  private def insertInto(classNode: ClassNode, methodNames: Array[String], methodDescs: Array[String], inserter: InsnList => Boolean): Option[Array[Byte]] = {
     classNode.methods.asScala.find(method => methodNames.contains(method.name) && methodDescs.contains(method.desc)) match {
       case Some(methodNode) =>
         if (inserter(methodNode.instructions)) {
@@ -263,7 +263,7 @@ class ClassTransformer extends IClassTransformer {
     """L([^;]+);""".r.findAllMatchIn(desc).map(_.group(1)).filter(!classExists(_))
   }
 
-  def injectEnvironmentImplementation(classNode: ClassNode): Array[Byte] = {
+  private def injectEnvironmentImplementation(classNode: ClassNode): Array[Byte] = {
     log.trace(s"Injecting methods from Environment interface into ${classNode.name}.")
     if (!isTileEntity(classNode)) {
       throw new InjectionFailedException("Found SimpleComponent on something that isn't a tile entity, ignoring.")
@@ -348,7 +348,7 @@ class ClassTransformer extends IClassTransformer {
     writeClass(classNode, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES)
   }
 
-  @tailrec final def isTileEntity(classNode: ClassNode): Boolean = {
+  @tailrec private final def isTileEntity(classNode: ClassNode): Boolean = {
     if (classNode == null) false
     else {
       log.trace(s"Checking if class ${classNode.name} is a TileEntity...")
@@ -357,7 +357,7 @@ class ClassTransformer extends IClassTransformer {
     }
   }
 
-  @tailrec final def isAssignable(parent: ClassNode, child: ClassNode): Boolean = parent != null && child != null && !isFinal(parent) && {
+  @tailrec private final def isAssignable(parent: ClassNode, child: ClassNode): Boolean = parent != null && child != null && !isFinal(parent) && {
     parent.name == "java/lang/Object" ||
       parent.name == child.name ||
       parent.name == child.superName ||
@@ -365,11 +365,11 @@ class ClassTransformer extends IClassTransformer {
       (child.superName != null && isAssignable(parent, classNodeFor(child.superName)))
   }
 
-  def isFinal(node: ClassNode): Boolean = (node.access & Opcodes.ACC_FINAL) != 0
+  private def isFinal(node: ClassNode): Boolean = (node.access & Opcodes.ACC_FINAL) != 0
 
-  def isInterface(node: ClassNode): Boolean = node != null && (node.access & Opcodes.ACC_INTERFACE) != 0
+  private def isInterface(node: ClassNode): Boolean = node != null && (node.access & Opcodes.ACC_INTERFACE) != 0
 
-  def classNodeFor(name: String) = {
+  private def classNodeFor(name: String): ClassNode = {
     val namePlain = name.replace('/', '.')
     val bytes = loader.getClassBytes(namePlain)
     if (bytes != null) newClassNode(bytes)
@@ -381,13 +381,13 @@ class ClassTransformer extends IClassTransformer {
     }
   }
 
-  def newClassNode(data: Array[Byte]) = {
+  private def newClassNode(data: Array[Byte]): ClassNode = {
     val classNode = new ClassNode()
     new ClassReader(data).accept(classNode, 0)
     classNode
   }
 
-  def writeClass(classNode: ClassNode, flags: Int = ClassWriter.COMPUTE_MAXS) = {
+  private def writeClass(classNode: ClassNode, flags: Int = ClassWriter.COMPUTE_MAXS): Array[Byte] = {
     val writer = new ClassWriter(flags) {
       // Implementation without class loads, avoids https://github.com/MinecraftForge/FML/issues/655
       override def getCommonSuperClass(type1: String, type2: String): String = {
@@ -409,6 +409,6 @@ class ClassTransformer extends IClassTransformer {
     writer.toByteArray
   }
 
-  class InjectionFailedException(message: String) extends Exception(message)
+  private class InjectionFailedException(message: String) extends Exception(message)
 
 }

@@ -1,21 +1,21 @@
 package li.cil.oc.common.tileentity.traits.power
 import java.util
-
 import appeng.api.AEApi
 import appeng.api.config.Actionable
 import appeng.api.config.PowerMultiplier
-import appeng.api.networking._
+import appeng.api.networking.*
 import appeng.api.networking.energy.IEnergyGrid
 import appeng.api.util.{AECableType, AEColor, AEPartLocation, DimensionalCoord}
 import li.cil.oc.Settings
 import li.cil.oc.common.EventHandler
 import li.cil.oc.integration.Mods
+import li.cil.oc.integration.appeng.AE2EventHandler
 import li.cil.oc.integration.util.Power
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
-import net.minecraftforge.fml.common._
+import net.minecraftforge.fml.common.*
 
 import scala.jdk.CollectionConverters.*
 
@@ -28,7 +28,7 @@ trait AppliedEnergistics2 extends Common with IGridHost {
 
   def requestGridNodeStateUpdate(): Unit = {
     if (!gridNodeStateUpdateRequested) {
-      EventHandler.scheduleAE2Add(this)
+      AE2EventHandler.scheduleAE2Add(this)
       gridNodeStateUpdateRequested = true
     }
   }

@@ -31,11 +31,11 @@ class Drone(playerInventory: InventoryPlayer, val drone: entity.Drone) extends D
   private val bufferRenderer = new TextBufferRenderData {
     private var _dirty = true
 
-    override def dirty = _dirty
+    override def dirty: Boolean = _dirty
 
-    override def dirty_=(value: Boolean) = _dirty = value
+    override def dirty_=(value: Boolean): Unit = _dirty = value
 
-    override def data = buffer
+    override def data: TextBuffer = buffer
 
     override def viewport: (Int, Int) = buffer.size
   }

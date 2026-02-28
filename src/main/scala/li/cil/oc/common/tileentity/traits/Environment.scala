@@ -5,24 +5,25 @@ import li.cil.oc.api.network
 import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.SidedEnvironment
 import li.cil.oc.common.EventHandler
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
+import net.minecraft.world.World
 
 trait Environment extends TileEntity with network.Environment with network.EnvironmentHost {
-  protected var isChangeScheduled = false
+  protected var isChangeScheduled: Boolean = false
 
-  override def world() = getWorld
+  override def world(): World = getWorld
 
-  override def xPosition = x + 0.5
+  override def xPosition: Double = x + 0.5
 
-  override def yPosition = y + 0.5
+  override def yPosition: Double = y + 0.5
 
-  override def zPosition = z + 0.5
+  override def zPosition: Double = z + 0.5
 
-  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else getWorld.markChunkDirty(getPos, this)
+  override def markChanged(): Unit = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else getWorld.markChunkDirty(getPos, this)
 
-  protected def isConnected = node != null && node.address != null && node.network != null
+  protected def isConnected: Boolean = node != null && node.address != null && node.network != null
 
   // ----------------------------------------------------------------------- //
 
