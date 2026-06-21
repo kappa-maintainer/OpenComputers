@@ -6,7 +6,7 @@
   "mcversion": "1.12.2",
   "url": "http://oc.cil.li/",
   "authorList": ["Sangar", "Vexatos", "payonel", "magik6k", "Lord Joda", "Github Contributors"],
-  "credits" : "Inspired by a couple of other mods, most notably ComputerCraft.",
+  "credits" : "Inspired by a couple of other mods, most notably ComputerCraft. OpenComputers use some assets from OpenComputers II who is in License MIT",
   "logoFile" : "assets/opencomputers/textures/gui/logo.png",
   "requiredMods": [],
   "dependencies": [
