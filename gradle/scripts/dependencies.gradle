@@ -11,10 +11,6 @@ repositories {
         }
     }
     maven {
-        name "mvnmrtjp"
-        url "https://files.projectredwiki.com/maven"
-    }
-    maven {
         name "SquidDev" /* CC: Tweaked */
         url "https://squiddev.cc/maven/"
     }
@@ -26,11 +22,15 @@ repositories {
     }
     maven {
         name "Outlands"
-        url "https://maven.outlands.top/releases/"
+        url "https://maven.arcseekers.com/releases/"
     }
     maven {
         name "CleanroomMC releases"
         url "https://repo.cleanroommc.com/releases"
+    }
+    maven {
+        name "mvnmrtjp"
+        url "https://files.projectredwiki.com/maven"
     }
     ivy {
         name 'asie dependency mirror'
@@ -48,10 +48,9 @@ file "build.properties" withReader {
 }
 
 dependencies {
-    implementation "com.cleanroommc:sponge-mixin:0.20.10+mixin.0.8.7"
     compileOnly "com.cleanroommc:lwjglx:1.0.0"
 
-    implementation "com.cleanroommc:scalar:1.0.0"
+    modImplementation "com.cleanroommc:scalar:1.0.0"
 
     modCompileOnly("li.cil.tis3d:TIS-3D:${config.tis3d.version}") {
         exclude module: "jei_1.12"
@@ -77,16 +76,18 @@ dependencies {
         transitive = false
     }
 
-    modCompileOnly("codechicken:ForgeMultipart:1.12.2-${config.forgemultipart.version}:universal") {
+    modCompileOnly("codechicken:forgemultipartcbe:${config.forgemultipart.version}:deobf") {
         exclude module: "jei_1.12"
         exclude module: "CodeChickenLib"
     }
 
     modCompileOnly("codechicken:ChickenASM:${config.casm.version}")
 
-    modCompileOnly("mezz:jei:4.27.3")
-    modCompileOnly("codechicken:CodeChickenLib:1.12.2-${config.ccl.version}:universal")
-    modCompileOnly("codechicken:WR-CBE:1.12.2-${config.wrcbe.version}:universal")
+    modCompileOnly('mezz:jei:4.32.0:dev')
+    modCompileOnly("codechicken:CodeChickenLib:${config.ccl.version}:dev")
+    modCompileOnly("codechicken:WR-CBE:1.12.2-${config.wrcbe.version}:universal") {
+        transitive = false
+    }
 
     modCompileOnly("mrtjp:ProjectRed:${config.projred.version}:Base") {
         exclude module: "NotEnoughItems"
@@ -115,15 +116,17 @@ dependencies {
 
     contain 'com.typesafe:config:1.4.3'
 
-    testImplementation('org.junit.jupiter:junit-jupiter-api:6.0.2')
-    testImplementation('org.junit.jupiter:junit-jupiter-engine:6.0.2')
-    testImplementation('org.mockito:mockito-core:5.21.0')
-    testImplementation("org.scalactic:scalactic_3:3.2.19")
-    testImplementation("org.scalatest:scalatest_3:3.2.19")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:6.1.0')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:6.1.0')
+    testImplementation('org.mockito:mockito-core:5.23.0')
+    testImplementation("org.scalactic:scalactic_3:3.2.20")
+    testImplementation("org.scalatest:scalatest_3:3.2.20")
     testImplementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    modCompileOnly("codechicken:EnderStorage:1.12.2-${config.enderstorage.version}:universal")
+    modCompileOnly("codechicken:EnderStorage:1.12.2-${config.enderstorage.version}:universal") {
+        transitive = false
+    }
 
     compileOnly fileTree("./libs")
 }
