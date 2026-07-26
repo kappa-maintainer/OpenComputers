@@ -38,7 +38,7 @@ object Waypoints {
   }
 
   def add(waypoint: Waypoint): Unit = if (!waypoint.isInvalid && waypoint.world != null && !waypoint.world.isRemote) {
-    dimensions.getOrElseUpdate(dimension(waypoint), new RTree[Waypoint](Settings.get.rTreeMaxEntries)((waypoint) => (waypoint.x + 0.5, waypoint.y + 0.5, waypoint.z + 0.5))).add(waypoint)
+    dimensions.getOrElseUpdate(dimension(waypoint), new RTree[Waypoint](Settings.get.rTreeMaxEntries)(using (waypoint) => (waypoint.x + 0.5, waypoint.y + 0.5, waypoint.z + 0.5))).add(waypoint)
   }
 
   def remove(waypoint: Waypoint): Unit = if (waypoint.world != null && !waypoint.world.isRemote) {

@@ -194,5 +194,5 @@ abstract class DynamicGuiContainer[C <: Container](container: C) extends CustomG
   }
 
   @Optional.Method(modid = Mods.IDs.JustEnoughItems)
-  private def resetJEIHighlights() = ModJEI.runtime.foreach(_.getItemListOverlay.highlightStacks(List[Nothing]().asJavaCollection))
+  private def resetJEIHighlights(): Unit = ModJEI.runtime.foreach(_.getItemListOverlay.highlightStacks(List[Nothing]().asJavaCollection))
 }

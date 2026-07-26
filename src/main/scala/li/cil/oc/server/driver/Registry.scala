@@ -244,8 +244,8 @@ private[oc] object Registry extends api.detail.DriverAPI {
       case map: mutable.Map[AnyRef, AnyRef]@unchecked => map
       case map: java.util.Map[AnyRef, AnyRef]@unchecked => map.asScala
     }
-    map.foreach {
-      case (key: AnyRef, value: AnyRef) => converted += (convertRecursively(key, memo) -> convertRecursively(value, memo))
+    map.foreach { case (key, value) =>
+      converted += (convertRecursively(key.asInstanceOf[AnyRef], memo) -> convertRecursively(value.asInstanceOf[AnyRef], memo))
     }
     memo.get(obj)
   }

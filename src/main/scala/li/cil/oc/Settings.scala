@@ -544,13 +544,13 @@ object Settings {
     // reportedly fixed the problem.
     val defaults = {
       val in = classOf[Settings].getResourceAsStream("/application.conf")
-      val config = Source.fromInputStream(in)(Codec.UTF8).getLines().mkString("", EOL, EOL)
+      val config = Source.fromInputStream(in)(using Codec.UTF8).getLines().mkString("", EOL, EOL)
       in.close()
       ConfigFactory.parseString(config)
     }
     val config =
       try {
-        val plain = Source.fromFile(file)(Codec.UTF8).getLines().mkString("", EOL, EOL)
+        val plain = Source.fromFile(file)(using Codec.UTF8).getLines().mkString("", EOL, EOL)
         val config = patchConfig(ConfigFactory.parseString(plain), defaults).withFallback(defaults)
         settings = new Settings(config.getConfig("opencomputers"))
         config

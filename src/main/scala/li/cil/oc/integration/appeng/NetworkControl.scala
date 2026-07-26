@@ -69,21 +69,18 @@ trait NetworkControl[AETile >: Null <: TileEntity & IActionHost & IGridHost] {
   private def reduceSequentialTable(map: scala.collection.mutable.HashMap[?, ?]): AnyRef = {
     // in place of a table pack, we want a hash map of tuples
     val tuples = new util.LinkedList[AnyRef]()
-    map.foreach {
-      case (key: AnyRef, value: AnyRef) =>
-        if (!key.isInstanceOf[String] || key.asInstanceOf[String] != "n") {
-          tuples.add(reduceLuaValue(value))
-        }
+    map.foreach { case (key, value) =>
+      if (!key.isInstanceOf[String] || key.asInstanceOf[String] != "n") {
+        tuples.add(reduceLuaValue(value.asInstanceOf[AnyRef]))
+      }
     }
     tuples.toArray
   }
 
   private def reduceHashTable(map: scala.collection.mutable.HashMap[?, ?]): AnyRef = {
     val hash = new java.util.HashMap[AnyRef, AnyRef]()
-    map.foreach {
-      case (key: AnyRef, value: AnyRef) => {
-        hash.asScala += key -> value
-      }
+    map.foreach { case (key, value) =>
+      hash.asScala += key.asInstanceOf[AnyRef] -> value.asInstanceOf[AnyRef]
     }
     hash
   }

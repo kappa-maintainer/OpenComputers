@@ -42,3 +42,5 @@ trait Galacticraft extends Common {
   def canConnect(from: ForgeDirection, networkType: NetworkType): Boolean = networkType == NetworkType.POWER && canConnectPower(from)
 }
 */
+
+private[power] object GalacticraftDisabled

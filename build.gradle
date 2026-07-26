@@ -205,5 +205,9 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+tasks.withType(ScalaCompile).configureEach {
+    //scalaCompileOptions.force = true
+}
+
 apply from: 'gradle/scripts/publishing.gradle'
 apply from: 'gradle/scripts/extra.gradle'

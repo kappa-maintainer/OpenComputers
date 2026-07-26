@@ -62,9 +62,12 @@ trait RedstoneVanilla extends RedstoneSignaller with DeviceInfo {
       case (side: EnumFacing, value: Int) =>
         ret = java.lang.Integer.valueOf(redstone.getOutput(side))
         redstone.setOutput(side, value)
+        true
       case (value: util.Map[_, _], _) =>
         ret = valuesToMap(redstone.getOutput)
         redstone.setOutput(value)
+        true
+      case _ => false
     }) {
       if (Settings.get.redstoneDelay > 0)
         context.pause(Settings.get.redstoneDelay)

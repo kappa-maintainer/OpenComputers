@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
 import paulscode.sound.SoundSystemConfig
 
 import java.io.InputStream
+import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 import scala.io.Source
 
@@ -133,7 +134,7 @@ object Sound {
           override def run(): Unit = {
             val preloadConfigLocation = new ResourceLocation(Settings.resourceDomain, "sounds/preload.cfg")
             val preloadConfigResource = Minecraft.getMinecraft.getResourceManager.getResource(preloadConfigLocation)
-            for (location <- Source.fromInputStream(preloadConfigResource.getInputStream)(Charsets.UTF_8).getLines()) {
+            for (location <- Source.fromInputStream(preloadConfigResource.getInputStream)(using StandardCharsets.UTF_8).getLines()) {
               val url = getClass.getClassLoader.getResource(location)
               if (url != null)
                 try {
