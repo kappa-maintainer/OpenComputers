@@ -78,6 +78,13 @@ public final class StaticSimpleEnvironment {
         }
     }
 
+    public static void onServerStopped() {
+        for (final Node node : nodes.values()) {
+            node.remove();
+        }
+        nodes.clear();
+    }
+
     public static NBTTagCompound writeToNBT(final SimpleComponentImpl self, NBTTagCompound nbt) {
         nbt = self.writeToNBT_OpenComputers(nbt);
         final Node node = node(self);
