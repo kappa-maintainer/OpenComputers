@@ -513,6 +513,8 @@ class Settings(val config: Config) {
 
   // >= 1.8.8
   val httpUserAgent = config.getString("internet.httpUserAgent")
+
+  val maxClipboard: Int = config.getInt("misc.maxClipboard") max 0
 }
 
 object Settings {

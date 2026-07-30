@@ -1,24 +1,17 @@
 package li.cil.oc.server
 
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
 import li.cil.oc.api.internal.Server
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network.Connector
-import li.cil.oc.common.Achievement
-import li.cil.oc.common.PacketType
 import li.cil.oc.common.component.TextBuffer
-import li.cil.oc.common.container
+import li.cil.oc.common.{Achievement, PacketType, container, PacketHandler as CommonPacketHandler}
 import li.cil.oc.common.entity.Drone
-import li.cil.oc.common.item.{Delegator, Tablet, TabletWrapper}
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.traits.FileSystemLike
-import li.cil.oc.common.tileentity._
+import li.cil.oc.common.item.{Delegator, Tablet}
+import li.cil.oc.common.tileentity.*
 import li.cil.oc.common.tileentity.traits.Computer
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
+import li.cil.oc.{Localization, OpenComputers, Settings, api}
+import net.minecraft.entity.player.{EntityPlayer, EntityPlayerMP}
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.NetHandlerPlayServer
 import net.minecraft.util.EnumHand
@@ -30,7 +23,7 @@ import org.apache.logging.log4j.MarkerManager
 object PacketHandler extends CommonPacketHandler {
   private val securityMarker = MarkerManager.getMarker("SuspiciousPackets")
 
-  private def logForgedPacket(player: EntityPlayerMP) =
+  private def logForgedPacket(player: EntityPlayerMP): Unit =
     OpenComputers.log.warn(securityMarker, "Player {} tried to send GUI packets without opening them", player.getGameProfile)
 
   @SubscribeEvent
@@ -195,6 +188,7 @@ object PacketHandler extends CommonPacketHandler {
   def onClipboard(p: PacketParser): Unit = {
     val address = p.readUTF()
     val copy = p.readUTF()
+    if (copy.length > Settings.get.maxClipboard) return
     ComponentTracker.get(p.player.world, address) match {
       case Some(buffer: api.internal.TextBuffer) => buffer.clipboard(copy, p.player.asInstanceOf[EntityPlayer])
       case _ => // Invalid Packet
