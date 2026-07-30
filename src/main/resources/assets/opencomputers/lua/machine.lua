@@ -1,4 +1,4 @@
-local hookInterval = 10000
+local hookInterval = 10000  -- @pluto_warnings: disable-all
 local function calcHookInterval()
 	local bogomipsDivider = 0.05
 	local bogomipsDeadline = computer.realTime() + bogomipsDivider
@@ -733,6 +733,16 @@ end
 -- parameter checks in those wrappers. This is to avoid errors from the host
 -- side that would push error objects - which are userdata and cannot be
 -- persisted.
+-- Pluto gives every table a shared default metatable, so getmetatable({}) is
+-- non-nil there while plain Lua returns nil. Userland code relies on the plain
+-- Lua behaviour, most notably the common
+--   setmetatable(t, getmetatable(t) or { __index = base })
+-- idiom, which silently keeps the default metatable on Pluto and drops the
+-- intended __index. Hide the default metatable so the sandbox always sees the
+-- plain Lua semantics. On plain Lua defaultTableMetatable is nil and every
+-- comparison below is a no-op.
+local defaultTableMetatable = getmetatable({})
+
 local sandbox, libprocess
 sandbox = {
   assert = assert,
@@ -744,6 +754,10 @@ sandbox = {
       return nil
     end
     local result = getmetatable(t)
+    if result ~= nil and result == defaultTableMetatable then
+      -- Pluto's implicit per-table metatable; userland must not observe it.
+      return nil
+    end
     -- check if we have a wrapped __gc using mt
     if type(result) == "table" and system.allowGC() and rawget(result, "__gc") == sgc then
       result = rawget(result, "mt")
@@ -1038,6 +1052,158 @@ sandbox = {
     len = utf8.len,
     offset = utf8.offset
   },
+
+  -- Pluto's extension libraries, listed function by function like everything
+  -- else here, so a new upstream function is not exposed until it has been
+  -- looked at. Each is nil unless the machine is running the Pluto
+  -- architecture. The libraries that cannot be sandboxed (http, socket, ffi,
+  -- wasm, scheduler, '*') are not merely absent here, they are compiled out of
+  -- the native library, because Pluto's '$' operator can reach a preloaded
+  -- library without going through the globals.
+  crypto = crypto and {
+    -- Hashes. crypto.random is deliberately absent: it draws on host entropy,
+    -- which ERIS cannot capture, so it would not survive a save.
+    adler32 = crypto.adler32,
+    crc32 = crypto.crc32,
+    crc32c = crypto.crc32c,
+    djb2 = crypto.djb2,
+    fnv1 = crypto.fnv1,
+    fnv1a = crypto.fnv1a,
+    fnv1a32 = crypto.fnv1a32,
+    joaat = crypto.joaat,
+    lookup3 = crypto.lookup3,
+    lua = crypto.lua,
+    md5 = crypto.md5,
+    murmur1 = crypto.murmur1,
+    murmur2 = crypto.murmur2,
+    murmur2a = crypto.murmur2a,
+    murmur2neutral = crypto.murmur2neutral,
+    murmur64a = crypto.murmur64a,
+    murmur64b = crypto.murmur64b,
+    ripemd160 = crypto.ripemd160,
+    sdbm = crypto.sdbm,
+    sha1 = crypto.sha1,
+    sha256 = crypto.sha256,
+    sha384 = crypto.sha384,
+    sha512 = crypto.sha512,
+    superfasthash = crypto.superfasthash,
+    times33 = crypto.times33,
+    whirlpool = crypto.whirlpool,
+    -- Keyed and asymmetric primitives.
+    hmac = crypto.hmac,
+    derive = crypto.derive,
+    encrypt = crypto.encrypt,
+    decrypt = crypto.decrypt,
+    sign = crypto.sign,
+    verify = crypto.verify,
+    generatekeypair = crypto.generatekeypair,
+    exportkey = crypto.exportkey,
+    importkey = crypto.importkey,
+    x25519 = crypto.x25519,
+    -- Compression.
+    compress = crypto.compress,
+    decompress = crypto.decompress
+  },
+
+  json = json and {
+    decode = json.decode,
+    encode = json.encode,
+    -- Light userdata with a fixed value, so it persists as-is and keeps its
+    -- identity across a save.
+    null = json.null,
+    msgpack = json.msgpack,
+    withnull = json.withnull,
+    withorder = json.withorder
+  },
+
+  xml = xml and {
+    decode = xml.decode,
+    encode = xml.encode
+  },
+
+  cat = cat and {
+    decode = cat.decode,
+    encode = cat.encode
+  },
+
+  base32 = base32 and {
+    decode = base32.decode,
+    encode = base32.encode
+  },
+
+  base64 = base64 and {
+    decode = base64.decode,
+    encode = base64.encode,
+    urldecode = base64.urldecode,
+    urlencode = base64.urlencode
+  },
+
+  url = url and {
+    decode = url.decode,
+    encode = url.encode,
+    parse = url.parse
+  },
+
+  -- The remaining four hand out userdata. Their metatables carry a __persist
+  -- that rebuilds the object through the library, so a computer holding one can
+  -- still be saved. The metatables are not reachable from user code, since
+  -- sandbox.getmetatable only returns tables it knows about.
+  canvas = canvas and {
+    new = canvas.new,
+    fill = canvas.fill,
+    get = canvas.get,
+    set = canvas.set,
+    size = canvas.size,
+    mulsize = canvas.mulsize,
+    qrcode = canvas.qrcode,
+    tobwstring = canvas.tobwstring,
+    topng = canvas.topng,
+    -- bmp/tobmp swap the red and blue channels relative to each other, so
+    -- dump/undump is the pair to use for an exact round trip.
+    bmp = canvas.bmp,
+    tobmp = canvas.tobmp,
+    dump = canvas.dump,
+    undump = canvas.undump
+  },
+
+  bigint = bigint and {
+    new = bigint.new,
+    abs = bigint.abs,
+    add = bigint.add,
+    sub = bigint.sub,
+    mul = bigint.mul,
+    div = bigint.div,
+    mod = bigint.mod,
+    pow = bigint.pow,
+    gcd = bigint.gcd,
+    eq = bigint.eq,
+    lt = bigint.lt,
+    le = bigint.le,
+    binary = bigint.binary,
+    bitlength = bigint.bitlength,
+    hex = bigint.hex,
+    tostring = bigint.tostring,
+    export = bigint.export,
+    import = bigint.import,
+    isprobableprime = bigint.isprobableprime
+  },
+
+  buffer = buffer and {
+    new = buffer.new,
+    append = buffer.append,
+    tostring = buffer.tostring,
+    frombuffer = buffer.frombuffer
+  },
+
+  regex = regex and {
+    new = regex.new,
+    match = regex.match,
+    search = regex.search,
+    replace = regex.replace,
+    substitute = regex.substitute
+  },
+
+  vector3 = vector3,
 
   checkArg = checkArg
 }

@@ -1,4 +1,4 @@
-local event = require "event"
+local event = require "event"  -- @pluto_warnings: disable-all
 local component = require "component"
 local keyboard = require "keyboard"
 local serialization = require "serialization"
@@ -8,7 +8,8 @@ local color, isPal, evt
 
 local function normLine(data)
     local res = ""
-    for c in data:gmatch(".") do
+    for rawChar in data:gmatch(".") do
+        local c = rawChar
         if c == "\n" or c == "\r" then c = "\x1b[31m.\x1b[39m" end
         res = res .. (c:match("[%g%s]") or "\x1b[31m.\x1b[39m")
     end

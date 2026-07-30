@@ -1,4 +1,4 @@
-local computer = computer
+local computer = computer  -- @pluto_warnings: disable-all
 local component = component
 local unicode = unicode
 local kernel = {}

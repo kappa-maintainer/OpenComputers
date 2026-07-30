@@ -1,4 +1,4 @@
-local unicode = require("unicode")
+local unicode = require("unicode")  -- @pluto_warnings: disable-all
 local shell = require("shell")
 
 local args, options = shell.parse(...)

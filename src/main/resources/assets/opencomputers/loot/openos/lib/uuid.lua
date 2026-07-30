@@ -1,4 +1,4 @@
-local bit32 = require("bit32")
+local bit32 = require("bit32")  -- @pluto_warnings: disable-all
 local uuid = {}
 
 function uuid.next()

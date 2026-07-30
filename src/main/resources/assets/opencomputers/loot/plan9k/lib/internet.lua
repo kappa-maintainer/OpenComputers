@@ -1,4 +1,4 @@
-local buffer = require("buffer")
+local buffer = require("buffer")  -- @pluto_warnings: disable-all
 local component = require("component")
 
 local internet = {}

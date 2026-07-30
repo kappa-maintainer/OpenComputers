@@ -1,4 +1,4 @@
-kernel.userspace = setmetatable({}, {__index = kernel._K})
+kernel.userspace = setmetatable({}, {__index = kernel._K})  -- @pluto_warnings: disable-all
 
 kernel.userspace.computer = {}
 

@@ -1,4 +1,4 @@
-local lib={}
+local lib={}  -- @pluto_warnings: disable-all
 lib.internal={}
 function lib.internal.range_adjust(f,l,s)
   checkArg(1,f,'number','nil')

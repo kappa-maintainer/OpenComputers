@@ -85,6 +85,30 @@ class PersistenceAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
       lua.getGlobal("_G") /* ... perms uperms k v */
 
       flattenAndStore() /* ... perms uperms */
+
+      // Pluto gives every table a metatable by default, and it is not reachable
+      // from _G, so the walk above misses it. Without it in the permanent tables
+      // each save writes out a fresh copy and restores tables pointing at that
+      // copy instead of the real one, so a metatable comparison across a save
+      // would stop holding. Registering it keeps table identity stable.
+      //
+      // The table has to come from Lua rather than newTable: Pluto fills in the
+      // global metatable slot lazily, on the first table constructor the VM
+      // executes, and lua_createtable only attaches it once it is there. Probing
+      // with newTable this early would therefore find nothing. On the other
+      // architectures the chunk yields nil and this is a no-op.
+      lua.load("return getmetatable({})", "=plutoDefaultTableMetatable")
+      lua.call(0, 1) /* ... perms uperms mt */
+      if (lua.isTable(-1)) {
+        lua.pushString("plutoDefaultTableMetatable") /* ... perms uperms mt k */
+        lua.pushValue(-2) /* ... perms uperms mt k mt */
+        lua.rawSet(uperms) /* ... perms uperms mt ; uperms[k] = mt */
+        lua.pushValue(-1) /* ... perms uperms mt mt */
+        lua.pushString("plutoDefaultTableMetatable") /* ... perms uperms mt mt k */
+        lua.rawSet(perms) /* ... perms uperms mt ; perms[mt] = k */
+      }
+      lua.pop(1) /* ... perms uperms */
+
       lua.setField(lua.getRegistryIndex, "uperms") /* ... perms */
       lua.setField(lua.getRegistryIndex, "perms") /* ... */
     }

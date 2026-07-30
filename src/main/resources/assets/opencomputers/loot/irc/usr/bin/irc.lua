@@ -1,4 +1,4 @@
--- A (very (very!)) simple IRC client. Reference:
+-- A (very (very!)) simple IRC client. Reference:  -- @pluto_warnings: disable-all
 -- http://tools.ietf.org/html/rfc2812
 
 local component = require("component")

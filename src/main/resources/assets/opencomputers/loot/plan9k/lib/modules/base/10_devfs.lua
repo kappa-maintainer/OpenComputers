@@ -1,4 +1,4 @@
-proxy = {}
+proxy = {}  -- @pluto_warnings: disable-all
 data = {}
 
 proxy.address = "devfs0000"

@@ -31,8 +31,8 @@ function package.searchpath(name, path, sep, rep)
   name = string.gsub(name, sep, rep)
   local fs = require("filesystem")
   local errorFiles = {}
-  for subPath in string.gmatch(path, "([^;]+)") do
-    subPath = string.gsub(subPath, "?", name)
+  for pathPart in string.gmatch(path, "([^;]+)") do
+    local subPath = string.gsub(pathPart, "?", name)
     if subPath:sub(1, 1) ~= "/" and os.getenv then
       subPath = fs.concat(os.getenv("PWD") or "/", subPath)
     end

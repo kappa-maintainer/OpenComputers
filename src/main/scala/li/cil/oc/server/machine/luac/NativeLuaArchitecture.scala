@@ -35,10 +35,28 @@ class NativeLua54Architecture(machine: api.machine.Machine) extends NativeLuaArc
   override def factory = LuaStateFactory.Lua54
 }
 
+@Architecture.Name("Lua 5.5")
+class NativeLua55Architecture(machine: api.machine.Machine) extends NativeLuaArchitecture(machine) {
+  override def factory = LuaStateFactory.Lua55
+}
+
+@Architecture.Name("Pluto")
+class NativeLuaPlutoArchitecture(machine: api.machine.Machine) extends NativeLuaArchitecture(machine) {
+  override def factory = LuaStateFactory.Pluto
+}
+
 abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends Architecture {
   protected def factory: LuaStateFactory
 
   private[machine] var lua: LuaState = null
+
+  /**
+   * Whether the current state actually enforces a native memory limit.
+   * setTotalMemory only works on states created through the memory-limiting
+   * constructor, so guard every call with this instead of the setting alone.
+   */
+  private def memoryLimited: Boolean =
+    Settings.get.limitMemory && lua != null && lua.getTotalMemory > 0
 
   private[machine] var kernelMemory = 0
 
@@ -152,7 +170,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
   override def recomputeMemory(components: java.lang.Iterable[ItemStack]) = {
     val memoryBytes = memoryInBytes(components)
     Option(lua) match {
-      case Some(l) if Settings.get.limitMemory =>
+      case Some(l) if memoryLimited =>
         l.setTotalMemory(Int.MaxValue)
         if (kernelMemory > 0) {
           l.setTotalMemory(kernelMemory + math.ceil(memoryBytes * ramScale).toInt)
@@ -274,7 +292,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
           new ExecutionResult.Shutdown(false)
         }
         else {
-          if (Settings.get.limitMemory) {
+          if (memoryLimited) {
             lua.setTotalMemory(Int.MaxValue)
           }
           val error =
@@ -329,7 +347,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
 
   override def close():Unit = {
     if (lua != null) {
-      if (Settings.get.limitMemory) {
+      if (memoryLimited) {
         lua.setTotalMemory(Integer.MAX_VALUE)
       }
       lua.close()
@@ -350,7 +368,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     if (!machine.isRunning) return
 
     // Unlimit memory use while unpersisting.
-    if (Settings.get.limitMemory) {
+    if (memoryLimited) {
       lua.setTotalMemory(Integer.MAX_VALUE)
     }
 
@@ -395,7 +413,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
 
   override def save(nbt: NBTTagCompound):Unit = {
     // Unlimit memory while persisting.
-    if (Settings.get.limitMemory) {
+    if (memoryLimited) {
       lua.setTotalMemory(Integer.MAX_VALUE)
     }
 

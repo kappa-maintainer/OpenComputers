@@ -1,4 +1,4 @@
---[[
+--[[  -- @pluto_warnings: disable-all
 OpenPrograms package manager, browser and downloader, for easy access to many programs
 Author: Vexatos
 

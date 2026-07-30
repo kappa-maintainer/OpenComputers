@@ -1,4 +1,4 @@
-local fscount = 0
+local fscount = 0  -- @pluto_warnings: disable-all
 
 function new(readfs, writefs)
     if type(readfs) == "string" then

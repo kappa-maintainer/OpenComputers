@@ -1,4 +1,4 @@
---Plan9k userspace init for pipes kernel
+--Plan9k userspace init for pipes kernel  -- @pluto_warnings: disable-all
 
 --TODO: pcall all + emergency shell(or do it lower, in pipes)
 

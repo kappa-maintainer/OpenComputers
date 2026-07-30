@@ -1,4 +1,4 @@
-local computer = require("computer")
+local computer = require("computer")  -- @pluto_warnings: disable-all
 local keyboard = require("keyboard")
 
 local event = {}

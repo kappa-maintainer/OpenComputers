@@ -1,4 +1,4 @@
---[[
+--[[  -- @pluto_warnings: disable-all
 An adaptation of Wobbo's grep
 https://raw.githubusercontent.com/OpenPrograms/Wobbo-Programs/master/grep/grep.lua
 ]]--

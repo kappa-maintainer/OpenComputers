@@ -111,8 +111,8 @@ dependencies {
     }
 
     embed name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
-    embed name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
-    embed name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
+    embed 'top.outlands:OC-JNLua:20260730.1'
+    embed 'top.outlands:OC-JNLua-Natives:20260730.1'
 
     contain 'com.typesafe:config:1.4.3'
 

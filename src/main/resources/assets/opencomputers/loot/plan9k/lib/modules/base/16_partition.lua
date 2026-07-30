@@ -1,4 +1,4 @@
-function buildDevice(parent, first, size)
+function buildDevice(parent, first, size)  -- @pluto_warnings: disable-all
     kernel.io.println("Partition from "..first)
     return {
         __type = "f",

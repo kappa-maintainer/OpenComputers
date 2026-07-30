@@ -1,4 +1,4 @@
-local computer = require("computer")
+local computer = require("computer")  -- @pluto_warnings: disable-all
 local shell = require("shell")
 local fs = require("filesystem")
 local tx = require("transforms")

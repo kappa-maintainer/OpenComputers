@@ -1,4 +1,4 @@
-local unicode = unicode
+local unicode = unicode  -- @pluto_warnings: disable-all
 
 local filesystem, fileStream = {}, {}
 local isAutorunEnabled = nil

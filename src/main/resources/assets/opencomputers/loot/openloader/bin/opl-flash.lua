@@ -1,4 +1,4 @@
-local version = "OpenLoader 0.2EE"
+local version = "OpenLoader 0.2EE"  -- @pluto_warnings: disable-all
 
 local eeprom = [[
 _G._OSVERSION = "]] .. version .. [["

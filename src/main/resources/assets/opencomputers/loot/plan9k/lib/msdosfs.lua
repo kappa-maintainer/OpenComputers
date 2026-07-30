@@ -1,4 +1,4 @@
---[[
+--[[  -- @pluto_warnings: disable-all
 This will not support FAT32.
 1. Because FAT16 won't even properly fit on a tape or max sized file.
 2. Because FAT32's structure is incompatible with FAT12 and FAT16

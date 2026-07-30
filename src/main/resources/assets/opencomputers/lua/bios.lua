@@ -1,4 +1,4 @@
-local init
+local init  -- @pluto_warnings: disable-all
 do
   local component_invoke = component.invoke
   local function boot_invoke(address, method, ...)

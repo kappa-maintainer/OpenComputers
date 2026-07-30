@@ -1,4 +1,4 @@
-local network = require "network"
+local network = require "network"  -- @pluto_warnings: disable-all
 local computer = require "computer"
 local args = {...}
 

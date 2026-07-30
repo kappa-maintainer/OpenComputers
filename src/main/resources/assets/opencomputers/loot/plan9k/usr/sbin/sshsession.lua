@@ -1,4 +1,4 @@
-local event = require "event"
+local event = require "event"  -- @pluto_warnings: disable-all
 local network = require "network"
 local pipes = require "pipes"
 local component = require "component"

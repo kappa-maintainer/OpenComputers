@@ -88,6 +88,8 @@ class Settings(val config: Config) {
   val enableLua53 = config.getBoolean("computer.lua.enableLua53")
   val defaultLua53 = config.getBoolean("computer.lua.defaultLua53")
   val enableLua54 = config.getBoolean("computer.lua.enableLua54")
+  val enableLua55 = config.getBoolean("computer.lua.enableLua55")
+  val enablePluto = config.getBoolean("computer.lua.enablePluto")
   val ramSizes = Array(config.getIntList("computer.lua.ramSizes").asScala.toSeq*) match {
     case Array(tier1, tier2, tier3, tier4, tier5, tier6) =>
       Array(tier1: Int, tier2: Int, tier3: Int, tier4: Int, tier5: Int, tier6: Int)

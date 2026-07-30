@@ -12,7 +12,7 @@ import li.cil.oc.common.item.traits.Delegate
 import li.cil.oc.common.recipe.Recipes
 import li.cil.oc.integration.Mods
 import li.cil.oc.server.*
-import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
+import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture, NativeLua55Architecture, NativeLuaPlutoArchitecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
 import net.minecraft.block.Block
 import net.minecraft.item.Item
@@ -81,6 +81,12 @@ class Proxy {
       }
       if (LuaStateFactory.include54) {
         api.Machine.add(classOf[NativeLua54Architecture])
+      }
+      if (LuaStateFactory.include55) {
+        api.Machine.add(classOf[NativeLua55Architecture])
+      }
+      if (LuaStateFactory.includePluto) {
+        api.Machine.add(classOf[NativeLuaPlutoArchitecture])
       }
       if (LuaStateFactory.include52) {
         api.Machine.add(classOf[NativeLua52Architecture])

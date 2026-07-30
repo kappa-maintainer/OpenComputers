@@ -1,4 +1,4 @@
-local pipe = require("pipe")
+local pipe = require("pipe")  -- @pluto_warnings: disable-all
 local event = require("event")
 local process = require("process")
 local computer = require("computer")

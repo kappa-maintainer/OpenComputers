@@ -1,4 +1,4 @@
-threads = {}
+threads = {}  -- @pluto_warnings: disable-all
 currentThread = nil
 eventFilters = {signal = {}}
 

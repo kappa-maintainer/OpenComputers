@@ -1,4 +1,4 @@
-local pipes = require("pipes")
+local pipes = require("pipes")  -- @pluto_warnings: disable-all
 local blinkState = false
 local args = {...}
 

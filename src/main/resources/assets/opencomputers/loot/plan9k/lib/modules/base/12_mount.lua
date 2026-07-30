@@ -1,4 +1,4 @@
-filesystems = {}
+filesystems = {}  -- @pluto_warnings: disable-all
 
 kernel.modules.sysfs.data.mount = {
      __type = "f",

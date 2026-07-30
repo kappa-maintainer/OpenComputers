@@ -1,4 +1,4 @@
-local text = require("text")
+local text = require("text")  -- @pluto_warnings: disable-all
 
 local rules = {}
 local vt100 = {rules=rules}

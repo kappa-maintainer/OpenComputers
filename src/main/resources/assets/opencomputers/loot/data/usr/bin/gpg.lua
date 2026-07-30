@@ -1,4 +1,4 @@
---[[
+--[[  -- @pluto_warnings: disable-all
 --   A program that allows user to perform all crypto operations provided by Tier II / Tier III data cards
 --   Author: makkarpov
 --]]
