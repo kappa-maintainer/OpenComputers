@@ -7,7 +7,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'
-    id 'xyz.wagyourtail.unimined' version '1.4.28-kappa'
+    id 'xyz.wagyourtail.unimined' version '1.4.36-kappa'
     id 'net.kyori.blossom'  version '2.2.0'
 }
 
@@ -77,7 +77,7 @@ unimined.minecraft {
         if (propertyBool('use_access_transformer')) {
             accessTransformer 'src/main/resources/' +  propertyString('access_transformer_locations')
         }
-        loader "0.6.6-alpha"
+        loader "0.6.10-alpha"
         runs.auth.username = minecraft_username
         runs.all {
             if (hasProperty("extra_jvm_args")) {
