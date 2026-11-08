@@ -1,39 +1,31 @@
 package li.cil.oc.common.recipe
 
-import java.io.File
-import java.io.FileReader
-
-import com.typesafe.config._
-import li.cil.oc._
+import com.typesafe.config.*
+import li.cil.oc.*
 import li.cil.oc.common.Loot
 import li.cil.oc.common.block.SimpleBlock
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.item.Delegator
 import li.cil.oc.common.item.data.PrintData
-import li.cil.oc.common.item.traits.Delegate
-import li.cil.oc.common.item.traits.SimpleItem
+import li.cil.oc.common.item.traits.{Delegate, SimpleItem}
 import li.cil.oc.integration.util.ItemBlacklist
 import li.cil.oc.util.Color
 import net.minecraft.block.Block
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemStack
+import net.minecraft.item.{Item, ItemBlock, ItemStack}
 import net.minecraft.item.crafting.IRecipe
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.registry.RegistryNamespaced
-import net.minecraftforge.fluids.FluidRegistry
-import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.{FluidRegistry, FluidStack}
 import net.minecraftforge.fml.common.Loader
-import net.minecraftforge.fml.common.registry.GameRegistry
-import net.minecraftforge.oredict.OreDictionary
-import net.minecraftforge.oredict.RecipeSorter
+import net.minecraftforge.oredict.{OreDictionary, RecipeSorter}
 import net.minecraftforge.oredict.RecipeSorter.Category
 import net.minecraftforge.registries.{GameData, IForgeRegistryEntry}
 import org.apache.commons.io.FileUtils
 
-import scala.jdk.CollectionConverters.*
+import java.io.{File, FileReader}
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.*
 
 object Recipes {
   val list: mutable.LinkedHashMap[ItemStack, String] = mutable.LinkedHashMap.empty[ItemStack, String]
@@ -435,14 +427,12 @@ object Recipes {
     Option(new FluidStack(fluid, amount))
   }
 
-  private def findItem(name: String) = getObjectWithoutFallback(Item.REGISTRY, name).orElse(Item.REGISTRY.asScala.find {
-    case item: Item => item.getTranslationKey == name || item.getTranslationKey == "item." + name || Item.REGISTRY.getNameForObject(item).toString == name
-    case _ => false
+  private def findItem(name: String) = getObjectWithoutFallback(Item.REGISTRY, name).orElse(Item.REGISTRY.asScala.find { item =>
+    item.getTranslationKey == name || item.getTranslationKey == "item." + name || Item.REGISTRY.getNameForObject(item).toString == name
   })
 
-  private def findBlock(name: String) = getObjectWithoutFallback(Block.REGISTRY.asInstanceOf[RegistryNamespaced[ResourceLocation, Block]], name).orElse(Block.REGISTRY.asScala.find {
-    case block: Block => block.getTranslationKey == name || block.getTranslationKey == "tile." + name || Block.REGISTRY.getNameForObject(block).toString == name
-    case _ => false
+  private def findBlock(name: String) = getObjectWithoutFallback(Block.REGISTRY.asInstanceOf[RegistryNamespaced[ResourceLocation, Block]], name).orElse(Block.REGISTRY.asScala.find { block =>
+    block.getTranslationKey == name || block.getTranslationKey == "tile." + name || Block.REGISTRY.getNameForObject(block).toString == name
   })
 
   private def getObjectWithoutFallback[V](registry: RegistryNamespaced[ResourceLocation, V], key: String) = {

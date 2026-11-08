@@ -93,3 +93,5 @@ trait Factorization extends Common {
   def getCoord = new Coord(this)
 }
 */
+
+private[power] object FactorizationDisabled

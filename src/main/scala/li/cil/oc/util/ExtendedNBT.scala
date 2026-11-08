@@ -2,10 +2,11 @@ package li.cil.oc.util
 
 import com.google.common.base.Charsets
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt._
+import net.minecraft.nbt.*
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.util.Constants.NBT
 
+import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.language.implicitConversions
@@ -79,7 +80,7 @@ object ExtendedNBT {
       case Some(v: Map[_, _]) => mapToList(v.toArray).toIndexedSeq
       case Some(v: mutable.Map[_, _]) => mapToList(v.toArray).toIndexedSeq
       case Some(v: java.util.Map[_, _]) => mapToList(v.asScala.toArray).toIndexedSeq
-      case Some(v: String) => v.getBytes(Charsets.UTF_8).toIndexedSeq
+      case Some(v: String) => v.getBytes(StandardCharsets.UTF_8).toIndexedSeq
       case _ => throw new IllegalArgumentException("Illegal or missing value.")
     }
     def asMap[K](value: Option[Any]): Map[K, ?] = value match {
@@ -130,7 +131,7 @@ object ExtendedNBT {
 
         case NBT.TAG_STRING => new NBTTagString(nbtValue match {
           case Some(v: String) => v
-          case Some(v: Array[Byte]) => new String(v, Charsets.UTF_8)
+          case Some(v: Array[Byte]) => new String(v, StandardCharsets.UTF_8)
           case _ => throw new IllegalArgumentException("Illegal or missing value.")
         })
 

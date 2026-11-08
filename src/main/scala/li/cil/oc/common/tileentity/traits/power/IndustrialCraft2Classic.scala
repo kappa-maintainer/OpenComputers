@@ -99,3 +99,5 @@ trait IndustrialCraft2Classic extends Common with IndustrialCraft2Common {
   }
 }
 */
+
+private[power] object IndustrialCraft2ClassicDisabled

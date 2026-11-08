@@ -1,4 +1,4 @@
-local metatable = {__index = kernel._K, __newindex=function()end}
+local metatable = {__index = kernel._K, __newindex=function()end}  -- @pluto_warnings: disable-all
 
 function start()
     metatable.__index = kernel.userspace

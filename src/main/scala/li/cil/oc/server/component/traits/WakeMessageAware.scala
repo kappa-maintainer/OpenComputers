@@ -5,8 +5,10 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.{EnvironmentHost, Packet}
-import li.cil.oc.server.component._
+import li.cil.oc.server.component.*
 import net.minecraft.nbt.NBTTagCompound
+
+import java.nio.charset.StandardCharsets
 
 trait WakeMessageAware extends traits.NetworkAware {
   private final val WakeMessageTag = "wakeMessage"
@@ -45,9 +47,9 @@ trait WakeMessageAware extends traits.NetworkAware {
       // Accept wake-up messages regardless of port because we close all ports
       // when our computer shuts down.
       val wakeup: Boolean = packet.data match {
-        case Array(message: Array[Byte]) if wakeMessage.contains(new String(message, Charsets.UTF_8)) => true
+        case Array(message: Array[Byte]) if wakeMessage.contains(new String(message, StandardCharsets.UTF_8)) => true
         case Array(message: String) if wakeMessage.contains(message) => true
-        case Array(message: Array[Byte], _*) if wakeMessageFuzzy && wakeMessage.contains(new String(message, Charsets.UTF_8)) => true
+        case Array(message: Array[Byte], _*) if wakeMessageFuzzy && wakeMessage.contains(new String(message, StandardCharsets.UTF_8)) => true
         case Array(message: String, _*) if wakeMessageFuzzy && wakeMessage.contains(message) => true
         case _ => false
       }

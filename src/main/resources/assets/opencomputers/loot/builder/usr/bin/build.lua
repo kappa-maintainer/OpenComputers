@@ -1,4 +1,4 @@
-local computer = require("computer")
+local computer = require("computer")  -- @pluto_warnings: disable-all
 local event = require("event")
 local fs = require("filesystem")
 local process = require("process")

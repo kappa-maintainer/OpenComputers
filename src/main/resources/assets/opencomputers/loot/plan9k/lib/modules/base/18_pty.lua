@@ -1,4 +1,4 @@
-allocator, list = kernel.modules.util.getAllocator()
+allocator, list = kernel.modules.util.getAllocator()  -- @pluto_warnings: disable-all
 
 function new()
     local pty = allocator:get()

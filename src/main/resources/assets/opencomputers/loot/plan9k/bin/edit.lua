@@ -1,4 +1,4 @@
-local shell = require("shell")
+local shell = require("shell")  -- @pluto_warnings: disable-all
 local term = require("term")
 local fs = require("filesystem")
 local unicode = require("unicode")

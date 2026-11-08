@@ -1,4 +1,4 @@
-local component = require("component")
+local component = require("component")  -- @pluto_warnings: disable-all
 local computer = require("computer")
 local filesystem = require("filesystem")
 local unicode = require("unicode")

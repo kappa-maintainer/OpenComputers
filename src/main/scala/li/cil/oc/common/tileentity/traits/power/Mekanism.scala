@@ -27,3 +27,5 @@ trait Mekanism extends Common {
   def setEnergy(energy: Double) {}
 }
 */
+
+private[power] object MekanismDisabled

@@ -1,7 +1,6 @@
 package li.cil.oc.server.machine
 
 import java.util
-
 import com.google.common.base.Charsets
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.util.ItemUtils
@@ -10,6 +9,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ResourceLocation
 
+import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
@@ -166,7 +166,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
     checkIndex(index, "string")
     args(index) match {
       case value: java.lang.String => value
-      case value: Array[Byte] => new String(value, Charsets.UTF_8)
+      case value: Array[Byte] => new String(value, StandardCharsets.UTF_8)
       case value => throw typeError(index, value, "string")
     }
   }
@@ -179,7 +179,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
   def checkByteArray(index: Int): Array[Byte] = {
     checkIndex(index, "string")
     args(index) match {
-      case value: java.lang.String => value.getBytes(Charsets.UTF_8)
+      case value: java.lang.String => value.getBytes(StandardCharsets.UTF_8)
       case value: Array[Byte] => value
       case value => throw typeError(index, value, "string")
     }
@@ -215,7 +215,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
         }
         val tag = map.get("tag") match {
           case ba: Array[Byte] => toNbtTagCompound(ba)
-          case s: String => toNbtTagCompound(s.getBytes(Charsets.UTF_8))
+          case s: String => toNbtTagCompound(s.getBytes(StandardCharsets.UTF_8))
           case _ => None
         }
         makeStack(name, damage, tag)
@@ -301,7 +301,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
     }
 
   def toArray: Array[AnyRef] = args.map {
-    case value: Array[Byte] => new String(value, Charsets.UTF_8)
+    case value: Array[Byte] => new String(value, StandardCharsets.UTF_8)
     case value => value
   }.toArray
 

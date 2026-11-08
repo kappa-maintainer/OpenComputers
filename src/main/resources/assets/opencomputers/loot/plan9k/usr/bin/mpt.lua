@@ -1,4 +1,4 @@
-local argv = {...}
+local argv = {...}  -- @pluto_warnings: disable-all
 local options
 local loglevel = 1
 

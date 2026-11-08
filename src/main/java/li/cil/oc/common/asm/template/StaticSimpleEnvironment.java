@@ -22,7 +22,7 @@ public final class StaticSimpleEnvironment {
     private StaticSimpleEnvironment() {
     }
 
-    private static final Map<Environment, Node> nodes = new HashMap<Environment, Node>();
+    private static final Map<Environment, Node> nodes = new HashMap<>();
 
     public static Node node(final SimpleComponentImpl self) {
         // Save ourselves the lookup time in the hash map and avoid mixing in
@@ -76,6 +76,13 @@ public final class StaticSimpleEnvironment {
         if (node != null) {
             node.load(nbt.getCompoundTag("oc:node"));
         }
+    }
+
+    public static void onServerStopped() {
+        for (final Node node : nodes.values()) {
+            node.remove();
+        }
+        nodes.clear();
     }
 
     public static NBTTagCompound writeToNBT(final SimpleComponentImpl self, NBTTagCompound nbt) {

@@ -366,7 +366,7 @@ object DebugCard {
   }
 
   class PlayerValue(var name: String)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
-    def this() = this("")(None) // For loading.
+    def this() = this("")(using None) // For loading.
 
     // ----------------------------------------------------------------------- //
 
@@ -487,7 +487,7 @@ object DebugCard {
     var scoreboard: Scoreboard = world.fold(null: Scoreboard)(_.getScoreboard)
     var dimension: Int = world.fold(0)(_.provider.getDimension)
 
-    def this() = this(None)(None) // For loading.
+    def this() = this(None)(using None) // For loading.
 
     @Callback(doc = """function(team:string) - Add a team to the scoreboard""")
     def addTeam(context: Context, args: Arguments): Array[AnyRef] = {
@@ -614,7 +614,7 @@ object DebugCard {
 
 
   class WorldValue(var world: World)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
-    def this() = this(null)(None) // For loading.
+    def this() = this(null)(using None) // For loading.
 
     // ----------------------------------------------------------------------- //
 

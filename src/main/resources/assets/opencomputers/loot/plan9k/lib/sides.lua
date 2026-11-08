@@ -1,4 +1,4 @@
-local sides = {
+local sides = {  -- @pluto_warnings: disable-all
   [0] = "bottom",
   [1] = "top",
   [2] = "back",

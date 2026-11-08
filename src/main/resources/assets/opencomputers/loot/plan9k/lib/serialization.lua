@@ -1,4 +1,4 @@
-local serialization = {}
+local serialization = {}  -- @pluto_warnings: disable-all
 
 -- Important: pretty formatting will allow presenting non-serializable values
 -- but may generate output that cannot be unserialized back.

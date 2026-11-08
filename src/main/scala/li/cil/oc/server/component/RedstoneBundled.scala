@@ -59,8 +59,10 @@ trait RedstoneBundled extends RedstoneVanilla {
   }
 
   private def sidesToMap(ar: Array[Array[Int]]): Map[Int, Map[Int, Int]] = {
-    SIDE_RANGE.map {
-      case side if side.ordinal < ar.length && ar(side.ordinal).length > 0 => side.ordinal -> colorsToMap(ar(side.ordinal))
+    SIDE_RANGE.flatMap { side =>
+      if (side.ordinal < ar.length && ar(side.ordinal).length > 0)
+        Some(side.ordinal -> colorsToMap(ar(side.ordinal)))
+      else None
     }.toMap
   }
 
@@ -106,12 +108,16 @@ trait RedstoneBundled extends RedstoneVanilla {
       case (side: EnumFacing, color: Int, value: Int) =>
         ret = java.lang.Integer.valueOf(redstone.getBundledOutput(side, color))
         redstone.setBundledOutput(side, color, value)
+        true
       case (side: EnumFacing, value: util.Map[_, _], _) =>
         ret = redstone.getBundledOutput(side)
         redstone.setBundledOutput(side, value)
+        true
       case (value: util.Map[_, _], _, _) =>
         ret = redstone.getBundledOutput
         redstone.setBundledOutput(value)
+        true
+      case _ => false
     }) {
       if (Settings.get.redstoneDelay > 0)
         context.pause(Settings.get.redstoneDelay)

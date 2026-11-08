@@ -1,4 +1,4 @@
-local fs = require "filesystem"
+local fs = require "filesystem"  -- @pluto_warnings: disable-all
 local args = {...}
  
 local dev = args[1] or error("Must specify a file")

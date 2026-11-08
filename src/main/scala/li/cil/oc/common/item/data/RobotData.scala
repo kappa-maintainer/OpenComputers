@@ -7,18 +7,19 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.integration.opencomputers.DriverScreen
-import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.util.ExtendedNBT.*
 import li.cil.oc.util.ItemUtils
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraftforge.common.util.Constants.NBT
 
+import java.nio.charset.StandardCharsets
 import scala.io.Source
 
 object RobotData {
   val names: Array[String] = try {
     Source.fromInputStream(getClass.getResourceAsStream(
-        "/assets/" + Settings.resourceDomain + "/robot.names"))(Charsets.UTF_8).
+        "/assets/" + Settings.resourceDomain + "/robot.names"))(using StandardCharsets.UTF_8).
       getLines().map(_.takeWhile(_ != '#').trim()).filter(_ != "").toArray
   }
   catch {
@@ -28,7 +29,7 @@ object RobotData {
   }
 
 
-  def randomName: String = if (names.length > 0) names((math.random * names.length).toInt) else "Robot"
+  def randomName: String = if (names.length > 0) names((math.random() * names.length).toInt) else "Robot"
 }
 
 class RobotData extends ItemData(Constants.BlockName.Robot) {

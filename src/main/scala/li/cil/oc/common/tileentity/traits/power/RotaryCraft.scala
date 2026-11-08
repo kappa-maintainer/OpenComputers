@@ -88,3 +88,5 @@ trait RotaryCraft extends Common {
   def getMinTorque(available: Int): Int = 0
 }
 */
+
+private[power] object RotaryCraftDisabled

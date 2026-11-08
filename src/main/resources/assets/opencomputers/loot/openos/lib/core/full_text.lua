@@ -1,4 +1,4 @@
-local text = require("text")
+local text = require("text")  -- @pluto_warnings: disable-all
 local tx = require("transforms")
 local unicode = require("unicode")
 local process = require("process")

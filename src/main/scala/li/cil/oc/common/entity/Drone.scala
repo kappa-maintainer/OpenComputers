@@ -84,7 +84,7 @@ class Drone(iworld: World) extends Entity(iworld) with MachineHost with internal
   val targetFlapAngles: Array[Array[Float]] = Array.fill(4, 2)(0f)
   val flapAngles: Array[Array[Float]] = Array.fill(4, 2)(0f)
   var nextFlapChange = 0
-  var bodyAngle: Float = math.random.toFloat * 90
+  var bodyAngle: Float = math.random().toFloat * 90
   var angularVelocity = 0f
   var nextAngularVelocityChange = 0
   var lastEnergyUpdate = 0

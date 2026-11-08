@@ -22,12 +22,55 @@ import org.apache.commons.lang3.SystemUtils
 import scala.util.Random
 
 object LuaStateFactory {
+  // Native Lua factories initialize one after another (5.2, 5.3, 5.4).
+  // Clean stale extracted OC natives exactly once, before the first factory
+  // extracts/loads anything for this JVM. Without the guard, a later factory
+  // could delete a library that an earlier factory just extracted.
+  private var cleanedOldLibraries = false
+
+  private def cleanupOldLibraries(libDir: File): Unit = synchronized {
+    if (cleanedOldLibraries) {
+      return
+    }
+
+    cleanedOldLibraries = true
+
+    if (!libDir.isDirectory) {
+      return
+    }
+
+    val files = libDir.listFiles(new PatternFilenameFilter(
+      "^" + Pattern.quote("OpenComputersMod-") + ".*\\.(dll|so|dylib)$"
+    ))
+
+    if (files != null) {
+      for (file <- files if file.isFile) {
+        try {
+          if (file.delete()) {
+            OpenComputers.log.debug(s"Deleted stale native library '${file.getName}'.")
+          }
+          else if (file.exists()) {
+            // This is expected on Windows if another running JVM still has
+            // the native library loaded and therefore locked.
+            OpenComputers.log.debug(s"Could not delete stale native library '${file.getName}'. It may still be in use.")
+          }
+        }
+        catch {
+          case t: Throwable =>
+            OpenComputers.log.debug(s"Could not delete stale native library '${file.getName}'.", t)
+        }
+      }
+    }
+  }
+
   def isAvailable: Boolean = {
     // Force initialization of all.
     val lua52 = Lua52.isAvailable
     val lua53 = Lua53.isAvailable
     val lua54 = Lua54.isAvailable
-    lua52 || lua53 || lua54
+    val lua55 = Lua55.isAvailable
+    val pluto = Pluto.isAvailable
+    lua52 || lua53 || lua54 || lua55 || pluto
   }
 
   def luajRequested: Boolean = Settings.get.forceLuaJ || Settings.get.registerLuaJArchitecture
@@ -39,6 +82,10 @@ object LuaStateFactory {
   def include53: Boolean = Lua53.isAvailable && Settings.get.enableLua53 && !Settings.get.forceLuaJ
 
   def include54: Boolean = Lua54.isAvailable && Settings.get.enableLua54 && !Settings.get.forceLuaJ
+
+  def include55: Boolean = Lua55.isAvailable && Settings.get.enableLua55 && !Settings.get.forceLuaJ
+
+  def includePluto: Boolean = Pluto.isAvailable && Settings.get.enablePluto && !Settings.get.forceLuaJ
 
   def default53: Boolean = include53 && Settings.get.defaultLua53
 
@@ -106,6 +153,79 @@ object LuaStateFactory {
       state.openLib(jnlua.LuaState.Library.TABLE)
       state.openLib(jnlua.LuaState.Library.UTF8)
       state.pop(8)
+    }
+  }
+
+  object Lua55 extends LuaStateFactory {
+    override def version: String = "55"
+
+    override protected def create(maxMemory: Option[Int]) = maxMemory.fold(new jnlua.LuaStateFiveFive())(new jnlua.LuaStateFiveFive(_))
+
+    override protected def openLibs(state: jnlua.LuaState): Unit = {
+      state.openLib(jnlua.LuaState.Library.BASE)
+      state.openLib(jnlua.LuaState.Library.COROUTINE)
+      state.openLib(jnlua.LuaState.Library.DEBUG)
+      state.openLib(jnlua.LuaState.Library.ERIS)
+      state.openLib(jnlua.LuaState.Library.MATH)
+      state.openLib(jnlua.LuaState.Library.STRING)
+      state.openLib(jnlua.LuaState.Library.TABLE)
+      state.openLib(jnlua.LuaState.Library.UTF8)
+      state.pop(8)
+    }
+  }
+
+  object Pluto extends LuaStateFactory {
+    override def version: String = "pluto"
+
+    override protected def create(maxMemory: Option[Int]) = maxMemory.fold(new jnlua.LuaStatePluto())(new jnlua.LuaStatePluto(_))
+
+    /**
+     * Pluto's extension libraries, minus the ones that cannot be sandboxed.
+     *
+     * The excluded ones are gone from the native library entirely rather than
+     * merely left unopened, because Pluto's compile-time '$' operator can reach
+     * a preloaded library without going through us. Left out are http and
+     * socket (they bypass the mod's own network rules and the internet card
+     * requirement), ffi (loads arbitrary shared libraries), wasm (runs code with
+     * no execution or memory budget), scheduler (duplicates the host scheduler),
+     * '*' (loads every preloaded library at once), and assert (its name collides
+     * with the standard assert, which it does not behave like).
+     *
+     * machine.lua narrows these further, per function, on top of this.
+     */
+    private val plutoLibs = Array(
+      jnlua.LuaState.Library.CRYPTO,
+      jnlua.LuaState.Library.JSON,
+      jnlua.LuaState.Library.XML,
+      jnlua.LuaState.Library.CAT,
+      jnlua.LuaState.Library.BASE32,
+      jnlua.LuaState.Library.BASE64,
+      jnlua.LuaState.Library.URL,
+      // These four hand out userdata. Their metatables carry a __persist that
+      // rebuilds the object through its library, so a computer holding one can
+      // still be saved.
+      jnlua.LuaState.Library.CANVAS,
+      jnlua.LuaState.Library.BIGINT,
+      jnlua.LuaState.Library.BUFFER,
+      jnlua.LuaState.Library.REGEX,
+      jnlua.LuaState.Library.VECTOR3)
+
+    override protected def openLibs(state: jnlua.LuaState): Unit = {
+      val standardLibs = Array(
+        jnlua.LuaState.Library.BASE,
+        jnlua.LuaState.Library.COROUTINE,
+        jnlua.LuaState.Library.DEBUG,
+        jnlua.LuaState.Library.ERIS,
+        jnlua.LuaState.Library.MATH,
+        jnlua.LuaState.Library.STRING,
+        jnlua.LuaState.Library.TABLE,
+        jnlua.LuaState.Library.UTF8)
+      // Opening a library leaves it on the stack, so drop them all afterwards.
+      // These have to be globals rather than require'd, since the mod does not
+      // give computers the package library.
+      for (lib <- standardLibs) state.openLib(lib)
+      for (lib <- plutoLibs) state.openLib(lib)
+      state.pop(standardLibs.length + plutoLibs.length)
     }
   }
 
@@ -223,19 +343,19 @@ abstract class LuaStateFactory {
         else if (path.endsWith("/") || path.endsWith("\\")) path
         else path + "/"
       }
-      else "./"
+      else {
+        val path = new File("opencomputers/natives")
+        path.mkdirs()
+        path.getAbsolutePath + File.separator
+      }
       tmpLibFile = new File(tmpBasePath + tmpLibName)
 
-      // Clean up old library files when not in tmp dir.
+      // Clean up stale OC native libraries once before this run extracts and
+      // loads any of its bundled natives. Do not do this once per Lua version:
+      // Lua 5.3/5.4 initialization must not delete the library Lua 5.2 just
+      // extracted and loaded.
       if (!Settings.get.nativeInTmpDir) {
-        val libDir = new File(tmpBasePath)
-        if (libDir.isDirectory) {
-          for (file <- libDir.listFiles(new PatternFilenameFilter("^" + Pattern.quote("OpenComputersMod-") + ".*" + Pattern.quote("-" + libraryName) + "$"))) {
-            if (file.compareTo(tmpLibFile) != 0) {
-              file.delete()
-            }
-          }
-        }
+        LuaStateFactory.cleanupOldLibraries(new File(tmpBasePath))
       }
 
       // If the file, already exists, make sure it's the same we need, if it's
@@ -330,8 +450,39 @@ abstract class LuaStateFactory {
         else {
           OpenComputers.log.trace(s"Could not load native library '${tmpLibFile.getName}'.")
         }
+        // A missing system runtime is worth pointing out even when full load
+        // errors are off, because the library itself is fine and no other
+        // candidate will do better. Loading one is otherwise expected to fail
+        // on platforms the library was not built for, which is why the generic
+        // case stays quiet.
+        missingRuntimeHint(t).foreach(hint =>
+          OpenComputers.log.warn(s"Native library '${tmpLibFile.getName}' could not load because $hint"))
         tmpLibFile.delete()
     }
+  }
+
+  /**
+   * Describe the missing system runtime a load failure points to, if any.
+   *
+   * Reported as a hint rather than an error: it is derived from the linker's
+   * message, so it is a guess about the cause, and the message wording is
+   * platform specific.
+   */
+  private def missingRuntimeHint(t: Throwable): Option[String] = {
+    val message = Option(t.getMessage).getOrElse("")
+    if (message.isEmpty) None
+    else if (message.contains("MSVCP140") || message.contains("VCRUNTIME140"))
+      Some("the Microsoft Visual C++ runtime is missing. Installing the " +
+           "Visual C++ Redistributable for Visual Studio 2015-2022 (x64) should fix it.")
+    else if (message.contains("libstdc++"))
+      Some("the C++ standard library is missing. Installing your " +
+           "distribution's libstdc++ runtime package should fix it.")
+    else if (message.contains("GLIBCXX") || message.contains("CXXABI"))
+      Some("the installed C++ standard library is too old for it. " +
+           "Updating libstdc++ should fix it.")
+    else if (message.contains("GLIBC_"))
+      Some("the installed glibc is too old for it.")
+    else None
   }
 
   init()

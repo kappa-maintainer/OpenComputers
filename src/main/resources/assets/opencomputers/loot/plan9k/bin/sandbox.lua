@@ -1,4 +1,4 @@
-local shell = require("shell")
+local shell = require("shell")  -- @pluto_warnings: disable-all
 local kernel = require("pipes")
 local component = require("component")
 

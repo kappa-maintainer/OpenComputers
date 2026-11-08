@@ -1,4 +1,4 @@
-local rc = require("rc")
+local rc = require("rc")  -- @pluto_warnings: disable-all
 local fs = require("filesystem")
 
 local function loadConfig()

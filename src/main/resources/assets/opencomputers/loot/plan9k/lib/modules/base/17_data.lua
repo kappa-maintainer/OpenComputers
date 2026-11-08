@@ -1,4 +1,4 @@
-local block = kernel.modules.block
+local block = kernel.modules.block  -- @pluto_warnings: disable-all
 
 local function buildDevice(addr)
     return {

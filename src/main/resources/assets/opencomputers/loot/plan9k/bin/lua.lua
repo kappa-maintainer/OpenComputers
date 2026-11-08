@@ -1,4 +1,4 @@
-local package = require("package")
+local package = require("package")  -- @pluto_warnings: disable-all
 local term = require("term")
 local serialization = require("serialization")
 local shell = require("shell")

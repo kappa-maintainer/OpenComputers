@@ -9,8 +9,8 @@ if #args == 0 then
 end
 
 local topic = args[1]
-for path in string.gmatch(os.getenv("MANPATH"), "[^:]+") do
-  path = shell.resolve(fs.concat(path, topic), "man")
+for pathPart in string.gmatch(os.getenv("MANPATH"), "[^:]+") do
+  local path = shell.resolve(fs.concat(pathPart, topic), "man")
   if path and fs.exists(path) and not fs.isDirectory(path) then
     os.execute(os.getenv("PAGER") .. " " .. path)
     os.exit()

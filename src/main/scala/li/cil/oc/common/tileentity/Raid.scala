@@ -116,6 +116,7 @@ class Raid extends traits.Environment with traits.Inventory with traits.Rotatabl
       case _ => 0L
     })
     case (acc, ItemStack.EMPTY) => acc
+    case (acc, _) => acc
   }
 
   // ----------------------------------------------------------------------- //

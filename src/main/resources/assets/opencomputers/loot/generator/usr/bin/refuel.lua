@@ -1,4 +1,4 @@
---[[ Makes the robot refuel itself using fuel from the inventory and lets you get the current fuel count.
+--[[ Makes the robot refuel itself using fuel from the inventory and lets you get the current fuel count.  -- @pluto_warnings: disable-all
      Author: Vexatos]]
 local component = require("component")
 local robot = require("robot")

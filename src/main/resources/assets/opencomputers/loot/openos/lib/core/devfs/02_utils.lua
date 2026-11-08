@@ -1,4 +1,4 @@
-return
+return  -- @pluto_warnings: disable-all
 {
   eeprom =
   {

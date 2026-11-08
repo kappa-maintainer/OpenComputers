@@ -1,4 +1,4 @@
-_G._OSVERSION = "OpenLoader 0.2"
+_G._OSVERSION = "OpenLoader 0.2"  -- @pluto_warnings: disable-all
 local component = component or require('component')
 local computer = computer or require('computer')
 local unicode = unicode or require('unicode')

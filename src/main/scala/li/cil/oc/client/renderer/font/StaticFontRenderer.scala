@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
+import java.nio.charset.StandardCharsets
 import scala.io.Source
 
 /**
@@ -16,7 +17,11 @@ import scala.io.Source
  */
 class StaticFontRenderer extends TextureFontRenderer {
   protected val (chars, charWidth, charHeight) = try {
-    val lines = Source.fromInputStream(Minecraft.getMinecraft.getResourceManager.getResource(new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")).getInputStream)(Charsets.UTF_8).getLines()
+    val lines = Source.fromInputStream(
+      Minecraft.getMinecraft.getResourceManager.getResource(
+        new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")
+      ).getInputStream
+    )(using StandardCharsets.UTF_8).getLines()
     val chars = lines.next()
     val (w, h) = if (lines.hasNext) {
       val size = lines.next().split(" ", 2)

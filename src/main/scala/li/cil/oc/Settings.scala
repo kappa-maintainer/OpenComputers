@@ -88,6 +88,8 @@ class Settings(val config: Config) {
   val enableLua53 = config.getBoolean("computer.lua.enableLua53")
   val defaultLua53 = config.getBoolean("computer.lua.defaultLua53")
   val enableLua54 = config.getBoolean("computer.lua.enableLua54")
+  val enableLua55 = config.getBoolean("computer.lua.enableLua55")
+  val enablePluto = config.getBoolean("computer.lua.enablePluto")
   val ramSizes = Array(config.getIntList("computer.lua.ramSizes").asScala.toSeq*) match {
     case Array(tier1, tier2, tier3, tier4, tier5, tier6) =>
       Array(tier1: Int, tier2: Int, tier3: Int, tier4: Int, tier5: Int, tier6: Int)
@@ -511,6 +513,9 @@ class Settings(val config: Config) {
 
   // >= 1.8.8
   val httpUserAgent = config.getString("internet.httpUserAgent")
+
+  // >= 1.8.10
+  val maxClipboardTextLength = config.getInt("misc.maxClipboard") max 0
 }
 
 object Settings {
@@ -544,13 +549,13 @@ object Settings {
     // reportedly fixed the problem.
     val defaults = {
       val in = classOf[Settings].getResourceAsStream("/application.conf")
-      val config = Source.fromInputStream(in)(Codec.UTF8).getLines().mkString("", EOL, EOL)
+      val config = Source.fromInputStream(in)(using Codec.UTF8).getLines().mkString("", EOL, EOL)
       in.close()
       ConfigFactory.parseString(config)
     }
     val config =
       try {
-        val plain = Source.fromFile(file)(Codec.UTF8).getLines().mkString("", EOL, EOL)
+        val plain = Source.fromFile(file)(using Codec.UTF8).getLines().mkString("", EOL, EOL)
         val config = patchConfig(ConfigFactory.parseString(plain), defaults).withFallback(defaults)
         settings = new Settings(config.getConfig("opencomputers"))
         config
@@ -612,6 +617,10 @@ object Settings {
     // Upgrading to version 1.8.0, changed meaning of limitFlightHeight value,
     VersionRange.createFromVersionSpec("[0.0, 1.8.0)") -> Array(
       "computer.robot.limitFlightHeight"
+    ),
+    // Upgrading to version 1.8.10, maxClipboard is properly respected now.
+    VersionRange.createFromVersionSpec("[0.0, 1.8.10)") -> Array(
+      "misc.maxClipboard"
     )
   )
   private val fileringRulesPatchVersion = VersionRange.createFromVersionSpec("[0.0, 1.8.3)")

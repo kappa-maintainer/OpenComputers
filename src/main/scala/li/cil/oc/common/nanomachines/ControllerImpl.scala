@@ -28,6 +28,7 @@ import net.minecraft.potion.PotionEffect
 import net.minecraft.util.{DamageSource, EnumParticleTypes, ResourceLocation}
 import net.minecraft.world.World
 
+import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
@@ -66,9 +67,9 @@ class ControllerImpl(val player: EntityPlayer) extends Controller with WirelessE
       val (dx, dy, dz) = ((sender.x + 0.5) - player.posX, (sender.y + 0.5) - player.posY, (sender.z + 0.5) - player.posZ)
       val dSquared = Math.sqrt(dx * dx + dy * dy + dz * dz)
       if (dSquared <= CommandRange) packet.data.headOption match {
-        case Some(header: Array[Byte]) if new String(header, Charsets.UTF_8) == "nanomachines" =>
+        case Some(header: Array[Byte]) if new String(header, StandardCharsets.UTF_8) == "nanomachines" =>
           val command = packet.data.drop(1).map {
-            case value: Array[Byte] => new String(value, Charsets.UTF_8)
+            case value: Array[Byte] => new String(value, StandardCharsets.UTF_8)
             case value => value
           }
           command match {

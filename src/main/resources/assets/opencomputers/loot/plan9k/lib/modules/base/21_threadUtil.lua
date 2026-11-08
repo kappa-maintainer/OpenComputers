@@ -1,4 +1,4 @@
-function joinThread(pid)
+function joinThread(pid)  -- @pluto_warnings: disable-all
     --coroutine.yield("yield", 0)
     while true do
         local dead = coroutine.yield("kill")

@@ -37,7 +37,7 @@ class UserdataAPI(owner: NativeLuaArchitecture) extends NativeLuaAPI(owner) {
       try {
         val className = lua.toString(1)
         val clazz = Class.forName(className)
-        val persistable = clazz.newInstance.asInstanceOf[Persistable]
+        val persistable = clazz.getConstructor().newInstance().asInstanceOf[Persistable]
         val data = lua.toByteArray(2)
         val bais = new ByteArrayInputStream(data)
         val dis = new DataInputStream(bais)

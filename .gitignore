@@ -24,7 +24,6 @@
 
 # OS X
 .DS_Store
-/run
 
 # VSCode
 /.vscode
@@ -33,3 +32,6 @@
 /config
 /options.txt
 /usernamecache.json
+
+# pi
+/.pi*

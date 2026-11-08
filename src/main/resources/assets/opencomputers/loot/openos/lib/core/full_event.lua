@@ -1,4 +1,4 @@
-local event = require("event")
+local event = require("event")  -- @pluto_warnings: disable-all
 
 local function createMultipleFilter(...)
   local filter = table.pack(...)
